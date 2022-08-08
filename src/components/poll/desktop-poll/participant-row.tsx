@@ -6,8 +6,8 @@ import CompactButton from "@/components/compact-button";
 import Pencil from "@/components/icons/pencil-alt.svg";
 import Trash from "@/components/icons/trash.svg";
 import { usePoll } from "@/components/poll-context";
-import { useSession } from "@/components/session";
 
+import { useUser } from "../../user-provider";
 import { ParticipantFormSubmitted } from "../types";
 import { useDeleteParticipantModal } from "../use-delete-participant-modal";
 import UserAvatar from "../user-avatar";
@@ -108,10 +108,10 @@ const ParticipantRow: React.VoidFunctionComponent<ParticipantRowProps> = ({
 
   const confirmDeleteParticipant = useDeleteParticipantModal();
 
-  const session = useSession();
+  const { user } = useUser();
   const { poll, getVote, options } = usePoll();
 
-  const isYou = session.user && session.ownsObject(participant) ? true : false;
+  const isYou = user.id === participant.userId ? true : false;
 
   const isUnclaimed = !participant.userId;
 

@@ -6,10 +6,10 @@ import React from "react";
 
 import FullPageLoader from "@/components/full-page-loader";
 import { PollContextProvider } from "@/components/poll-context";
-import { withSession } from "@/components/session";
 
+import { AppLayout, AppPage } from "../components/app-layout";
 import { ParticipantsProvider } from "../components/participants-provider";
-import StandardLayout from "../components/standard-layout";
+import { withUserSession } from "../components/user-provider";
 import { withSessionSsr } from "../utils/auth";
 import { trpc } from "../utils/trpc";
 import { withPageTranslations } from "../utils/with-page-translations";
@@ -36,11 +36,13 @@ const PollPageLoader: NextPage = () => {
   if (poll) {
     return (
       <ParticipantsProvider pollId={poll.id}>
-        <StandardLayout>
-          <PollContextProvider poll={poll} urlId={urlId} admin={admin}>
-            <PollPage />
-          </PollContextProvider>
-        </StandardLayout>
+        <AppLayout>
+          <AppPage title={poll.title}>
+            <PollContextProvider poll={poll} urlId={urlId} admin={admin}>
+              <PollPage />
+            </PollContextProvider>
+          </AppPage>
+        </AppLayout>
       </ParticipantsProvider>
     );
   }
@@ -56,4 +58,4 @@ export const getServerSideProps: GetServerSideProps = withSessionSsr(
   withPageTranslations(["common", "app", "errors"]),
 );
 
-export default withSession(PollPageLoader);
+export default withUserSession(PollPageLoader);

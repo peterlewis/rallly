@@ -12,6 +12,7 @@ import Logout from "@/components/icons/logout.svg";
 import Logo from "~/public/logo.svg";
 
 import { DayjsProvider } from "../utils/dayjs";
+import ModalProvider from "./modal/modal-provider";
 import { useUser } from "./user-provider";
 
 const NavigationItem: React.VoidFunctionComponent<{
@@ -85,47 +86,53 @@ export const AppLayout: React.VFC<{
   const { t } = useTranslation("app");
   return (
     <DayjsProvider>
-      <div className="flex h-full min-w-fit">
-        <div className="flex w-64 shrink-0 flex-col bg-white">
-          <div className="grow">
-            <div className="p-6">
-              <Logo className="h-6 text-primary-600" />
-            </div>
-            <div className="p-4">
-              <div>
-                <NavigationItem icon={Folder} href="/polls">
-                  {t("meetingPolls")}
-                </NavigationItem>
+      <ModalProvider>
+        <div className="flex h-full min-w-fit">
+          <div className="flex w-64 shrink-0 flex-col bg-white">
+            <div className="grow">
+              <div className="p-6">
+                <Link href="/">
+                  <a>
+                    <Logo className="h-6 text-primary-600" />
+                  </a>
+                </Link>
               </div>
-            </div>
-          </div>
-          <div className="flex items-start justify-between space-x-3 rounded-lg p-6">
-            <div className="flex min-w-0 items-center space-x-3">
-              <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cyan-500 text-sm font-bold uppercase text-cyan-100">
-                {user.id[0]}
-              </div>
-              {user.isGuest ? (
-                <div></div>
-              ) : (
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold">{user.name}</div>
-                  <div className="truncate text-xs text-gray-500">
-                    {user.email}
-                  </div>
+              <div className="p-4">
+                <div>
+                  <NavigationItem icon={Folder} href="/polls">
+                    {t("meetingPolls")}
+                  </NavigationItem>
                 </div>
-              )}
+              </div>
             </div>
-            <div className="shrink-0">
-              <Link href="/logout">
-                <a className="inline-flex h-6 w-6 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-200 hover:text-primary-600">
-                  <Logout className="h-5" />
-                </a>
-              </Link>
+            <div className="flex items-start justify-between space-x-3 rounded-lg p-6">
+              <div className="flex min-w-0 items-center space-x-3">
+                <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cyan-500 text-sm font-bold uppercase text-cyan-100">
+                  {user.id[0]}
+                </div>
+                {user.isGuest ? (
+                  <div></div>
+                ) : (
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold">{user.name}</div>
+                    <div className="truncate text-xs text-gray-500">
+                      {user.email}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="shrink-0">
+                <Link href="/logout">
+                  <a className="inline-flex h-6 w-6 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-200 hover:text-primary-600">
+                    <Logout className="h-5" />
+                  </a>
+                </Link>
+              </div>
             </div>
           </div>
+          <div className="grow overflow-y-scroll bg-white">{children}</div>
         </div>
-        <div className="grow overflow-y-scroll bg-white">{children}</div>
-      </div>
+      </ModalProvider>
     </DayjsProvider>
   );
 };

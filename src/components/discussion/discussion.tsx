@@ -17,7 +17,7 @@ import NameInput from "../name-input";
 import TruncatedLinkify from "../poll/truncated-linkify";
 import UserAvatar from "../poll/user-avatar";
 import { usePoll } from "../poll-context";
-import { isUnclaimed, useSession } from "../session";
+import { useUser } from "../user-provider";
 
 interface CommentForm {
   authorName: string;
@@ -39,11 +39,11 @@ const Discussion: React.VoidFunctionComponent = () => {
     },
   );
 
+  const { user } = useUser();
   const plausible = usePlausible();
 
   const addComment = trpc.useMutation("polls.comments.add", {
     onSuccess: (newComment) => {
-      session.refresh();
       queryClient.setQueryData(
         ["polls.comments.list", { pollId }],
         (existingComments = []) => {
@@ -67,8 +67,6 @@ const Discussion: React.VoidFunctionComponent = () => {
       plausible("Deleted comment");
     },
   });
-
-  const session = useSession();
 
   const { register, reset, control, handleSubmit, formState } =
     useForm<CommentForm>({
@@ -95,7 +93,7 @@ const Discussion: React.VoidFunctionComponent = () => {
         <AnimatePresence initial={false}>
           {comments.map((comment) => {
             const canDelete =
-              poll.admin || session.ownsObject(comment) || isUnclaimed(comment);
+              poll.admin || !comment.userId || comment.userId === user.id;
 
             return (
               <motion.div
@@ -118,7 +116,7 @@ const Discussion: React.VoidFunctionComponent = () => {
                     <UserAvatar
                       name={comment.authorName}
                       showName={true}
-                      isYou={session.ownsObject(comment)}
+                      isYou={user.id === comment.userId}
                     />
                     <div className="mb-1">
                       <span className="mr-1 text-slate-400">&bull;</span>
@@ -169,7 +167,6 @@ const Discussion: React.VoidFunctionComponent = () => {
           <div>
             <Controller
               name="authorName"
-              key={session.user?.id}
               control={control}
               rules={{ validate: requiredString }}
               render={({ field }) => (

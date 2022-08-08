@@ -18,8 +18,8 @@ import { Button } from "../button";
 import { styleMenuItem } from "../menu-styles";
 import NameInput from "../name-input";
 import { useParticipants } from "../participants-provider";
-import { isUnclaimed, useSession } from "../session";
 import TimeZonePicker from "../time-zone-picker";
+import { useUser } from "../user-provider";
 import GroupedOptions from "./mobile-poll/grouped-options";
 import {
   normalizeVotes,
@@ -50,7 +50,7 @@ const MobilePoll: React.VoidFunctionComponent = () => {
   const { participants } = useParticipants();
   const { timeZone } = poll;
 
-  const session = useSession();
+  const { user } = useUser();
 
   const form = useForm<ParticipantForm>({
     defaultValues: {
@@ -67,13 +67,10 @@ const MobilePoll: React.VoidFunctionComponent = () => {
       // don't select a particpant if admin
       return;
     }
-    const { user } = session;
-    if (user) {
-      const userParticipant = participants.find(
-        (participant) => participant.userId === user.id,
-      );
-      return userParticipant?.id;
-    }
+    const userParticipant = participants.find(
+      (participant) => participant.userId === user.id,
+    );
+    return userParticipant?.id;
   });
 
   const selectedParticipant = selectedParticipantId
@@ -141,7 +138,7 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                           <UserAvatar
                             name={selectedParticipant.name}
                             showName={true}
-                            isYou={session.ownsObject(selectedParticipant)}
+                            isYou={selectedParticipant.userId === user.id}
                           />
                         </div>
                       ) : (
@@ -172,7 +169,7 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                           <UserAvatar
                             name={participant.name}
                             showName={true}
-                            isYou={session.ownsObject(participant)}
+                            isYou={participant.userId === user.id}
                           />
                         </div>
                       </Listbox.Option>
@@ -216,9 +213,9 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                     // if user is  participant (not admin)
                     (!poll.admin &&
                       // and does not own this participant
-                      !session.ownsObject(selectedParticipant) &&
+                      selectedParticipant.userId !== user.id &&
                       // and the participant has been claimed by a different user
-                      !isUnclaimed(selectedParticipant))
+                      selectedParticipant.userId !== null)
                     // not allowed to edit
                   }
                   onClick={() => {
@@ -241,9 +238,9 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                     // if user is  participant (not admin)
                     (!poll.admin &&
                       // and does not own this participant
-                      !session.ownsObject(selectedParticipant) &&
+                      selectedParticipant.userId !== user.id &&
                       // or the participant has been claimed by a different user
-                      !isUnclaimed(selectedParticipant))
+                      selectedParticipant.userId !== null)
                     // not allowed to edit
                   }
                   data-testid="delete-participant-button"
