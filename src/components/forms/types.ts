@@ -1,5 +1,5 @@
 import { PollDetailsData } from "./poll-details-form";
-import { PollOptionsData } from "./poll-options-form/poll-options-form";
+import { PollOptionsData } from "./poll-options-form";
 import { UserDetailsData } from "./user-details-form";
 
 export interface NewEventData {
