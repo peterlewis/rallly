@@ -105,14 +105,7 @@ export const polls = createRouter()
           verified: !ctx.user.isGuest,
           adminUrlId,
           participantUrlId: await nanoid(),
-          user: ctx.user.isGuest
-            ? undefined
-            : {
-                connect: {
-                  email: ctx.user.email,
-                },
-              },
-          userId: ctx.user.isGuest ? ctx.user.id : undefined,
+          userId: ctx.user.id,
           options: {
             createMany: {
               data: input.options.map((value) => ({
