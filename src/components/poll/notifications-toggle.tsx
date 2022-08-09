@@ -24,7 +24,7 @@ const NotificationsToggle: React.VoidFunctionComponent = () => {
   return (
     <Tooltip
       content={
-        !user.isGuest ? (
+        poll.user ? (
           poll.notifications ? (
             <div>
               <div className="font-medium text-primary-300">
