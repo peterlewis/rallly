@@ -17,6 +17,8 @@ import Discord from "./icons/discord.svg";
 import Github from "./icons/github.svg";
 import Twitter from "./icons/twitter.svg";
 import ModalProvider from "./modal/modal-provider";
+import Popover from "./popover";
+import Preferences from "./preferences";
 import { useUser } from "./user-provider";
 
 const Footer = () => {
@@ -134,15 +136,21 @@ export const AppLayout: React.VFC<{
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button
-                    type="button"
-                    className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
+                  <Popover
+                    trigger={
+                      <button
+                        type="button"
+                        className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
+                      >
+                        <Adjustments className="h-5 opacity-75" />
+                        <span className="ml-2 hidden sm:block">
+                          {t("preferences")}
+                        </span>
+                      </button>
+                    }
                   >
-                    <Adjustments className="h-5 opacity-75" />
-                    <span className="ml-2 hidden sm:block">
-                      {t("preferences")}
-                    </span>
-                  </button>
+                    <Preferences />
+                  </Popover>
                   {user.isGuest ? (
                     <Link href="/login">
                       <a className="flex w-full items-center space-x-2 whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300">
