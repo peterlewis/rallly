@@ -7,7 +7,6 @@ import * as React from "react";
 
 import Folder from "@/components/icons/calendar.svg";
 import ChevronRight from "@/components/icons/chevron-right.svg";
-import Home from "@/components/icons/home.svg";
 import Logout from "@/components/icons/logout.svg";
 import Logo from "~/public/logo.svg";
 
@@ -29,8 +28,8 @@ const NavigationItem: React.VoidFunctionComponent<{
         className={clsx(
           "transition-color flex items-center rounded-md px-4 py-2",
           {
-            "bg-gray-200/75 text-slate-700": selected,
-            "text-slate-500 hover:text-primary-600": !selected,
+            "pointer-events-none bg-slate-300/30 text-slate-700": selected,
+            "text-slate-500 hover:text-primary-500": !selected,
           },
         )}
       >
@@ -45,23 +44,19 @@ export const AppPage: React.VFC<{
   children?: React.ReactNode;
   title: string;
   actions?: React.ReactNode;
-  breadcrumbs?: Array<{ title: string; href: string }>;
+  breadcrumbs?: Array<{ title: React.ReactNode; href: string }>;
 }> = ({ children, title, actions, breadcrumbs }) => {
   return (
-    <div className="max-w-5xl px-4 pb-6">
+    <div className="px-8 pb-6">
       <Head>
         <title>{title}</title>
       </Head>
       <div className="flex h-16 w-full items-center justify-between">
         <div className="flex items-center space-x-1">
-          <Home className="mr-1 h-5 text-gray-400" />
-          <span className="text-gray-400">
-            <ChevronRight className="inline-block h-5" />
-          </span>
           {breadcrumbs?.map((breadcrumb, i) => (
             <span key={i}>
               <Link href={breadcrumb.href}>
-                <a className="mr-1 h-9 rounded-md px-2 py-1 text-gray-500 hover:bg-gray-100 hover:text-gray-600">
+                <a className="mr-1 h-9 py-1 text-gray-500 hover:text-gray-600">
                   {breadcrumb.title}
                 </a>
               </Link>
@@ -70,11 +65,11 @@ export const AppPage: React.VFC<{
               </span>
             </span>
           ))}
-          <span className="px-2 py-1 font-bold">{title}</span>
+          <span className="font-medium">{title}</span>
         </div>
         {actions}
       </div>
-      <div>{children}</div>
+      <div className="mx-auto max-w-4xl">{children}</div>
     </div>
   );
 };
@@ -88,12 +83,12 @@ export const AppLayout: React.VFC<{
     <DayjsProvider>
       <ModalProvider>
         <div className="flex h-full min-w-fit">
-          <div className="flex w-64 shrink-0 flex-col bg-white">
+          <div className="flex w-64 shrink-0 flex-col bg-slate-300/20">
             <div className="grow">
-              <div className="p-6">
+              <div className="py-6 px-8">
                 <Link href="/">
                   <a>
-                    <Logo className="h-6 text-primary-600" />
+                    <Logo className="h-6 text-primary-500" />
                   </a>
                 </Link>
               </div>

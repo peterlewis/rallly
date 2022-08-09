@@ -37,7 +37,12 @@ const PollPageLoader: NextPage = () => {
     return (
       <ParticipantsProvider pollId={poll.id}>
         <AppLayout>
-          <AppPage title={poll.title}>
+          <AppPage
+            breadcrumbs={[
+              { title: <>&larr; {t("meetingPolls")}</>, href: "/polls" },
+            ]}
+            title={poll.title}
+          >
             <PollContextProvider poll={poll} urlId={urlId} admin={admin}>
               <PollPage />
             </PollContextProvider>

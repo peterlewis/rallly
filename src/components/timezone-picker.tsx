@@ -26,6 +26,13 @@ const RadioOption: React.VoidFunctionComponent<{
       )}
       onClick={onClick}
     >
+      <div className="grow">
+        <div className="mb-2 flex items-center">
+          <Icon className="mr-2 inline-block w-5 text-slate-400" />
+          <div className="font-bold">{title}</div>
+        </div>
+        <div className="text-sm text-gray-500">{description}</div>
+      </div>
       <div
         className={clsx(
           "mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2",
@@ -47,13 +54,6 @@ const RadioOption: React.VoidFunctionComponent<{
           </motion.span>
         </AnimatePresence>
       </div>
-      <div className="grow">
-        <div className="flex items-center">
-          <div className="font-bold">{title}</div>
-          <Icon className="ml-1 inline-block w-5" />
-        </div>
-        <div className="text-gray-500">{description}</div>
-      </div>
     </div>
   );
 };
@@ -71,21 +71,21 @@ export const TimezonePicker: React.VoidFunctionComponent<{
     >
       <RadioOption
         className="w-1/2 max-w-sm"
-        icon={LocationMarker}
-        title="On-site"
-        description="All participants will see the same times."
-        active={value === ""}
-        onClick={() => onChange("")}
-      />
-      <RadioOption
-        className="w-1/2 max-w-sm"
         icon={Globe}
-        title="Remote"
+        title="Automatic"
         description="Participants will see times adjusted to their timezone."
         active={!!value}
         onClick={() => {
           onChange(Intl.DateTimeFormat().resolvedOptions().timeZone);
         }}
+      />
+      <RadioOption
+        className="w-1/2 max-w-sm"
+        icon={LocationMarker}
+        title="Fixed"
+        description="All participants will see the same times."
+        active={value === ""}
+        onClick={() => onChange("")}
       />
     </div>
   );

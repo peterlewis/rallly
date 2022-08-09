@@ -131,13 +131,18 @@ const PollOptionsForm: React.VoidFunctionComponent<
       {calendarHelpModal}
       {dateOrTimeRangeModal}
       <div className="space-y-4">
+        <div>
+          <label className="mb-2 font-medium">{t("timeZone")}</label>
+          <TimezonePicker
+            value={isAllDayEvent ? undefined : watchTimeZone}
+            disabled={isAllDayEvent}
+            onChange={(timezone) => {
+              setValue("timeZone", timezone);
+            }}
+          />
+        </div>
         <div className="flex items-start justify-between">
-          <div>
-            <div className="font-bold">Poll options</div>
-            <div className="text-gray-500">
-              Select a few options for participants to choose from.
-            </div>
-          </div>
+          <label className="mb-2 font-medium">{t("pollOptions")}</label>
         </div>
         <div className="overflow-hidden rounded-md border bg-white shadow-sm">
           <div className="flex justify-center border-b p-3">
@@ -164,7 +169,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
               ]}
             />
           </div>
-          <div className="h-[calc(100vh-100px)] max-h-[800px] min-h-[400px]">
+          <div className="h-[calc(100vh-100px)] max-h-[640px] min-h-[400px]">
             <selectedView.Component
               title={title}
               options={watchOptions}
@@ -203,20 +208,6 @@ const PollOptionsForm: React.VoidFunctionComponent<
             ) : null}
           </div>
         </div>
-        <div>
-          <div className="font-bold">Meeting type</div>
-          <div className="text-gray-500">
-            Choose a meeting type to determine how times are displayed to your
-            participants.
-          </div>
-        </div>
-        <TimezonePicker
-          value={isAllDayEvent ? undefined : watchTimeZone}
-          disabled={isAllDayEvent}
-          onChange={(timezone) => {
-            setValue("timeZone", timezone);
-          }}
-        />
       </div>
     </form>
   );

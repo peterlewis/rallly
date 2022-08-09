@@ -118,7 +118,7 @@ const PollPage: NextPage = () => {
   );
   return (
     <UserAvatarProvider seed={poll.id} names={names}>
-      <div className="relative max-w-full py-4 md:px-4">
+      <div className="relative max-w-full py-4">
         <Head>
           <title>{poll.title}</title>
           <meta name="robots" content="noindex,nofollow" />
@@ -259,7 +259,6 @@ const PollPage: NextPage = () => {
               {participants ? <PollComponent /> : null}
             </React.Suspense>
           </div>
-
           <React.Suspense fallback={<div className="p-4">{t("loading")}</div>}>
             <Discussion />
           </React.Suspense>

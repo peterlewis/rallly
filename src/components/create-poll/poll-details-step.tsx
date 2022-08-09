@@ -23,20 +23,13 @@ export const ProceedingDetailsStep: React.VoidFunctionComponent<{
 
   return (
     <div>
-      <div className="mb-4">
-        <div className="font-bold">Poll details</div>
-        <div className="text-gray-500">
-          Enter the following details to create a new poll.
-        </div>
-      </div>
       <form
         id={formId}
         onSubmit={handleSubmit((data) => {
           onSubmit(data);
         })}
-        className="card p-4"
       >
-        <div className="mb-4 max-w-lg space-y-4">
+        <div className="max-w-lg space-y-4">
           <fieldset>
             <label className="mb-2 font-medium">{t("title")}</label>
             <TextInput
@@ -58,7 +51,7 @@ export const ProceedingDetailsStep: React.VoidFunctionComponent<{
             <textarea
               className="input w-full"
               rows={5}
-              placeholder="Please select the times when you are available."
+              placeholder={t("descriptionPlaceholder")}
               {...register("description")}
             />
           </fieldset>

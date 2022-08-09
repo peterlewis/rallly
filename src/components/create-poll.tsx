@@ -5,6 +5,7 @@ import * as React from "react";
 
 import ChevronLeft from "@/components/icons/chevron-left.svg";
 
+import { getBrowserTimeZone } from "../utils/date-time-utils";
 import { trpc } from "../utils/trpc";
 import { AppLayout, AppPage } from "./app-layout";
 import { Button } from "./button";
@@ -32,7 +33,7 @@ const initialState: NewPollState = {
     duration: 30,
     options: [],
     view: "month",
-    timeZone: "",
+    timeZone: getBrowserTimeZone(),
   },
 };
 
@@ -94,9 +95,18 @@ const NewProceeding: React.VoidFunctionComponent = () => {
 
   return (
     <AppLayout>
-      <AppPage title="New poll">
+      <AppPage
+        breadcrumbs={[
+          {
+            title: <>&larr; {t("meetingPolls")}</>,
+            href: "/polls",
+          },
+        ]}
+        title={t("newPoll")}
+      >
         <NewPollContext.Provider value={{ state, dispatch }}>
-          <div className="h-full space-y-8">
+          <div className="mb-4 text-2xl">{t("createPollTitle")}</div>
+          <div className="h-full space-y-4">
             {(() => {
               switch (state.step) {
                 case 0:
@@ -133,10 +143,7 @@ const NewProceeding: React.VoidFunctionComponent = () => {
               }
             })()}
           </div>
-          <motion.div
-            layout="position"
-            className="mt-4 flex items-center justify-end"
-          >
+          <motion.div layout="position" className="mt-4 flex items-center">
             <div className="flex space-x-3">
               <Button
                 disabled={isFirstStep}
@@ -153,7 +160,7 @@ const NewProceeding: React.VoidFunctionComponent = () => {
                   {state.step < 1 ? (
                     <>{t("continue")} &rarr;</>
                   ) : (
-                    "Create proceeding"
+                    t("createPoll")
                   )}
                 </div>
               </Button>

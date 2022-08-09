@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import dayjs from "dayjs";
 import React from "react";
 import { Calendar } from "react-big-calendar";
 import { useMount } from "react-use";
@@ -8,7 +9,9 @@ import { useDayjs } from "../../../utils/dayjs";
 import DateNavigationToolbar from "./date-navigation-toolbar";
 import dayjsLocalizer from "./dayjs-localizer";
 import { DateTimeOption, DateTimePickerProps } from "./types";
-import { formatDateWithoutTime, formatDateWithoutTz } from "./utils";
+import { toIsoDate, toIsoDateTime } from "./utils";
+
+const localizer = dayjsLocalizer(dayjs);
 
 const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   title,
@@ -20,9 +23,8 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   onChangeDuration,
 }) => {
   const [scrollToTime, setScrollToTime] = React.useState<Date>();
-  const { dayjs, timeFormat } = useDayjs();
-  const localizer = React.useMemo(() => dayjsLocalizer(dayjs), [dayjs]);
 
+  const { timeFormat } = useDayjs();
   useMount(() => {
     // Bit of a hack to force rbc to scroll to the right time when we close/open a modal
     setScrollToTime(dayjs(date).add(-60, "minutes").toDate());
@@ -45,7 +47,7 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
       culture="default"
       onNavigate={onNavigate}
       date={date}
-      className="h-[calc(100vh-220px)] max-h-[800px] min-h-[400px] w-full"
+      className="w-full"
       defaultView="week"
       views={["week"]}
       selectable={true}
@@ -56,9 +58,9 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
             (option) =>
               !(
                 option.type === "time" &&
-                option.start === formatDateWithoutTz(event.start) &&
+                option.start === toIsoDateTime(event.start) &&
                 event.end &&
-                option.end === formatDateWithoutTz(event.end)
+                option.end === toIsoDateTime(event.end)
               ),
           ),
         );
@@ -81,14 +83,15 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
             />
           );
         },
-        eventWrapper: function EventWraper(props) {
-          const start = dayjs(props.event.start);
-          const end = dayjs(props.event.end);
+        eventWrapper: function EventWrapper(props) {
+          // TODO (Luke Vella) [2022-07-15]: it looks like it's possible that end
+          // can be undefined here but maybe that shouldn't be the case.
+          const { start, end } = props.event;
           return (
             <div
               // onClick prop doesn't work properly. Seems like some other element is cancelling the event before it reaches this element
               onMouseUp={props.onClick}
-              className="absolute ml-1 max-h-full overflow-hidden rounded-md bg-green-100 p-1 text-xs text-green-500 transition-colors"
+              className="absolute ml-1 max-h-full overflow-hidden rounded-md bg-primary-100 p-1 text-xs text-primary-500 transition-colors"
               style={{
                 top: `calc(${props.style?.top}% + 4px)`,
                 height: `calc(${props.style?.height}% - 8px)`,
@@ -96,15 +99,17 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                 width: `calc(${props.style?.width}%)`,
               }}
             >
-              <div>{start.format("LT")}</div>
-              <div className="font-semibold">{getDuration(start, end)}</div>
+              <div>{dayjs(start).format("LT")}</div>
+              <div className="font-semibold">
+                {getDuration(start, end ?? start)}
+              </div>
             </div>
           );
         },
         week: {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           header: function Header({ date }: any) {
-            const dateString = formatDateWithoutTime(date);
+            const dateString = toIsoDate(date);
             const selectedOption = options.find((option) => {
               return option.type === "date" && option.date === dateString;
             });
@@ -116,7 +121,7 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                       ...options,
                       {
                         type: "date",
-                        date: formatDateWithoutTime(date),
+                        date: toIsoDate(date),
                       },
                     ]);
                   } else {
@@ -128,7 +133,7 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                 className={clsx(
                   "inline-flex w-full items-center justify-center rounded-md py-2 text-sm hover:bg-slate-50 hover:text-gray-700",
                   {
-                    "bg-green-50 text-green-600 hover:bg-green-50 hover:bg-opacity-75 hover:text-green-600":
+                    "bg-primary-50 text-primary-600 hover:bg-primary-50 hover:bg-opacity-75 hover:text-primary-600":
                       !!selectedOption,
                   },
                 )}
@@ -153,8 +158,8 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
 
         const newEvent: DateTimeOption = {
           type: "time",
-          start: formatDateWithoutTz(startDate),
-          end: formatDateWithoutTz(endDate),
+          start: toIsoDateTime(startDate),
+          end: toIsoDateTime(endDate),
         };
 
         if (action === "select") {
@@ -163,7 +168,7 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
             onChangeDuration(diff);
           }
         } else {
-          newEvent.end = formatDateWithoutTz(
+          newEvent.end = toIsoDateTime(
             dayjs(startDate).add(duration, "minutes").toDate(),
           );
         }

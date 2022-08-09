@@ -49,5 +49,13 @@ export function middleware({ headers, cookies, nextUrl }: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:id", "/demo", "/p/:id", "/profile", "/new", "/login"],
+  matcher: [
+    "/admin/:id",
+    "/demo",
+    "/p/:id",
+    "/profile",
+    "/new",
+    "/login",
+    "/polls",
+  ],
 };

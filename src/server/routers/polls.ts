@@ -141,6 +141,37 @@ export const polls = createRouter()
       return { urlId: adminUrlId };
     },
   })
+  .query("list", {
+    resolve: async ({ ctx }) => {
+      const polls = await prisma.poll.findMany({
+        select: {
+          title: true,
+          id: true,
+          adminUrlId: true,
+          createdAt: true,
+          type: true,
+          closed: true,
+          updatedAt: true,
+          notifications: true,
+          _count: {
+            select: {
+              participants: true,
+              comments: true,
+            },
+          },
+        },
+        where: {
+          userId: ctx.user.id,
+          deleted: false,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      return polls;
+    },
+  })
   .query("get", {
     input: z.object({
       urlId: z.string(),

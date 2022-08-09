@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import {
   DateTimeOption,
   TimeOption,
-} from "../components/forms/poll-options-form";
+} from "../components/forms/poll-options-form/types";
 
 export const getBrowserTimeZone = () =>
   Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -38,9 +38,14 @@ export type ParsedDateTimeOpton = ParsedDateOption | ParsedTimeSlotOption;
 
 const isTimeSlot = (value: string) => value.indexOf("/") !== -1;
 
-export const getDuration = (startTime: dayjs.Dayjs, endTime: dayjs.Dayjs) => {
-  const hours = Math.floor(endTime.diff(startTime, "hours"));
-  const minutes = Math.floor(endTime.diff(startTime, "minute") - hours * 60);
+export const getDuration = (
+  startTime: Date | string,
+  endTime: Date | string,
+) => {
+  const hours = Math.floor(dayjs(endTime).diff(startTime, "hours"));
+  const minutes = Math.floor(
+    dayjs(endTime).diff(startTime, "minute") - hours * 60,
+  );
   let res = "";
   if (hours) {
     res += `${hours}h`;
@@ -121,7 +126,7 @@ const parseTimeSlotOption = (
     day: startDate.format("D"),
     dow: startDate.format("ddd"),
     month: startDate.format("MMM"),
-    duration: getDuration(startDate, endDate),
+    duration: getDuration(startDate.toDate(), endDate.toDate()),
     year: startDate.format("YYYY"),
   };
 };
