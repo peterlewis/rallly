@@ -33,13 +33,7 @@ export const sendNotification = async (
      * - not be a demo
      * - have notifications turned on
      */
-    if (
-      poll &&
-      poll?.user.email &&
-      poll.verified &&
-      !poll.demo &&
-      poll.notifications
-    ) {
+    if (poll && poll.user && !poll.demo && poll.notifications) {
       const homePageUrl = absoluteUrl();
       const pollUrl = `${homePageUrl}/admin/${poll.adminUrlId}`;
       const unsubscribeUrl = `${pollUrl}?unsubscribe=true`;
@@ -52,7 +46,7 @@ export const sendNotification = async (
             subject: `Rallly: ${poll.title} - New Participant`,
             templateVars: {
               title: poll.title,
-              name: poll.authorName,
+              name: poll.user.name,
               participantName: action.participantName,
               pollUrl,
               homePageUrl: absoluteUrl(),
@@ -68,7 +62,7 @@ export const sendNotification = async (
             subject: `Rallly: ${poll.title} - New Comment`,
             templateVars: {
               title: poll.title,
-              name: poll.authorName,
+              name: poll.user.name,
               author: action.authorName,
               pollUrl,
               homePageUrl: absoluteUrl(),

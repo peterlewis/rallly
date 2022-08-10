@@ -17,13 +17,11 @@ const defaultSelectFields: {
   id: true;
   timeZone: true;
   title: true;
-  authorName: true;
   location: true;
   description: true;
   createdAt: true;
   participantUrlId: true;
   adminUrlId: true;
-  verified: true;
   userId: true;
   closed: true;
   legacy: true;
@@ -40,13 +38,11 @@ const defaultSelectFields: {
   timeZone: true,
   userId: true,
   title: true,
-  authorName: true,
   location: true,
   description: true,
   createdAt: true,
   participantUrlId: true,
   adminUrlId: true,
-  verified: true,
   closed: true,
   legacy: true,
   notifications: true,
@@ -100,9 +96,7 @@ export const polls = createRouter()
           timeZone: input.timeZone,
           location: input.location,
           description: input.description,
-          authorName: ctx.user.isGuest ? "Guest" : ctx.user.name,
           demo: input.demo,
-          verified: !ctx.user.isGuest,
           adminUrlId,
           participantUrlId: await nanoid(),
           userId: ctx.user.id,

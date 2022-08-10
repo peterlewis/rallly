@@ -20,13 +20,11 @@ import { useUpdatePollMutation } from "./poll/mutations";
 import NotificationsToggle from "./poll/notifications-toggle";
 import PollSubheader from "./poll/poll-subheader";
 import TruncatedLinkify from "./poll/truncated-linkify";
-import { UnverifiedPollNotice } from "./poll/unverified-poll-notice";
 import { useTouchBeacon } from "./poll/use-touch-beacon";
 import { UserAvatarProvider } from "./poll/user-avatar";
 import VoteIcon from "./poll/vote-icon";
 import { usePoll } from "./poll-context";
 import Sharing from "./sharing";
-import { useUser } from "./user-provider";
 
 const Discussion = React.lazy(() => import("@/components/discussion"));
 
@@ -41,8 +39,6 @@ const PollPage: NextPage = () => {
   useTouchBeacon(poll.id);
 
   const { t } = useTranslation("app");
-
-  const session = useUser();
 
   const queryClient = trpc.useContext();
   const plausible = usePlausible();
@@ -70,7 +66,7 @@ const PollPage: NextPage = () => {
 
   useMount(() => {
     const { code } = router.query;
-    if (typeof code === "string" && !poll.verified) {
+    if (typeof code === "string" && !poll.user) {
       verifyEmail.mutate({ code, pollId: poll.id });
     }
   });
@@ -176,11 +172,6 @@ const PollPage: NextPage = () => {
                   </motion.div>
                 ) : null}
               </AnimatePresence>
-              {poll.verified === false ? (
-                <div className="m-4 overflow-hidden rounded-lg border p-4 md:mx-0 md:mt-0">
-                  <UnverifiedPollNotice />
-                </div>
-              ) : null}
             </>
           ) : null}
           {!poll.admin && poll.adminUrlId ? (

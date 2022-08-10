@@ -39,10 +39,8 @@ model Poll {
   userId           String        @map("user_id")
   votes            Vote[]
   timeZone         String?       @map("time_zone")
-  verified         Boolean       @default(false)
   options          Option[]
   participants     Participant[]
-  authorName       String        @default("") @map("author_name")
   demo             Boolean       @default(false)
   comments         Comment[]
   legacy           Boolean       @default(false)
