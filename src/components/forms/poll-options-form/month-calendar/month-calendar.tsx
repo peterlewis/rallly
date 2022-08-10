@@ -29,7 +29,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   onChangeDuration,
 }) => {
   const { t } = useTranslation("app");
-  const isTimedEvent = !options.some((option) => option.type === "date");
+  const isTimedEvent = options.some((option) => option.type === "time");
 
   const optionsByDay = React.useMemo(() => {
     const res: Record<
@@ -116,17 +116,17 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
         <div className="border-b shadow-sm">
           <div className="flex items-center space-x-3 p-4">
             <div className="grow">
-              <div className="font-medium">All-day event</div>
+              <div className="font-medium">{t("specifyTimes")}</div>
               <div className="text-sm text-gray-400">
-                Do not specify start and end times for this event
+                {t("specifyTimesDescription")}
               </div>
             </div>
             <div>
               <Switch
                 data-testid="specify-times-switch"
-                checked={!isTimedEvent}
+                checked={isTimedEvent}
                 onChange={(checked) => {
-                  if (!checked) {
+                  if (checked) {
                     // convert dates to time slots
                     onChange(
                       options.map((option) => {

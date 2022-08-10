@@ -7,11 +7,12 @@ import Clock from "@/components/icons/clock.svg";
 import Table from "@/components/icons/table.svg";
 import X from "@/components/icons/x.svg";
 
+import { getBrowserTimeZone } from "../../utils/date-time-utils";
 import { DateOption } from "../../utils/trpc/types";
 import { useModal } from "../modal";
 import { RadioGroup } from "../radio";
-import { TimezonePicker } from "../timezone-picker";
 import MonthCalendar from "./poll-options-form/month-calendar";
+import { TimezonePicker } from "./poll-options-form/time-zone-policy";
 import { DateTimeOption } from "./poll-options-form/types";
 import WeekCalendar from "./poll-options-form/week-calendar";
 import { PollFormProps } from "./types";
@@ -71,17 +72,16 @@ const PollOptionsForm: React.VoidFunctionComponent<
   const watchTimeZone = watch("timeZone");
 
   const [dateOrTimeRangeModal, openDateOrTimeRangeModal] = useModal({
-    title: "Wait a minute… 🤔",
-    description:
-      "You can't have both time and date options in the same poll. Which would you like to keep?",
-    okText: "Keep time options",
+    title: t("mixedOptionsTitle"),
+    description: t("mixedOptionsDescription"),
+    okText: t("mixedOptionsKeepTimes"),
     onOk: () => {
       setValue(
         "options",
         watchOptions.filter((option) => option.type === "time"),
       );
     },
-    cancelText: "Keep date options",
+    cancelText: t("mixedOptionsKeepDates"),
     onCancel: () => {
       setValue(
         "options",
@@ -118,7 +118,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
 
   const [calendarHelpModal, openHelpModal] = useModal({
     overlayClosable: true,
-    title: "Forget something?",
+    title: t("calendarHelpTitle"),
     description: t("calendarHelp"),
     okText: t("ok"),
   });
@@ -131,83 +131,83 @@ const PollOptionsForm: React.VoidFunctionComponent<
       {calendarHelpModal}
       {dateOrTimeRangeModal}
       <div className="space-y-4">
-        <div>
-          <label className="mb-2 font-medium">{t("timeZone")}</label>
-          <TimezonePicker
-            value={isAllDayEvent ? undefined : watchTimeZone}
-            disabled={isAllDayEvent}
-            onChange={(timezone) => {
-              setValue("timeZone", timezone);
-            }}
-          />
-        </div>
-        <div className="flex items-start justify-between">
+        <fieldset>
           <label className="mb-2 font-medium">{t("pollOptions")}</label>
-        </div>
-        <div className="overflow-hidden rounded-md border bg-white shadow-sm">
-          <div className="flex justify-center border-b p-3">
-            <RadioGroup
-              value={selectedView.value}
-              onChange={(value) => setValue("view", value)}
-              options={[
-                {
-                  label: (
-                    <span className="flex items-center">
-                      <Calendar className="mr-2 h-5 w-5" /> Month view
-                    </span>
-                  ),
-                  value: "month",
-                },
-                {
-                  label: (
-                    <span className="flex items-center">
-                      <Table className="mr-2 h-5 w-5" /> Week view
-                    </span>
-                  ),
-                  value: "week",
-                },
-              ]}
-            />
-          </div>
-          <div className="h-[calc(100vh-100px)] max-h-[640px] min-h-[400px]">
-            <selectedView.Component
-              title={title}
-              options={watchOptions}
-              date={navigationDate}
-              onNavigate={(date) => {
-                setValue("navigationDate", date.toISOString());
-              }}
-              onChange={(options) => {
-                setValue("options", options);
-              }}
-              duration={watchDuration}
-              onChangeDuration={(duration) => {
-                setValue("duration", duration);
-              }}
-            />
-          </div>
-          <div className="flex h-14 shrink-0 items-center justify-end space-x-4 border-t px-4">
-            {watchOptions.length > 0 ? (
-              <div className="flex h-8 items-center space-x-2 overflow-hidden rounded-md bg-primary-600/10 pl-2 text-sm text-primary-600">
-                <Clock className="h-5" />
-                <div className="">
-                  {t("optionsCount", {
-                    count: watchOptions.length,
-                  })}
+          <div className="overflow-hidden rounded-md border bg-white">
+            <div className="flex justify-center border-b p-3">
+              <RadioGroup
+                value={selectedView.value}
+                onChange={(value) => setValue("view", value)}
+                options={[
+                  {
+                    label: (
+                      <span className="flex items-center">
+                        <Calendar className="mr-2 h-5 w-5" /> {t("monthView")}
+                      </span>
+                    ),
+                    value: "month",
+                  },
+                  {
+                    label: (
+                      <span className="flex items-center">
+                        <Table className="mr-2 h-5 w-5" /> {t("weekView")}
+                      </span>
+                    ),
+                    value: "week",
+                  },
+                ]}
+              />
+            </div>
+            <div className="h-[calc(100vh-100px)] max-h-[640px] min-h-[400px]">
+              <selectedView.Component
+                title={title}
+                options={watchOptions}
+                date={navigationDate}
+                onNavigate={(date) => {
+                  setValue("navigationDate", date.toISOString());
+                }}
+                onChange={(options) => {
+                  setValue("options", options);
+                }}
+                duration={watchDuration}
+                onChangeDuration={(duration) => {
+                  setValue("duration", duration);
+                }}
+              />
+            </div>
+            <div className="flex h-14 shrink-0 items-center justify-between space-x-4 border-t px-3">
+              <TimezonePicker
+                value={watchTimeZone && !isAllDayEvent ? "auto" : "fixed"}
+                disabled={isAllDayEvent}
+                onChange={(timezone) => {
+                  setValue(
+                    "timeZone",
+                    timezone === "auto" ? getBrowserTimeZone() : "",
+                  );
+                }}
+              />
+              {watchOptions.length > 0 ? (
+                <div className="flex h-8 items-center space-x-2 overflow-hidden rounded-md bg-primary-600/10 pl-2 text-sm text-primary-600">
+                  <Clock className="h-5" />
+                  <div className="">
+                    {t("optionsCount", {
+                      count: watchOptions.length,
+                    })}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setValue("options", []);
+                    }}
+                    className="h-full border-l border-primary-600/10 px-2 text-primary-500 hover:bg-primary-500/5 active:bg-primary-500/10"
+                  >
+                    <X className="h-4" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setValue("options", []);
-                  }}
-                  className="h-full border-l border-primary-600/10 px-2 text-primary-500 hover:bg-primary-500/5 active:bg-primary-500/10"
-                >
-                  <X className="h-4" />
-                </button>
-              </div>
-            ) : null}
+              ) : null}
+            </div>
           </div>
-        </div>
+        </fieldset>
       </div>
     </form>
   );

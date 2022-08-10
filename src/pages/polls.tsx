@@ -28,10 +28,10 @@ const Polls: React.VoidFunctionComponent = () => {
 
   if (polls.length === 0) {
     return (
-      <div className="flex h-96 items-center justify-center rounded-lg border-2 border-dashed text-slate-400">
+      <div className="flex h-96 items-center justify-center text-slate-400">
         <div className="space-y-4 text-center">
           <Calendar className=" inline-block h-20" />
-          <div className="text-lg">You havent created any polls</div>
+          <div className="">You havent created any polls</div>
           <Link href="/new">
             <a className="btn-primary pr-4">
               <Plus className="-ml-1 mr-1 h-5" />

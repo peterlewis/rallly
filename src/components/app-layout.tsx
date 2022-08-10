@@ -119,7 +119,7 @@ export const AppLayout: React.VFC<{
                       <Logo className="h-6 text-primary-500" />
                     </a>
                   </Link>
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-1 rounded-lg bg-slate-500/10 py-1 px-3">
                     {breadcrumbs?.map((breadcrumb, i) => (
                       <span key={i}>
                         <Link href={breadcrumb.href}>
@@ -137,6 +137,7 @@ export const AppLayout: React.VFC<{
                 </div>
                 <div className="flex items-center space-x-2">
                   <Popover
+                    placement="bottom-end"
                     trigger={
                       <button
                         type="button"

@@ -6,6 +6,7 @@ export interface SwitchProps {
   checked?: boolean;
   onChange: (checked: boolean) => void;
   srDescription?: string;
+  disabled?: boolean;
 }
 
 const Switch: React.VoidFunctionComponent<SwitchProps> = ({
