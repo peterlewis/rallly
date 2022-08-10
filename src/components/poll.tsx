@@ -6,14 +6,12 @@ import { useTranslation } from "next-i18next";
 import { usePlausible } from "next-plausible";
 import React from "react";
 import toast from "react-hot-toast";
-import { useMount } from "react-use";
 
 import { Button } from "@/components/button";
 import LockClosed from "@/components/icons/lock-closed.svg";
 import Share from "@/components/icons/share.svg";
 import { preventWidows } from "@/utils/prevent-widows";
 
-import { trpc } from "../utils/trpc";
 import { useParticipants } from "./participants-provider";
 import ManagePoll from "./poll/manage-poll";
 import { useUpdatePollMutation } from "./poll/mutations";
@@ -40,36 +38,9 @@ const PollPage: NextPage = () => {
 
   const { t } = useTranslation("app");
 
-  const queryClient = trpc.useContext();
   const plausible = usePlausible();
 
   const { mutate: updatePollMutation } = useUpdatePollMutation();
-
-  const verifyEmail = trpc.useMutation(["polls.verification.verify"], {
-    onSuccess: () => {
-      toast.success(t("pollHasBeenVerified"));
-      queryClient.setQueryData(["polls.get", { urlId, admin }], {
-        ...poll,
-        verified: true,
-      });
-      plausible("Verified email");
-    },
-    onError: () => {
-      toast.error(t("linkHasExpired"));
-    },
-    onSettled: () => {
-      router.replace(`/admin/${router.query.urlId}`, undefined, {
-        shallow: true,
-      });
-    },
-  });
-
-  useMount(() => {
-    const { code } = router.query;
-    if (typeof code === "string" && !poll.user) {
-      verifyEmail.mutate({ code, pollId: poll.id });
-    }
-  });
 
   React.useEffect(() => {
     if (router.query.unsubscribe) {
