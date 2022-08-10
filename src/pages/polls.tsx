@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
@@ -20,13 +21,14 @@ const Polls: React.VoidFunctionComponent = () => {
   const { t } = useTranslation("app");
   const [query, setQuery] = React.useState("");
 
-  const { data: polls } = trpc.useQuery(["polls.list"]);
+  const { data } = trpc.useQuery(["polls.list"]);
+
   const { dayjs } = useDayjs();
-  if (!polls) {
+  if (!data) {
     return <FullPageLoader>{t("loading")}</FullPageLoader>;
   }
 
-  if (polls.length === 0) {
+  if (data.length === 0) {
     return (
       <div className="flex h-96 items-center justify-center text-slate-400">
         <div className="space-y-4 text-center">
@@ -42,6 +44,10 @@ const Polls: React.VoidFunctionComponent = () => {
       </div>
     );
   }
+
+  const polls = data.filter(({ title }) =>
+    title.toLowerCase().includes(query.toLowerCase()),
+  );
 
   return (
     <div>
@@ -65,7 +71,13 @@ const Polls: React.VoidFunctionComponent = () => {
       <div className="space-y-4">
         {polls.map((poll) => {
           return (
-            <div key={poll.id} className="flex rounded-lg border p-4">
+            <motion.div
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              layout="position"
+              key={poll.id}
+              className="flex rounded-lg border bg-white p-4"
+            >
               <div className="mr-4">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-500">
                   <Calendar className="h-5 text-white" />
@@ -97,7 +109,7 @@ const Polls: React.VoidFunctionComponent = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
