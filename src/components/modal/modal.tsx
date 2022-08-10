@@ -12,7 +12,7 @@ export interface ModalProps {
   okText?: string;
   cancelText?: string;
   okButtonProps?: ButtonProps;
-  onOk?: () => void;
+  onOk?: () => void | Promise<void>;
   onCancel?: () => void;
   footer?: React.ReactNode;
   content?: React.ReactNode;
@@ -36,6 +36,7 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
   showClose,
 }) => {
   const initialFocusRef = React.useRef<HTMLButtonElement>(null);
+  const [loading, setLoading] = React.useState(false);
   return (
     <AnimatePresence>
       {visible ? (
@@ -102,10 +103,13 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
                     ) : null}
                     {okText ? (
                       <Button
+                        loading={loading}
                         ref={initialFocusRef}
                         type="primary"
-                        onClick={() => {
-                          onOk?.();
+                        onClick={async () => {
+                          setLoading(true);
+                          await onOk?.();
+                          setLoading(false);
                         }}
                         {...okButtonProps}
                       >

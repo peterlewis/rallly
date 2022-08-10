@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { absoluteUrl } from "@/utils/absolute-url";
 import {
+  createGuestUser,
   createToken,
   LoginTokenPayload,
   RegistrationTokenPayload,
@@ -80,5 +81,15 @@ export const user = createRouter()
         subject: "Please confirm your email address",
         html: `<p>Hi ${input.name},</p><p>Click the link below to confirm your email address.</p><p><a href="${baseUrl}/auth-register?token=${token}">Confirm your email</a>`,
       });
+    },
+  })
+  .mutation("reset", {
+    resolve: async ({ ctx }) => {
+      if (ctx.session.user?.isGuest) {
+        ctx.session.user = await createGuestUser();
+        await ctx.session.save();
+      }
+
+      return ctx.session.user || ctx.user;
     },
   });

@@ -8,18 +8,22 @@ import * as React from "react";
 import Adjustments from "@/components/icons/adjustments.svg";
 import ChevronRight from "@/components/icons/chevron-right.svg";
 import Login from "@/components/icons/login.svg";
-import User from "@/components/icons/user-circle.svg";
+import Logout from "@/components/icons/logout.svg";
+import Question from "@/components/icons/question-mark-circle.svg";
+import User from "@/components/icons/user.svg";
+import UserCircle from "@/components/icons/user-circle.svg";
 import Logo from "~/public/logo.svg";
 
 import { DayjsProvider } from "../utils/dayjs";
+import Dropdown, { DropdownItem, DropdownProps } from "./dropdown";
 import Cash from "./icons/cash.svg";
 import Discord from "./icons/discord.svg";
 import Github from "./icons/github.svg";
 import Twitter from "./icons/twitter.svg";
-import ModalProvider from "./modal/modal-provider";
+import ModalProvider, { useModalContext } from "./modal/modal-provider";
 import Popover from "./popover";
 import Preferences from "./preferences";
-import { useUser } from "./user-provider";
+import { IfAuthenticated, IfGuest, useUser } from "./user-provider";
 
 const Footer = () => {
   const { t } = useTranslation();
@@ -84,6 +88,83 @@ const Footer = () => {
         <span>{t("app:donate")}</span>
       </a>
     </div>
+  );
+};
+
+const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
+  children,
+  ...forwardProps
+}) => {
+  const { user, resetGuestUser } = useUser();
+  const { t } = useTranslation(["common", "app"]);
+  const modalContext = useModalContext();
+  if (!user) {
+    return null;
+  }
+  return (
+    <Dropdown {...forwardProps}>
+      {children}
+      <IfAuthenticated>
+        <DropdownItem href="/profile" icon={User} label={t("app:profile")} />
+        <DropdownItem href="/logout" icon={Logout} label={t("app:logout")} />
+      </IfAuthenticated>
+      <IfGuest>
+        <DropdownItem
+          icon={Question}
+          label={t("app:whatsThis")}
+          onClick={() => {
+            modalContext.render({
+              showClose: true,
+              content: (
+                <div className="w-96 max-w-full p-6 pt-28">
+                  <div className="absolute left-0 -top-8 w-full text-center">
+                    <div className="inline-flex h-20 w-20 items-center justify-center rounded-full border-8 border-white bg-gradient-to-b from-purple-400 to-primary-500">
+                      <User className="h-7 text-white" />
+                    </div>
+                    <div className="">
+                      <div className="text-lg font-medium leading-snug">
+                        {t("app:guest")}
+                      </div>
+                      <div className="text-sm text-slate-500">{user.id}</div>
+                    </div>
+                  </div>
+                  <p>{t("app:guestSessionNotice")}</p>
+                  <div>
+                    <a
+                      href="https://support.rallly.co/guest-sessions"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {t("app:guestSessionReadMore")}
+                    </a>
+                  </div>
+                </div>
+              ),
+              overlayClosable: true,
+              footer: null,
+            });
+          }}
+        />
+        <DropdownItem
+          icon={Logout}
+          label={t("app:forgetMe")}
+          onClick={() => {
+            modalContext.render({
+              title: t("app:areYouSure"),
+              description: t("app:endingGuestSessionNotice"),
+              onOk: async () => {
+                await resetGuestUser();
+              },
+              okButtonProps: {
+                type: "danger",
+              },
+              okText: t("app:endSession"),
+              cancelText: t("app:cancel"),
+            });
+          }}
+        />
+      </IfGuest>
+    </Dropdown>
   );
 };
 
@@ -152,21 +233,28 @@ export const AppLayout: React.VFC<{
                   >
                     <Preferences />
                   </Popover>
-                  {user.isGuest ? (
+                  <IfGuest>
                     <Link href="/login">
                       <a className="flex w-full items-center space-x-2 whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300">
                         <Login className="h-5 opacity-75" />
                         <span className="inline-block">{t("login")}</span>
                       </a>
                     </Link>
-                  ) : null}
-                  <button
-                    type="button"
-                    className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
-                  >
-                    <User className="h-5 opacity-75" />
-                    <span className="ml-2 hidden sm:block">{getName()}</span>
-                  </button>
+                  </IfGuest>
+                  <UserDropdown
+                    placement="bottom-end"
+                    trigger={
+                      <button
+                        type="button"
+                        className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
+                      >
+                        <UserCircle className="h-5 opacity-75" />
+                        <span className="ml-2 hidden sm:block">
+                          {getName()}
+                        </span>
+                      </button>
+                    }
+                  ></UserDropdown>
                 </div>
               </div>
               <div className="mx-auto max-w-4xl">{children}</div>
