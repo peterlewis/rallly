@@ -85,11 +85,10 @@ export const user = createRouter()
   })
   .mutation("reset", {
     resolve: async ({ ctx }) => {
-      if (ctx.session.user?.isGuest) {
-        ctx.session.user = await createGuestUser();
-        await ctx.session.save();
-      }
+      const guestUser = await createGuestUser();
+      ctx.session.user = guestUser;
+      await ctx.session.save();
 
-      return ctx.session.user || ctx.user;
+      return guestUser;
     },
   });

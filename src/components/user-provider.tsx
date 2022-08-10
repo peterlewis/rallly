@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 import React from "react";
 
-import { UserSession } from "@/utils/auth";
+import { GuestUserSession, UserSession } from "@/utils/auth";
 
 import { trpc } from "../utils/trpc";
 import { useRequiredContext } from "./use-required-context";
@@ -9,7 +9,7 @@ import { useRequiredContext } from "./use-required-context";
 export const UserContext =
   React.createContext<{
     user: UserSession;
-    resetGuestUser: () => Promise<UserSession>;
+    reset: () => Promise<GuestUserSession>;
     setUser: React.Dispatch<React.SetStateAction<UserSession>>;
   } | null>(null);
 
@@ -49,7 +49,7 @@ export const withUserSession = <P extends { user: UserSession }>(
 ): NextPage<P> => {
   const Page: NextPage<P> = (props) => {
     const [user, setUser] = React.useState<UserSession>(props.user);
-    const resetGuestUser = trpc.useMutation("user.reset", {
+    const resetUser = trpc.useMutation("user.reset", {
       onSuccess: setUser,
     });
 
@@ -58,7 +58,7 @@ export const withUserSession = <P extends { user: UserSession }>(
         value={{
           user,
           setUser,
-          resetGuestUser: resetGuestUser.mutateAsync,
+          reset: resetUser.mutateAsync,
         }}
       >
         <Component {...props} />

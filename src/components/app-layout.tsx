@@ -1,7 +1,5 @@
-import clsx from "clsx";
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 
@@ -10,6 +8,7 @@ import ChevronRight from "@/components/icons/chevron-right.svg";
 import Login from "@/components/icons/login.svg";
 import Logout from "@/components/icons/logout.svg";
 import Question from "@/components/icons/question-mark-circle.svg";
+import Refresh from "@/components/icons/refresh.svg";
 import User from "@/components/icons/user.svg";
 import UserCircle from "@/components/icons/user-circle.svg";
 import Logo from "~/public/logo.svg";
@@ -95,7 +94,7 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
   children,
   ...forwardProps
 }) => {
-  const { user, resetGuestUser } = useUser();
+  const { user, reset } = useUser();
   const { t } = useTranslation(["common", "app"]);
   const modalContext = useModalContext();
   if (!user) {
@@ -106,7 +105,15 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
       {children}
       <IfAuthenticated>
         <DropdownItem href="/profile" icon={User} label={t("app:profile")} />
-        <DropdownItem href="/logout" icon={Logout} label={t("app:logout")} />
+        <DropdownItem
+          href="/logout"
+          onClick={async (e) => {
+            e.preventDefault();
+            await reset();
+          }}
+          icon={Logout}
+          label={t("app:logout")}
+        />
       </IfAuthenticated>
       <IfGuest>
         <DropdownItem
@@ -146,14 +153,14 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
           }}
         />
         <DropdownItem
-          icon={Logout}
+          icon={Refresh}
           label={t("app:forgetMe")}
           onClick={() => {
             modalContext.render({
               title: t("app:areYouSure"),
               description: t("app:endingGuestSessionNotice"),
               onOk: async () => {
-                await resetGuestUser();
+                await reset();
               },
               okButtonProps: {
                 type: "danger",
@@ -242,6 +249,7 @@ export const AppLayout: React.VFC<{
                     </Link>
                   </IfGuest>
                   <UserDropdown
+                    key={user.id} // make sure dropdown closes when user changes. There are nicer ways to do this.
                     placement="bottom-end"
                     trigger={
                       <button

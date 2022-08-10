@@ -108,7 +108,7 @@ export const DropdownItem: React.VoidFunctionComponent<{
   label?: React.ReactNode;
   disabled?: boolean;
   href?: string;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler;
 }> = ({ icon: Icon, label, onClick, disabled, href }) => {
   const Element = href ? AnchorLink : "button";
   return (
