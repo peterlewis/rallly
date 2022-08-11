@@ -6,35 +6,25 @@ import { useForm } from "react-hook-form";
 import { requiredString, validEmail } from "../../utils/form-validation";
 import { trpc } from "../../utils/trpc";
 import { Button } from "../button";
-import { useSession } from "../session";
 import { TextInput } from "../text-input";
-
-export interface UserDetailsProps {
-  userId: string;
-  name?: string;
-  email?: string;
-}
+import { useAuthenticatedUser } from "../user-provider";
 
 const MotionButton = motion(Button);
 
-export const UserDetails: React.VoidFunctionComponent<UserDetailsProps> = ({
-  userId,
-  name,
-  email,
-}) => {
+export const UserDetails: React.VoidFunctionComponent = () => {
   const { t } = useTranslation("app");
+  const { user, setUser } = useAuthenticatedUser();
+
   const { register, formState, handleSubmit, reset } = useForm<{
     name: string;
     email: string;
   }>({
-    defaultValues: { name, email },
+    defaultValues: { name: user.name, email: user.email },
   });
 
-  const { refresh } = useSession();
-
   const changeName = trpc.useMutation("user.changeName", {
-    onSuccess: () => {
-      refresh();
+    onSuccess: (_, { name }) => {
+      setUser({ ...user, name });
     },
   });
 
@@ -43,11 +33,11 @@ export const UserDetails: React.VoidFunctionComponent<UserDetailsProps> = ({
     <form
       onSubmit={handleSubmit(async (data) => {
         if (dirtyFields.name) {
-          await changeName.mutateAsync({ userId, name: data.name });
+          await changeName.mutateAsync({ name: data.name });
         }
         reset(data);
       })}
-      className="card mb-4 p-0"
+      className="mb-4 rounded-lg border p-0"
     >
       <div className="flex items-center justify-between border-b p-4 shadow-sm">
         <div className="text-lg text-slate-700 ">{t("yourDetails")}</div>

@@ -7,7 +7,7 @@ import React from "react";
 import FullPageLoader from "@/components/full-page-loader";
 import { PollContextProvider } from "@/components/poll-context";
 
-import { AppLayout, AppPage } from "../components/app-layout";
+import { AppLayout } from "../components/app-layout";
 import { ParticipantsProvider } from "../components/participants-provider";
 import { withUserSession } from "../components/user-provider";
 import { withSessionSsr } from "../utils/auth";
@@ -36,17 +36,15 @@ const PollPageLoader: NextPage = () => {
   if (poll) {
     return (
       <ParticipantsProvider pollId={poll.id}>
-        <AppLayout>
-          <AppPage
-            breadcrumbs={[
-              { title: <>&larr; {t("meetingPolls")}</>, href: "/polls" },
-            ]}
-            title={poll.title}
-          >
-            <PollContextProvider poll={poll} urlId={urlId} admin={admin}>
-              <PollPage />
-            </PollContextProvider>
-          </AppPage>
+        <AppLayout
+          breadcrumbs={[
+            { title: <>&larr; {t("meetingPolls")}</>, href: "/polls" },
+          ]}
+          title={poll.title}
+        >
+          <PollContextProvider poll={poll} urlId={urlId} admin={admin}>
+            <PollPage />
+          </PollContextProvider>
         </AppLayout>
       </ParticipantsProvider>
     );

@@ -22,7 +22,7 @@ const ErrorPage: React.VoidFunctionComponent<ComponentProps> = ({
 }) => {
   const { t } = useTranslation("errors");
   return (
-    <div className="mx-auto flex h-full max-w-full items-center justify-center bg-gray-50 px-4 py-8 lg:w-[1024px]">
+    <div className="mx-auto flex h-full max-w-full items-center justify-center px-4 py-8 lg:w-[1024px]">
       <Head>
         <title>{title}</title>
         <meta name="robots" content="noindex,nofollow" />

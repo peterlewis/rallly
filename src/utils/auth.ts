@@ -63,13 +63,6 @@ export const createToken = async <T extends Record<string, unknown>>(
   });
 };
 
-export type RegistrationTokenPayload = {
-  name: string;
-  email: string;
-  company: string;
-  position: string;
-};
-
 export type LoginTokenPayload = {
   userId: string;
   redirect?: string;
@@ -151,6 +144,17 @@ export const mergeGuestsIntoUser = async (
   userId: string,
   guestIds: string[],
 ) => {
+  await prisma.poll.updateMany({
+    where: {
+      userId: {
+        in: guestIds,
+      },
+    },
+    data: {
+      userId: userId,
+    },
+  });
+
   await prisma.participant.updateMany({
     where: {
       userId: {

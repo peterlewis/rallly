@@ -1,22 +1,34 @@
 import { NextPage } from "next";
+import { useTranslation } from "next-i18next";
 
 import { withSessionSsr } from "@/utils/auth";
 
-import { Profile } from "../components/profile";
-import { withSession } from "../components/session";
-import StandardLayout from "../components/standard-layout";
+import { AppLayout } from "../components/app-layout";
+import { UserDetails } from "../components/profile/user-details";
+import { withUserSession } from "../components/user-provider";
 import { withPageTranslations } from "../utils/with-page-translations";
 
 const Page: NextPage = () => {
+  const { t } = useTranslation("app");
+
   return (
-    <StandardLayout>
-      <Profile />
-    </StandardLayout>
+    <AppLayout title={t("profile")}>
+      <UserDetails />
+    </AppLayout>
   );
 };
 
-export const getServerSideProps = withSessionSsr(
-  withPageTranslations(["common", "app"]),
-);
+export const getServerSideProps = withSessionSsr(async (ctx) => {
+  if (ctx.req.session.user?.isGuest === false) {
+    return await withPageTranslations(["common", "app"])(ctx);
+  }
 
-export default withSession(Page);
+  return {
+    redirect: {
+      destination: "/login",
+    },
+    props: {},
+  };
+});
+
+export default withUserSession(Page);

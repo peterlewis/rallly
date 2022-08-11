@@ -10,7 +10,7 @@
     @apply overflow-x-hidden;
   }
   body {
-    @apply text-base text-slate-600;
+    @apply text-base text-slate-700;
   }
   p {
     @apply mb-4;

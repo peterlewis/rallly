@@ -7,7 +7,7 @@ import ChevronLeft from "@/components/icons/chevron-left.svg";
 
 import { getBrowserTimeZone } from "../utils/date-time-utils";
 import { trpc } from "../utils/trpc";
-import { AppLayout, AppPage } from "./app-layout";
+import { AppLayout } from "./app-layout";
 import { Button } from "./button";
 import {
   PollDetailsForm,
@@ -94,80 +94,74 @@ const NewProceeding: React.VoidFunctionComponent = () => {
   });
 
   return (
-    <AppLayout>
-      <AppPage
-        breadcrumbs={[
-          {
-            title: <>&larr; {t("meetingPolls")}</>,
-            href: "/polls",
-          },
-        ]}
-        title={t("newPoll")}
-      >
-        <NewPollContext.Provider value={{ state, dispatch }}>
-          <div className="mb-4 text-2xl">{t("createPollTitle")}</div>
-          <div className="h-full space-y-4">
-            {(() => {
-              switch (state.step) {
-                case 0:
-                  return (
-                    <ProceedingDetailsStep
-                      formId={currentFormId}
-                      defaultValues={state.details}
-                      onSubmit={(payload) => {
-                        dispatch({ type: "updateDetails", payload });
-                      }}
-                    />
-                  );
-                case 1:
-                  return (
-                    <PollOptionsForm
-                      formId={currentFormId}
-                      defaultValues={state.options}
-                      onSubmit={async (payload) => {
-                        const newState = { ...state, options: payload };
-                        await createPoll.mutateAsync({
-                          title: newState.details.title,
-                          location: newState.details.location,
-                          description: newState.details.description,
-                          timeZone: newState.options.timeZone,
-                          options: newState.options.options.map((option) =>
-                            option.type === "date"
-                              ? option.date
-                              : `${option.start}/${option.end}`,
-                          ),
-                        });
-                      }}
-                    />
-                  );
-              }
-            })()}
+    <AppLayout
+      breadcrumbs={[
+        {
+          title: <>&larr; {t("meetingPolls")}</>,
+          href: "/polls",
+        },
+      ]}
+      title={t("newPoll")}
+    >
+      <NewPollContext.Provider value={{ state, dispatch }}>
+        <div className="mb-4 text-2xl">{t("createPollTitle")}</div>
+        <div className="h-full space-y-4">
+          {(() => {
+            switch (state.step) {
+              case 0:
+                return (
+                  <ProceedingDetailsStep
+                    formId={currentFormId}
+                    defaultValues={state.details}
+                    onSubmit={(payload) => {
+                      dispatch({ type: "updateDetails", payload });
+                    }}
+                  />
+                );
+              case 1:
+                return (
+                  <PollOptionsForm
+                    formId={currentFormId}
+                    defaultValues={state.options}
+                    onSubmit={async (payload) => {
+                      const newState = { ...state, options: payload };
+                      await createPoll.mutateAsync({
+                        title: newState.details.title,
+                        location: newState.details.location,
+                        description: newState.details.description,
+                        timeZone: newState.options.timeZone,
+                        options: newState.options.options.map((option) =>
+                          option.type === "date"
+                            ? option.date
+                            : `${option.start}/${option.end}`,
+                        ),
+                      });
+                    }}
+                  />
+                );
+            }
+          })()}
+        </div>
+        <motion.div layout="position" className="mt-4 flex items-center">
+          <div className="flex space-x-3">
+            <Button
+              disabled={isFirstStep}
+              icon={<ChevronLeft />}
+              onClick={() => dispatch({ type: "back" })}
+            />
+            <Button
+              type="primary"
+              loading={createPoll.isLoading}
+              htmlType="submit"
+              form={currentFormId}
+            >
+              <div>
+                {state.step < 1 ? <>{t("continue")} &rarr;</> : t("createPoll")}
+              </div>
+            </Button>
           </div>
-          <motion.div layout="position" className="mt-4 flex items-center">
-            <div className="flex space-x-3">
-              <Button
-                disabled={isFirstStep}
-                icon={<ChevronLeft />}
-                onClick={() => dispatch({ type: "back" })}
-              />
-              <Button
-                type="primary"
-                loading={createPoll.isLoading}
-                htmlType="submit"
-                form={currentFormId}
-              >
-                <div>
-                  {state.step < 1 ? (
-                    <>{t("continue")} &rarr;</>
-                  ) : (
-                    t("createPoll")
-                  )}
-                </div>
-              </Button>
-            </div>
-          </motion.div>
-        </NewPollContext.Provider>
-      </AppPage>
+        </motion.div>
+      </NewPollContext.Provider>
     </AppLayout>
   );
 };

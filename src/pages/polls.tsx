@@ -7,7 +7,8 @@ import Calendar from "@/components/icons/calendar.svg";
 import Plus from "@/components/icons/plus-sm.svg";
 import Search from "@/components/icons/search.svg";
 
-import { AppLayout, AppPage } from "../components/app-layout";
+import { AppLayout } from "../components/app-layout";
+import FullPageLoader from "../components/full-page-loader";
 import { TextInput } from "../components/text-input";
 import { withUserSession } from "../components/user-provider";
 import { withSessionSsr } from "../utils/auth";
@@ -16,16 +17,30 @@ import { trpc } from "../utils/trpc";
 import { withPageTranslations } from "../utils/with-page-translations";
 
 const Polls: React.VoidFunctionComponent = () => {
-  const [query, setQuery] = React.useState("");
   const { t } = useTranslation("app");
+  const [query, setQuery] = React.useState("");
+
   const { data: polls } = trpc.useQuery(["polls.list"]);
   const { dayjs } = useDayjs();
   if (!polls) {
-    return <div>{t("loading")}</div>;
+    return <FullPageLoader>{t("loading")}</FullPageLoader>;
   }
 
   if (polls.length === 0) {
-    return <div>You havent created any polls</div>;
+    return (
+      <div className="flex h-96 items-center justify-center rounded-lg border-2 border-dashed text-slate-400">
+        <div className="space-y-4 text-center">
+          <Calendar className=" inline-block h-20" />
+          <div className="text-lg">You havent created any polls</div>
+          <Link href="/new">
+            <a className="btn-primary pr-4">
+              <Plus className="-ml-1 mr-1 h-5" />
+              {t("newPoll")}
+            </a>
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -52,7 +67,7 @@ const Polls: React.VoidFunctionComponent = () => {
           return (
             <div key={poll.id} className="flex rounded-lg border p-4">
               <div className="mr-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-500">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-500">
                   <Calendar className="h-5 text-white" />
                 </div>
               </div>
@@ -75,6 +90,11 @@ const Polls: React.VoidFunctionComponent = () => {
                   {poll.closed ? (
                     <div className="text-blue-500">{t("locked")}</div>
                   ) : null}
+                  <div className="text-slate-500">
+                    {poll.notifications
+                      ? t("notificationsOn")
+                      : t("notificationsOff")}
+                  </div>
                 </div>
               </div>
             </div>
@@ -87,11 +107,10 @@ const Polls: React.VoidFunctionComponent = () => {
 
 const Page = () => {
   const { t } = useTranslation("app");
+
   return (
-    <AppLayout>
-      <AppPage title={t("meetingPolls")}>
-        <Polls />
-      </AppPage>
+    <AppLayout title={t("meetingPolls")}>
+      <Polls />
     </AppLayout>
   );
 };

@@ -8,6 +8,7 @@ import BellCrossed from "@/components/icons/bell-crossed.svg";
 
 import { usePoll } from "../poll-context";
 import Tooltip from "../tooltip";
+import { useUser } from "../user-provider";
 import { useUpdatePollMutation } from "./mutations";
 
 const NotificationsToggle: React.VoidFunctionComponent = () => {
@@ -16,13 +17,14 @@ const NotificationsToggle: React.VoidFunctionComponent = () => {
   const [isUpdatingNotifications, setIsUpdatingNotifications] =
     React.useState(false);
 
+  const { user } = useUser();
   const { mutate: updatePollMutation } = useUpdatePollMutation();
 
   const plausible = usePlausible();
   return (
     <Tooltip
       content={
-        poll.verified ? (
+        !user.isGuest ? (
           poll.notifications ? (
             <div>
               <div className="font-medium text-primary-300">
@@ -47,14 +49,14 @@ const NotificationsToggle: React.VoidFunctionComponent = () => {
             t("notificationsOff")
           )
         ) : (
-          t("notificationsVerifyEmail")
+          t("notificationsLoginRequired")
         )
       }
     >
       <Button
         loading={isUpdatingNotifications}
-        icon={poll.verified && poll.notifications ? <Bell /> : <BellCrossed />}
-        disabled={!poll.verified}
+        icon={poll.notifications ? <Bell /> : <BellCrossed />}
+        disabled={!poll.user || poll.user.id !== user.id}
         onClick={() => {
           setIsUpdatingNotifications(true);
           updatePollMutation(

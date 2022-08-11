@@ -151,6 +151,7 @@ export const polls = createRouter()
           createdAt: true,
           type: true,
           closed: true,
+          location: true,
           updatedAt: true,
           notifications: true,
           _count: {
