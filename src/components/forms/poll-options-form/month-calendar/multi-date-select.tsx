@@ -68,7 +68,7 @@ export const MultiDateSelect: React.VoidFunctionComponent<HeadlessDatePickerOpti
                 className={clsx(
                   "relative flex h-12 items-center justify-center text-sm hover:bg-gray-50 focus:ring-0 focus:ring-offset-0 active:bg-gray-100",
                   {
-                    "bg-gray-50 text-gray-400": day.outOfMonth,
+                    "bg-gray-50 text-gray-400": day.outOfMonth && !day.selected,
                     "font-bold": day.today,
                     "text-primary-500": day.today && !day.selected,
                     "border-r": (i + 1) % 7 !== 0,
