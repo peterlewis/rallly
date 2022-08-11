@@ -186,7 +186,7 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
                   }}
                 />
               </div>
-            ) : !userAlreadyVoted ? (
+            ) : (
               <Button
                 type="primary"
                 icon={<PlusCircle />}
@@ -201,7 +201,7 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
               >
                 {t("new")}
               </Button>
-            ) : null}
+            )}
           </div>
         </div>
         <GroupedOptions

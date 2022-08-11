@@ -189,20 +189,17 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
   const showVotes = !!(selectedParticipantId || editable);
   const [expanded, setExpanded] = React.useState(false);
   const selectorRef = React.useRef<HTMLButtonElement>(null);
-  const [active, setActive] = React.useState(false);
   return (
     <div
       className={clsx("space-y-4 overflow-hidden p-4", {
-        "bg-slate-400/5": editable && active,
+        "hover:bg-slate-300/10 active:bg-slate-400/10": editable,
       })}
-      onTouchStart={() => setActive(editable)}
-      onTouchEnd={() => setActive(false)}
       data-testid="poll-option"
       onClick={() => {
         selectorRef.current?.click();
       }}
     >
-      <div className="flex select-none transition duration-75">
+      <div className="flex select-none">
         <div className="flex grow space-x-8">
           <div>{children}</div>
           <div className="flex grow items-center justify-end">
