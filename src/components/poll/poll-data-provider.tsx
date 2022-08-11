@@ -191,8 +191,11 @@ export const PollDataProvider: React.VoidFunctionComponent<{
         <Compononent
           options={options.map((option, index) => {
             const score = participants.reduce((acc, curr) => {
-              if (curr.votes[index]?.type === "yes") {
-                return acc + 1;
+              const vote = curr.votes.find(
+                (vote) => vote.optionId === option.id,
+              );
+              if (vote?.type === "yes") {
+                acc += 1;
               }
               return acc;
             }, 0);
