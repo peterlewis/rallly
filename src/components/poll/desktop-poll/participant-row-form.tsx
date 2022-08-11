@@ -9,16 +9,15 @@ import ArrowRight from "@/components/icons/arrow-right.svg";
 import { requiredString } from "../../../utils/form-validation";
 import { Button } from "../../button";
 import NameInput from "../../name-input";
-import { usePoll } from "../../poll-context";
-import { normalizeVotes } from "../mutations";
-import { ParticipantForm, ParticipantFormSubmitted } from "../types";
+import { ParticipantForm, PollOption } from "../types";
 import { VoteSelector } from "../vote-selector";
 import ControlledScrollArea from "./controlled-scroll-area";
 import { usePollContext } from "./poll-context";
 
 export interface ParticipantRowFormProps {
+  options: PollOption[];
   defaultValues?: Partial<ParticipantForm>;
-  onSubmit: (data: ParticipantFormSubmitted) => Promise<void>;
+  onSubmit: (data: ParticipantForm) => Promise<void>;
   className?: string;
   onCancel?: () => void;
 }
@@ -26,7 +25,7 @@ export interface ParticipantRowFormProps {
 const ParticipantRowForm: React.ForwardRefRenderFunction<
   HTMLFormElement,
   ParticipantRowFormProps
-> = ({ defaultValues, onSubmit, className, onCancel }, ref) => {
+> = ({ defaultValues, onSubmit, className, onCancel, options }, ref) => {
   const { t } = useTranslation("app");
   const {
     columnWidth,
@@ -39,7 +38,6 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
     setScrollPosition,
   } = usePollContext();
 
-  const { options, optionIds } = usePoll();
   const {
     handleSubmit,
     control,
@@ -74,7 +72,7 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
       onSubmit={handleSubmit(async ({ name, votes }) => {
         await onSubmit({
           name,
-          votes: normalizeVotes(optionIds, votes),
+          votes: votes.map((v) => v ?? "no"),
         });
         reset();
       })}
@@ -121,17 +119,17 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
         render={({ field }) => {
           return (
             <ControlledScrollArea>
-              {options.map(({ optionId }, index) => {
+              {options.map((_, index) => {
                 const value = field.value[index];
 
                 return (
                   <div
-                    key={optionId}
+                    key={index}
                     className="flex shrink-0 items-center justify-center px-2"
                     style={{ width: columnWidth }}
                   >
                     <VoteSelector
-                      value={value?.type}
+                      value={value}
                       onKeyDown={(e) => {
                         if (
                           e.code === "Tab" &&
@@ -147,7 +145,7 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
                       }}
                       onChange={(vote) => {
                         const newValue = [...field.value];
-                        newValue[index] = { optionId, type: vote };
+                        newValue[index] = vote;
                         field.onChange(newValue);
                       }}
                       ref={(el) => {

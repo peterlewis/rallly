@@ -2,15 +2,13 @@ import { VoteType } from "@prisma/client";
 import * as React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 
-import { usePoll } from "@/components/poll-context";
-import { ParsedDateTimeOpton } from "@/utils/date-time-utils";
-
-import { ParticipantForm } from "../types";
+import { usePollData } from "../poll-data-provider";
+import { ParticipantForm, PollOption } from "../types";
 import DateOption from "./date-option";
 import TimeSlotOption from "./time-slot-option";
 
 export interface PollOptions {
-  options: ParsedDateTimeOpton[];
+  options: Array<PollOption>;
   editable?: boolean;
   selectedParticipantId?: string;
 }
@@ -21,42 +19,36 @@ const PollOptions: React.VoidFunctionComponent<PollOptions> = ({
   selectedParticipantId,
 }) => {
   const { control } = useFormContext<ParticipantForm>();
-  const {
-    getParticipantsWhoVotedForOption,
-    getParticipantById,
-    getScore,
-    getVote,
-    options: allOptions,
-  } = usePoll();
+
+  const { getParticipantInfoById, getParticipantsWhoVoted } = usePollData();
+  const { getParticipantVoteForOptionAtIndex } = usePollData();
   const selectedParticipant = selectedParticipantId
-    ? getParticipantById(selectedParticipantId)
+    ? getParticipantInfoById(selectedParticipantId)
     : undefined;
 
   return (
     <div className="divide-y">
       {options.map((option) => {
-        const participants = getParticipantsWhoVotedForOption(option.optionId);
-        const score = getScore(option.optionId);
-        const index = allOptions.findIndex(
-          ({ optionId }) => option.optionId === optionId,
-        );
         return (
           <Controller
-            key={option.optionId}
+            key={option.index}
             control={control}
             name="votes"
             render={({ field }) => {
               const vote =
                 !editable && selectedParticipant
-                  ? getVote(selectedParticipant.id, option.optionId)
-                  : field.value[index]?.type;
+                  ? getParticipantVoteForOptionAtIndex(
+                      selectedParticipant.id,
+                      option.index,
+                    )
+                  : field.value[option.index];
 
               const handleChange = (newVote: VoteType) => {
                 if (!editable) {
                   return;
                 }
                 const newValue = [...field.value];
-                newValue[index] = { optionId: option.optionId, type: newVote };
+                newValue[option.index] = newVote;
                 field.onChange(newValue);
               };
 
@@ -65,14 +57,15 @@ const PollOptions: React.VoidFunctionComponent<PollOptions> = ({
                   return (
                     <TimeSlotOption
                       onChange={handleChange}
-                      optionId={option.optionId}
-                      yesScore={score.yes}
-                      ifNeedBeScore={score.ifNeedBe}
-                      participants={participants}
+                      optionIndex={option.index}
+                      yesScore={option.score}
+                      participants={getParticipantsWhoVoted(
+                        "yes",
+                        option.index,
+                      )}
                       vote={vote}
-                      startTime={option.startTime}
-                      endTime={option.endTime}
-                      duration={option.duration}
+                      startTime={option.start}
+                      endTime={option.end}
                       editable={editable}
                       selectedParticipantId={selectedParticipant?.id}
                     />
@@ -81,13 +74,14 @@ const PollOptions: React.VoidFunctionComponent<PollOptions> = ({
                   return (
                     <DateOption
                       onChange={handleChange}
-                      optionId={option.optionId}
-                      yesScore={score.yes}
-                      ifNeedBeScore={score.ifNeedBe}
-                      participants={participants}
+                      optionIndex={option.index}
+                      yesScore={option.score}
+                      participants={getParticipantsWhoVoted(
+                        "yes",
+                        option.index,
+                      )}
                       vote={vote}
-                      dow={option.dow}
-                      day={option.day}
+                      date={option.date}
                       editable={editable}
                       selectedParticipantId={selectedParticipant?.id}
                     />

@@ -1,15 +1,12 @@
-import { Participant, Vote, VoteType } from "@prisma/client";
+import { VoteType } from "@prisma/client";
 import clsx from "clsx";
 import * as React from "react";
 
 import CompactButton from "@/components/compact-button";
 import Pencil from "@/components/icons/pencil-alt.svg";
 import Trash from "@/components/icons/trash.svg";
-import { usePoll } from "@/components/poll-context";
 
-import { useUser } from "../../user-provider";
-import { ParticipantFormSubmitted } from "../types";
-import { useDeleteParticipantModal } from "../use-delete-participant-modal";
+import { ParticipantForm, PollOption } from "../types";
 import UserAvatar from "../user-avatar";
 import VoteIcon from "../vote-icon";
 import ControlledScrollArea from "./controlled-scroll-area";
@@ -17,15 +14,20 @@ import ParticipantRowForm from "./participant-row-form";
 import { usePollContext } from "./poll-context";
 
 export interface ParticipantRowProps {
-  participant: Participant & { votes: Vote[] };
-  editMode?: boolean;
-  onChangeEditMode?: (editMode: boolean) => void;
-  onSubmit?: (data: ParticipantFormSubmitted) => Promise<void>;
+  name: string;
+  options: PollOption[];
+  votes: Array<VoteType | undefined>;
+  editMode: boolean;
+  onChangeEditMode: (value: boolean) => void;
+  onChange: (participant: ParticipantForm) => Promise<void>;
+  onDelete: () => Promise<void>;
+  isYou?: boolean;
+  isEditable?: boolean;
 }
 
 export const ParticipantRowView: React.VoidFunctionComponent<{
   name: string;
-  editable?: boolean;
+  isEditable?: boolean;
   color?: string;
   votes: Array<VoteType | undefined>;
   onEdit?: () => void;
@@ -33,10 +35,9 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
   columnWidth: number;
   sidebarWidth: number;
   isYou?: boolean;
-  participantId: string;
 }> = ({
   name,
-  editable,
+  isEditable,
   votes,
   onEdit,
   onDelete,
@@ -44,14 +45,9 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
   columnWidth,
   isYou,
   color,
-  participantId,
 }) => {
   return (
-    <div
-      data-testid="participant-row"
-      data-participantid={participantId}
-      className="group flex h-14 items-center"
-    >
+    <div data-testid="participant-row" className="group flex h-14">
       <div
         className="flex shrink-0 items-center px-4"
         style={{ width: sidebarWidth }}
@@ -63,7 +59,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
           isYou={isYou}
           color={color}
         />
-        {editable ? (
+        {isEditable ? (
           <div className="hidden shrink-0 items-center space-x-2 overflow-hidden group-hover:flex">
             <CompactButton icon={Pencil} onClick={onEdit} />
             <CompactButton icon={Trash} onClick={onDelete} />
@@ -99,36 +95,28 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
 };
 
 const ParticipantRow: React.VoidFunctionComponent<ParticipantRowProps> = ({
-  participant,
+  name,
+  votes,
   editMode,
-  onSubmit,
+  options,
   onChangeEditMode,
+  onChange,
+  onDelete,
+  isYou,
+  isEditable,
 }) => {
   const { columnWidth, sidebarWidth } = usePollContext();
-
-  const confirmDeleteParticipant = useDeleteParticipantModal();
-
-  const { user } = useUser();
-  const { poll, getVote, options } = usePoll();
-
-  const isYou = user.id === participant.userId ? true : false;
-
-  const isUnclaimed = !participant.userId;
-
-  const canEdit = !poll.closed && (poll.admin || isYou || isUnclaimed);
 
   if (editMode) {
     return (
       <ParticipantRowForm
+        options={options}
         defaultValues={{
-          name: participant.name,
-          votes: options.map(({ optionId }) => {
-            const type = getVote(participant.id, optionId);
-            return type ? { optionId, type } : undefined;
-          }),
+          name: name,
+          votes,
         }}
-        onSubmit={async ({ name, votes }) => {
-          await onSubmit?.({ name, votes });
+        onSubmit={async (participant) => {
+          await onChange(participant);
           onChangeEditMode?.(false);
         }}
         onCancel={() => onChangeEditMode?.(false)}
@@ -140,19 +128,14 @@ const ParticipantRow: React.VoidFunctionComponent<ParticipantRowProps> = ({
     <ParticipantRowView
       sidebarWidth={sidebarWidth}
       columnWidth={columnWidth}
-      name={participant.name}
-      votes={options.map(({ optionId }) => {
-        return getVote(participant.id, optionId);
-      })}
-      participantId={participant.id}
-      editable={canEdit}
+      name={name}
+      votes={votes}
+      isEditable={isEditable}
       isYou={isYou}
       onEdit={() => {
         onChangeEditMode?.(true);
       }}
-      onDelete={() => {
-        confirmDeleteParticipant(participant.id);
-      }}
+      onDelete={onDelete}
     />
   );
 };

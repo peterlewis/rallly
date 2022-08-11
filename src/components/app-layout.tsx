@@ -194,79 +194,71 @@ export const AppLayout: React.VFC<{
   return (
     <DayjsProvider>
       <ModalProvider>
-        <div className="flex min-h-[calc(100vh-64px)] min-w-fit">
-          <div className="grow overflow-y-scroll">
-            <div className="px-6 pb-6">
-              <Head>
-                <title>{title}</title>
-              </Head>
-              <div className="mb-4 flex h-16 w-full items-center justify-between">
-                <div className="flex items-center space-x-8">
-                  <Link href="/polls">
-                    <a>
-                      <Logo className="h-6 text-primary-500" />
-                    </a>
-                  </Link>
-                  <div className="flex items-center space-x-1 rounded-lg bg-slate-500/10 py-1 px-3">
-                    {breadcrumbs?.map((breadcrumb, i) => (
-                      <span key={i}>
-                        <Link href={breadcrumb.href}>
-                          <a className="mr-1 h-9 py-1 text-gray-500 hover:text-gray-600">
-                            {breadcrumb.title}
-                          </a>
-                        </Link>
-                        <span className="text-gray-400">
-                          <ChevronRight className="inline-block h-5" />
-                        </span>
-                      </span>
-                    ))}
-                    <span className="font-medium">{title}</span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Popover
-                    placement="bottom-end"
-                    trigger={
-                      <button
-                        type="button"
-                        className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
-                      >
-                        <Adjustments className="h-5 opacity-75" />
-                        <span className="ml-2 hidden sm:block">
-                          {t("preferences")}
-                        </span>
-                      </button>
-                    }
-                  >
-                    <Preferences />
-                  </Popover>
-                  <IfGuest>
-                    <Link href="/login">
-                      <a className="flex w-full items-center space-x-2 whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300">
-                        <Login className="h-5 opacity-75" />
-                        <span className="inline-block">{t("login")}</span>
-                      </a>
-                    </Link>
-                  </IfGuest>
-                  <UserDropdown
-                    key={user.id} // make sure dropdown closes when user changes. There are nicer ways to do this.
-                    placement="bottom-end"
-                    trigger={
-                      <button
-                        type="button"
-                        className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
-                      >
-                        <UserCircle className="h-5 opacity-75" />
-                        <span className="ml-2 hidden sm:block">
-                          {getName()}
-                        </span>
-                      </button>
-                    }
-                  ></UserDropdown>
+        <div className="flex lg:min-h-[calc(100vh-64px)]">
+          <div className="grow overflow-y-scroll p-4 lg:px-6">
+            <Head>
+              <title>{title}</title>
+            </Head>
+            <div className="mb-4 flex w-full items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Link href="/">
+                  <a>
+                    <Logo className="h-6 text-primary-500" />
+                  </a>
+                </Link>
+                <div className="flex items-center space-x-1 overflow-hidden rounded-lg bg-slate-500/10 py-1 px-3">
+                  {breadcrumbs?.map((breadcrumb, i) => (
+                    <div className="flex shrink-0 items-center" key={i}>
+                      <Link href={breadcrumb.href}>
+                        <a className="mr-1 inline-block text-gray-500 hover:text-gray-600">
+                          {breadcrumb.title}
+                        </a>
+                      </Link>
+                      <ChevronRight className="inline-block h-5 text-gray-400" />
+                    </div>
+                  ))}
+                  <div className="truncate font-medium">{title}</div>
                 </div>
               </div>
-              <div className="mx-auto max-w-4xl">{children}</div>
+              <div className="hidden items-center md:flex lg:space-x-2">
+                <Popover
+                  placement="bottom-end"
+                  trigger={
+                    <button
+                      type="button"
+                      className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
+                    >
+                      <Adjustments className="h-5 opacity-75" />
+                      <span className="ml-2">{t("preferences")}</span>
+                    </button>
+                  }
+                >
+                  <Preferences />
+                </Popover>
+                <IfGuest>
+                  <Link href="/login">
+                    <a className="flex w-full items-center space-x-2 whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300">
+                      <Login className="h-5 opacity-75" />
+                      <span className="ml-2">{t("login")}</span>
+                    </a>
+                  </Link>
+                </IfGuest>
+                <UserDropdown
+                  key={user.id} // make sure dropdown closes when user changes. There are nicer ways to do this.
+                  placement="bottom-end"
+                  trigger={
+                    <button
+                      type="button"
+                      className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
+                    >
+                      <UserCircle className="h-5 opacity-75" />
+                      <span className="ml-2">{getName()}</span>
+                    </button>
+                  }
+                ></UserDropdown>
+              </div>
             </div>
+            <div className="mx-auto max-w-4xl">{children}</div>
           </div>
         </div>
         <Footer />

@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -8,6 +8,7 @@ import React from "react";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/button";
+import Discussion from "@/components/discussion";
 import LockClosed from "@/components/icons/lock-closed.svg";
 import Share from "@/components/icons/share.svg";
 import { preventWidows } from "@/utils/prevent-widows";
@@ -16,6 +17,7 @@ import { useParticipants } from "./participants-provider";
 import ManagePoll from "./poll/manage-poll";
 import { useUpdatePollMutation } from "./poll/mutations";
 import NotificationsToggle from "./poll/notifications-toggle";
+import { PollDataProvider } from "./poll/poll-data-provider";
 import PollSubheader from "./poll/poll-subheader";
 import TruncatedLinkify from "./poll/truncated-linkify";
 import { useTouchBeacon } from "./poll/use-touch-beacon";
@@ -23,17 +25,14 @@ import { UserAvatarProvider } from "./poll/user-avatar";
 import VoteIcon from "./poll/vote-icon";
 import { usePoll } from "./poll-context";
 import Sharing from "./sharing";
-
-const Discussion = React.lazy(() => import("@/components/discussion"));
-
-const DesktopPoll = React.lazy(() => import("@/components/poll/desktop-poll"));
-const MobilePoll = React.lazy(() => import("@/components/poll/mobile-poll"));
+import { useUser } from "./user-provider";
 
 const PollPage: NextPage = () => {
-  const { poll, urlId, admin } = usePoll();
+  const { poll, urlId, admin, targetTimeZone } = usePoll();
   const { participants } = useParticipants();
   const router = useRouter();
 
+  const { user } = useUser();
   useTouchBeacon(poll.id);
 
   const { t } = useTranslation("app");
@@ -73,8 +72,6 @@ const PollPage: NextPage = () => {
     };
   }, []);
 
-  const PollComponent = isWideScreen ? DesktopPoll : MobilePoll;
-
   const names = React.useMemo(
     () => participants?.map(({ name }) => name) ?? [],
     [participants],
@@ -83,22 +80,18 @@ const PollPage: NextPage = () => {
   const [isSharingVisible, setSharingVisible] = React.useState(
     !!router.query.sharing,
   );
+
   return (
     <UserAvatarProvider seed={poll.id} names={names}>
-      <div className="relative max-w-full py-4">
-        <Head>
-          <title>{poll.title}</title>
-          <meta name="robots" content="noindex,nofollow" />
-        </Head>
-        <div
-          className="mx-auto max-w-full lg:mx-0"
-          style={{
-            width: Math.max(768, poll.options.length * 95 + 200 + 160),
-          }}
-        >
+      <Head>
+        <title>{poll.title}</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Head>
+      <div className="relative max-w-full overflow-hidden lg:mt-8">
+        <LayoutGroup>
           {admin ? (
             <>
-              <div className="mb-4 flex space-x-2 px-4 md:justify-end md:px-0">
+              <div className="mb-4 flex space-x-2 lg:px-4">
                 <NotificationsToggle />
                 <ManagePoll
                   placement={isWideScreen ? "bottom-end" : "bottom-start"}
@@ -119,21 +112,17 @@ const PollPage: NextPage = () => {
                     initial={{
                       opacity: 0,
                       scale: 0.8,
-                      height: 0,
                     }}
                     animate={{
                       opacity: 1,
                       scale: 1,
-                      height: "auto",
-                      marginBottom: 16,
+                      y: 0,
                     }}
                     exit={{
                       opacity: 0,
                       scale: 0.8,
-                      height: 0,
-                      marginBottom: 0,
                     }}
-                    className="overflow-hidden"
+                    className="mb-4 overflow-hidden"
                   >
                     <Sharing
                       onHide={() => {
@@ -167,9 +156,9 @@ const PollPage: NextPage = () => {
               </div>
             </div>
           ) : null}
-          <div className="md:card mb-4 border-t bg-white md:overflow-hidden md:p-0">
-            <div className="p-4 md:border-b md:p-6">
-              <div className="space-y-4">
+          <motion.div layout="position" className="space-y-8">
+            <div>
+              <div className="space-y-4 lg:px-4">
                 <div>
                   <div
                     className="mb-1 text-2xl font-semibold text-slate-700 md:text-left md:text-3xl"
@@ -217,14 +206,30 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
             </div>
-            <React.Suspense fallback={null}>
-              {participants ? <PollComponent /> : null}
-            </React.Suspense>
-          </div>
-          <React.Suspense fallback={<div className="p-4">{t("loading")}</div>}>
+            {participants ? (
+              <PollDataProvider
+                admin={poll.admin}
+                options={poll.options.map(({ id, value }) => ({
+                  id,
+                  value:
+                    value.indexOf("/") === -1
+                      ? { type: "date", date: value }
+                      : {
+                          type: "time",
+                          start: value.split("/")[0],
+                          end: value.split("/")[1],
+                        },
+                }))}
+                targetTimeZone={targetTimeZone}
+                pollId={poll.id}
+                userId={user.id}
+                timeZone={poll.timeZone}
+                participants={participants}
+              />
+            ) : null}
             <Discussion />
-          </React.Suspense>
-        </div>
+          </motion.div>
+        </LayoutGroup>
       </div>
     </UserAvatarProvider>
   );

@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import smoothscroll from "smoothscroll-polyfill";
 
 import Check from "@/components/icons/check.svg";
 import ChevronDown from "@/components/icons/chevron-down.svg";
@@ -13,44 +12,26 @@ import PlusCircle from "@/components/icons/plus-circle.svg";
 import Trash from "@/components/icons/trash.svg";
 import { usePoll } from "@/components/poll-context";
 
+import { useDayjs } from "../../utils/dayjs";
 import { requiredString } from "../../utils/form-validation";
 import { Button } from "../button";
 import { styleMenuItem } from "../menu-styles";
 import NameInput from "../name-input";
-import { useParticipants } from "../participants-provider";
-import TimeZonePicker from "../time-zone-picker";
-import { useUser } from "../user-provider";
 import GroupedOptions from "./mobile-poll/grouped-options";
-import {
-  normalizeVotes,
-  useAddParticipantMutation,
-  useUpdateParticipantMutation,
-} from "./mutations";
-import { ParticipantForm } from "./types";
-import { useDeleteParticipantModal } from "./use-delete-participant-modal";
+import { usePollData } from "./poll-data-provider";
+import { ParticipantForm, PollProps } from "./types";
 import UserAvatar from "./user-avatar";
 
-if (typeof window !== "undefined") {
-  smoothscroll.polyfill();
-}
-
-const MobilePoll: React.VoidFunctionComponent = () => {
+const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
+  options,
+  participants,
+  onEntry,
+  onUpdateEntry,
+}) => {
   const pollContext = usePoll();
 
-  const {
-    poll,
-    targetTimeZone,
-    setTargetTimeZone,
-    getParticipantById,
-    optionIds,
-    getVote,
-    userAlreadyVoted,
-  } = pollContext;
-
-  const { participants } = useParticipants();
-  const { timeZone } = poll;
-
-  const { user } = useUser();
+  const { getParticipantInfoById } = usePollData();
+  const { poll, userAlreadyVoted } = pollContext;
 
   const form = useForm<ParticipantForm>({
     defaultValues: {
@@ -60,62 +41,41 @@ const MobilePoll: React.VoidFunctionComponent = () => {
   });
 
   const { reset, handleSubmit, control, formState } = form;
-  const [selectedParticipantId, setSelectedParticipantId] = React.useState<
-    string | undefined
-  >(() => {
-    if (poll.admin) {
-      // don't select a particpant if admin
-      return;
-    }
-    const userParticipant = participants.find(
-      (participant) => participant.userId === user.id,
-    );
-    return userParticipant?.id;
-  });
+  const [selectedParticipantId, setSelectedParticipantId] =
+    React.useState<string | undefined>();
 
   const selectedParticipant = selectedParticipantId
-    ? getParticipantById(selectedParticipantId)
+    ? getParticipantInfoById(selectedParticipantId)
     : undefined;
 
   const [isEditing, setIsEditing] = React.useState(
-    !userAlreadyVoted && !poll.closed && !poll.admin,
+    !userAlreadyVoted && !poll.closed,
   );
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
   const { t } = useTranslation("app");
-
-  const updateParticipant = useUpdateParticipantMutation();
-
-  const addParticipant = useAddParticipantMutation();
-  const confirmDeleteParticipant = useDeleteParticipantModal();
-
+  const { dayjs } = useDayjs();
   return (
     <FormProvider {...form}>
       <form
         ref={formRef}
-        className="border-t border-b bg-white shadow-sm"
-        onSubmit={handleSubmit(async ({ name, votes }) => {
+        onSubmit={handleSubmit(async (data) => {
           if (selectedParticipant) {
-            await updateParticipant.mutateAsync({
-              pollId: poll.id,
-              participantId: selectedParticipant.id,
-              name,
-              votes: normalizeVotes(optionIds, votes),
-            });
+            await onUpdateEntry?.(selectedParticipant.id, data);
             setIsEditing(false);
           } else {
-            const newParticipant = await addParticipant.mutateAsync({
-              pollId: poll.id,
-              name,
-              votes: normalizeVotes(optionIds, votes),
-            });
+            if (!onEntry) {
+              setIsEditing(false);
+              return;
+            }
+            const newParticipant = await onEntry(data);
             setSelectedParticipantId(newParticipant.id);
             setIsEditing(false);
           }
         })}
       >
-        <div className="sticky top-[47px] z-30 flex flex-col space-y-2 border-b bg-gray-50 p-3">
+        <div className="sticky top-0 z-30 flex flex-col space-y-2 border-b bg-gray-50 p-3">
           <div className="flex space-x-3">
             {!isEditing ? (
               <Listbox
@@ -138,7 +98,6 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                           <UserAvatar
                             name={selectedParticipant.name}
                             showName={true}
-                            isYou={selectedParticipant.userId === user.id}
                           />
                         </div>
                       ) : (
@@ -166,11 +125,7 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                         className={styleMenuItem}
                       >
                         <div className="flex items-center space-x-2">
-                          <UserAvatar
-                            name={participant.name}
-                            showName={true}
-                            isYou={participant.userId === user.id}
-                          />
+                          <UserAvatar name={participant.name} showName={true} />
                         </div>
                       </Listbox.Option>
                     ))}
@@ -208,24 +163,12 @@ const MobilePoll: React.VoidFunctionComponent = () => {
               <div className="flex space-x-3">
                 <Button
                   icon={<Pencil />}
-                  disabled={
-                    poll.closed ||
-                    // if user is  participant (not admin)
-                    (!poll.admin &&
-                      // and does not own this participant
-                      selectedParticipant.userId !== user.id &&
-                      // and the participant has been claimed by a different user
-                      selectedParticipant.userId !== null)
-                    // not allowed to edit
-                  }
+                  disabled={poll.closed}
                   onClick={() => {
                     setIsEditing(true);
                     reset({
                       name: selectedParticipant.name,
-                      votes: optionIds.map((optionId) => ({
-                        optionId,
-                        type: getVote(selectedParticipant.id, optionId),
-                      })),
+                      votes: selectedParticipant.votes,
                     });
                   }}
                 >
@@ -233,26 +176,17 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                 </Button>
                 <Button
                   icon={<Trash />}
-                  disabled={
-                    poll.closed ||
-                    // if user is  participant (not admin)
-                    (!poll.admin &&
-                      // and does not own this participant
-                      selectedParticipant.userId !== user.id &&
-                      // or the participant has been claimed by a different user
-                      selectedParticipant.userId !== null)
-                    // not allowed to edit
-                  }
+                  disabled={poll.closed}
                   data-testid="delete-participant-button"
                   type="danger"
                   onClick={() => {
                     if (selectedParticipant) {
-                      confirmDeleteParticipant(selectedParticipant.id);
+                      // confirmDeleteParticipant(selectedParticipant.id);
                     }
                   }}
                 />
               </div>
-            ) : (
+            ) : !userAlreadyVoted ? (
               <Button
                 type="primary"
                 icon={<PlusCircle />}
@@ -267,30 +201,23 @@ const MobilePoll: React.VoidFunctionComponent = () => {
               >
                 {t("new")}
               </Button>
-            )}
+            ) : null}
           </div>
-          {timeZone ? (
-            <TimeZonePicker
-              value={targetTimeZone}
-              onChange={setTargetTimeZone}
-            />
-          ) : null}
         </div>
         <GroupedOptions
           selectedParticipantId={selectedParticipantId}
-          options={pollContext.options}
+          options={options}
           editable={isEditing}
-          groupClassName={
-            pollContext.pollType === "time" ? "top-[151px]" : "top-[108px]"
-          }
+          groupClassName="top-[61px]"
           group={(option) => {
             if (option.type === "time") {
-              return `${option.dow} ${option.day} ${option.month}`;
+              return dayjs(option.start).format("ddd D MMMM");
+            } else {
+              return dayjs(option.date).format("MMMM YYYY");
             }
-            return `${option.month} ${option.year}`;
           }}
         />
-        <AnimatePresence>
+        <AnimatePresence initial={false}>
           {isEditing ? (
             <motion.div
               variants={{
@@ -306,7 +233,7 @@ const MobilePoll: React.VoidFunctionComponent = () => {
                 transition: { duration: 0.2 },
               }}
             >
-              <div className="space-y-3 border-t bg-gray-50 p-3">
+              <div className="flex border-t bg-gray-50 p-3">
                 <Button
                   icon={<Check />}
                   className="w-full"

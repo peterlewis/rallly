@@ -1,4 +1,4 @@
-import { Participant, VoteType } from "@prisma/client";
+import { VoteType } from "@prisma/client";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
@@ -6,8 +6,9 @@ import * as React from "react";
 
 import ChevronDown from "@/components/icons/chevron-down.svg";
 
-import { useParticipants } from "../../participants-provider";
+import { usePollData } from "../poll-data-provider";
 import { ScoreSummary } from "../score-summary";
+import { ParticipantInfo } from "../types";
 import UserAvatar from "../user-avatar";
 import VoteIcon from "../vote-icon";
 import { VoteSelector } from "../vote-selector";
@@ -15,13 +16,12 @@ import { VoteSelector } from "../vote-selector";
 export interface PollOptionProps {
   children?: React.ReactNode;
   yesScore: number;
-  ifNeedBeScore: number;
   editable?: boolean;
   vote?: VoteType;
   onChange: (vote: VoteType) => void;
-  participants: Participant[];
+  participants: ParticipantInfo[];
   selectedParticipantId?: string;
-  optionId: string;
+  optionIndex: number;
 }
 
 const CollapsibleContainer: React.VoidFunctionComponent<{
@@ -71,85 +71,88 @@ const PopInOut: React.VoidFunctionComponent<{
   );
 };
 
-const PollOptionVoteSummary: React.VoidFunctionComponent<{ optionId: string }> =
-  ({ optionId }) => {
-    const { t } = useTranslation("app");
-    const { getParticipants } = useParticipants();
-    const participantsWhoVotedYes = getParticipants(optionId, "yes");
-    const participantsWhoVotedIfNeedBe = getParticipants(optionId, "ifNeedBe");
-    const participantsWhoVotedNo = getParticipants(optionId, "no");
-    const noVotes =
-      participantsWhoVotedYes.length + participantsWhoVotedIfNeedBe.length ===
-      0;
-    return (
-      <motion.div
-        transition={{
-          duration: 0.1,
-        }}
-        initial={{ height: 0, opacity: 0, y: -10 }}
-        animate={{ height: "auto", opacity: 1, y: 0 }}
-        exit={{ height: 0, opacity: 0, y: -10 }}
-        className="text-sm"
-      >
-        <div>
-          {noVotes ? (
-            <div className="rounded-lg bg-slate-50 p-2 text-center text-slate-400">
-              {t("noVotes")}
+const PollOptionVoteSummary: React.VoidFunctionComponent<{
+  optionIndex: number;
+}> = ({ optionIndex }) => {
+  const { t } = useTranslation("app");
+  const { getParticipantsWhoVoted } = usePollData();
+  const participantsWhoVotedYes = getParticipantsWhoVoted("yes", optionIndex);
+  const participantsWhoVotedIfNeedBe = getParticipantsWhoVoted(
+    "ifNeedBe",
+    optionIndex,
+  );
+  const participantsWhoVotedNo = getParticipantsWhoVoted("no", optionIndex);
+  const noVotes =
+    participantsWhoVotedYes.length + participantsWhoVotedIfNeedBe.length === 0;
+  return (
+    <motion.div
+      transition={{
+        duration: 0.1,
+      }}
+      initial={{ height: 0, opacity: 0, y: -10 }}
+      animate={{ height: "auto", opacity: 1, y: 0 }}
+      exit={{ height: 0, opacity: 0, y: -10 }}
+      className="text-sm"
+    >
+      <div>
+        {noVotes ? (
+          <div className="rounded-lg bg-slate-50 p-2 text-center text-slate-400">
+            {t("noVotes")}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-x-4">
+            <div className="col-span-1 space-y-2">
+              {participantsWhoVotedYes.map(({ name }, i) => (
+                <div key={i} className="flex">
+                  <div className="relative mr-2 flex h-5 w-5 items-center justify-center">
+                    <UserAvatar name={name} />
+                    <VoteIcon
+                      type="yes"
+                      size="sm"
+                      className="absolute -right-1 -top-1 rounded-full"
+                    />
+                  </div>
+                  <div className="text-slate-500">{name}</div>
+                </div>
+              ))}
+              {participantsWhoVotedIfNeedBe.map(({ name }, i) => (
+                <div key={i} className="flex">
+                  <div className="relative mr-2 flex h-5 w-5 items-center justify-center">
+                    <UserAvatar name={name} />
+                    <VoteIcon
+                      type="ifNeedBe"
+                      size="sm"
+                      className="absolute -right-1 -top-1 rounded-full"
+                    />
+                  </div>
+                  <div className="text-slate-500">{name}</div>
+                </div>
+              ))}
             </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-x-4">
-              <div className="col-span-1 space-y-2">
-                {participantsWhoVotedYes.map(({ name }, i) => (
-                  <div key={i} className="flex">
-                    <div className="relative mr-2 flex h-5 w-5 items-center justify-center">
-                      <UserAvatar name={name} />
-                      <VoteIcon
-                        type="yes"
-                        size="sm"
-                        className="absolute -right-1 -top-1 rounded-full bg-white"
-                      />
-                    </div>
-                    <div className="text-slate-500">{name}</div>
+            <div className="col-span-1 space-y-2">
+              {participantsWhoVotedNo.map(({ name }, i) => (
+                <div key={i} className="flex">
+                  <div className="relative mr-2 flex h-5 w-5 items-center justify-center">
+                    <UserAvatar name={name} />
+                    <VoteIcon
+                      type="no"
+                      size="sm"
+                      className="absolute -right-1 -top-1 rounded-full"
+                    />
                   </div>
-                ))}
-                {participantsWhoVotedIfNeedBe.map(({ name }, i) => (
-                  <div key={i} className="flex">
-                    <div className="relative mr-2 flex h-5 w-5 items-center justify-center">
-                      <UserAvatar name={name} />
-                      <VoteIcon
-                        type="ifNeedBe"
-                        size="sm"
-                        className="absolute -right-1 -top-1 rounded-full bg-white"
-                      />
-                    </div>
-                    <div className="text-slate-500"> {name}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="col-span-1 space-y-2">
-                {participantsWhoVotedNo.map(({ name }, i) => (
-                  <div key={i} className="flex">
-                    <div className="relative mr-2 flex h-5 w-5 items-center justify-center">
-                      <UserAvatar name={name} />
-                      <VoteIcon
-                        type="no"
-                        size="sm"
-                        className="absolute -right-1 -top-1 rounded-full bg-white"
-                      />
-                    </div>
-                    <div className="text-slate-500"> {name}</div>
-                  </div>
-                ))}
-              </div>
+                  <div className="text-slate-500"> {name}</div>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
-      </motion.div>
-    );
-  };
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
 
 const SummarizedParticipantList: React.VoidFunctionComponent<{
-  participants: Participant[];
+  participants: string[];
 }> = ({ participants }) => {
   return (
     <div className="flex -space-x-1">
@@ -160,7 +163,7 @@ const SummarizedParticipantList: React.VoidFunctionComponent<{
             <UserAvatar
               key={i}
               className="ring-1 ring-white"
-              name={participant.name}
+              name={participant}
             />
           );
         })}
@@ -181,7 +184,7 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
   participants,
   editable = false,
   yesScore,
-  optionId,
+  optionIndex,
 }) => {
   const showVotes = !!(selectedParticipantId || editable);
   const [expanded, setExpanded] = React.useState(false);
@@ -228,10 +231,10 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
           {editable ? (
             <div className="flex h-full w-14 items-center justify-center">
               <VoteSelector
+                className="w-9"
                 ref={selectorRef}
                 value={vote}
                 onChange={onChange}
-                className="w-9"
               />
             </div>
           ) : (
@@ -247,10 +250,12 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
         </CollapsibleContainer>
       </div>
       <AnimatePresence initial={false}>
-        {expanded ? <PollOptionVoteSummary optionId={optionId} /> : null}
+        {expanded ? <PollOptionVoteSummary optionIndex={optionIndex} /> : null}
       </AnimatePresence>
       {!expanded && participants.length > 0 ? (
-        <SummarizedParticipantList participants={participants} />
+        <SummarizedParticipantList
+          participants={participants.map(({ name }) => name)}
+        />
       ) : null}
     </div>
   );

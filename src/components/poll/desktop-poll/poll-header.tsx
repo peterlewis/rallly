@@ -1,9 +1,9 @@
 import clsx from "clsx";
 import * as React from "react";
 
-import { usePoll } from "@/components/poll-context";
-
+import { useDayjs } from "../../../utils/dayjs";
 import { ScoreSummary } from "../score-summary";
+import { PollOption } from "../types";
 import ControlledScrollArea from "./controlled-scroll-area";
 import { usePollContext } from "./poll-context";
 
@@ -12,6 +12,7 @@ const TimeRange: React.VoidFunctionComponent<{
   endTime: string;
   className?: string;
 }> = ({ startTime, endTime, className }) => {
+  const { dayjs } = useDayjs();
   return (
     <div
       className={clsx(
@@ -19,52 +20,48 @@ const TimeRange: React.VoidFunctionComponent<{
         className,
       )}
     >
-      <div>{startTime}</div>
-      <div className="text-slate-400">{endTime}</div>
+      <div>{dayjs(startTime).format("LT")}</div>
+      <div className="text-slate-400">{dayjs(endTime).format("LT")}</div>
     </div>
   );
 };
 
-const PollHeader: React.VoidFunctionComponent = () => {
-  const { options, getScore } = usePoll();
-  const { setActiveOptionId, columnWidth } = usePollContext();
-
+const PollHeader: React.VoidFunctionComponent<{
+  options: Array<PollOption>;
+}> = ({ options }) => {
+  const { columnWidth } = usePollContext();
+  const {dayjs} = useDayjs();
   return (
     <ControlledScrollArea>
-      {options.map((option) => {
-        const { optionId } = option;
-        const numVotes = getScore(optionId);
+      {options.map((option, i) => {
+        const date = dayjs(option.type === "date" ? option.date : option.start);
+
         return (
           <div
-            key={optionId}
-            className="shrink-0 space-y-3 py-3 text-center"
+            key={i}
+            className="shrink-0 space-y-3 py-2 text-center"
             style={{ width: columnWidth }}
-            onMouseOver={() => setActiveOptionId(optionId)}
-            onMouseOut={() => setActiveOptionId(null)}
           >
             <div>
               <div className="leading-9">
                 <div className="text-xs font-semibold uppercase text-slate-500/75">
-                  {option.dow}
+                  {date.format("ddd")}
                 </div>
-                <div className="text-2xl font-semibold">{option.day}</div>
+                <div className="text-2xl font-semibold">{date.format("D")}</div>
                 <div className="text-xs font-medium uppercase text-slate-500/50">
-                  {option.month}
+                  {date.format("MMM")}
                 </div>
               </div>
             </div>
             {option.type === "time" ? (
               <TimeRange
                 className="mt-3"
-                startTime={option.startTime}
-                endTime={option.endTime}
+                startTime={option.start}
+                endTime={option.end}
               />
             ) : null}
             <div className="flex justify-center">
-              <ScoreSummary
-                yesScore={numVotes.yes}
-                ifNeedBeScore={numVotes.ifNeedBe}
-              />
+              <ScoreSummary yesScore={option.score} />
             </div>
           </div>
         );

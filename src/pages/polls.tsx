@@ -33,7 +33,7 @@ const Polls: React.VoidFunctionComponent = () => {
       <div className="flex h-96 items-center justify-center text-slate-400">
         <div className="space-y-4 text-center">
           <Calendar className=" inline-block h-20" />
-          <div className="">You havent created any polls</div>
+          <div className="">{t("pollsEmpty")}</div>
           <Link href="/new">
             <a className="btn-primary pr-4">
               <Plus className="-ml-1 mr-1 h-5" />
@@ -63,7 +63,7 @@ const Polls: React.VoidFunctionComponent = () => {
             value={query}
             icon={Search}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search…"
+            placeholder={t("searchPlaceholder")}
             className="w-64"
           />
         </div>
