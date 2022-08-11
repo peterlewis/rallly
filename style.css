@@ -51,7 +51,7 @@
     @apply mb-4;
   }
   .input {
-    @apply appearance-none rounded-md border border-gray-200 px-2 py-1 text-slate-700 shadow-sm placeholder:text-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500;
+    @apply appearance-none rounded-md border border-gray-200 px-2 py-1 text-slate-700 placeholder:text-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500;
   }
   input.input {
     @apply h-9;

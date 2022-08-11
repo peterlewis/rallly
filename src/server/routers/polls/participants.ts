@@ -56,12 +56,11 @@ export const participants = createRouter()
         .array(),
     }),
     resolve: async ({ ctx, input: { pollId, votes, name } }) => {
-      const user = ctx.session.user;
       const participant = await prisma.participant.create({
         data: {
           pollId: pollId,
           name: name,
-          userId: user.id,
+          userId: ctx.user.id,
           votes: {
             createMany: {
               data: votes.map(({ optionId, type }) => ({

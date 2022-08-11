@@ -28,14 +28,12 @@ export const comments = createRouter()
       content: z.string(),
     }),
     resolve: async ({ ctx, input: { pollId, authorName, content } }) => {
-      const user = ctx.session.user;
-
       const newComment = await prisma.comment.create({
         data: {
           content,
           pollId,
           authorName,
-          userId: user.id,
+          userId: ctx.user.id,
         },
       });
 

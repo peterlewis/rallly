@@ -87,7 +87,7 @@ const PollPage: NextPage = () => {
         <title>{poll.title}</title>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
-      <div className="relative max-w-full overflow-hidden lg:mt-8">
+      <div className="relative max-w-full lg:mt-8">
         <LayoutGroup>
           {admin ? (
             <>
@@ -156,7 +156,7 @@ const PollPage: NextPage = () => {
               </div>
             </div>
           ) : null}
-          <motion.div layout="position" className="space-y-8">
+          <motion.div layout="position" className="space-y-4 lg:space-y-8">
             <div>
               <div className="space-y-4 lg:px-4">
                 <div>

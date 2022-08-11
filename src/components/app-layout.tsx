@@ -195,7 +195,7 @@ export const AppLayout: React.VFC<{
     <DayjsProvider>
       <ModalProvider>
         <div className="flex lg:min-h-[calc(100vh-64px)]">
-          <div className="grow overflow-y-scroll p-4 lg:px-6">
+          <div className="grow p-4 lg:px-6">
             <Head>
               <title>{title}</title>
             </Head>
@@ -206,7 +206,7 @@ export const AppLayout: React.VFC<{
                     <Logo className="h-6 text-primary-500" />
                   </a>
                 </Link>
-                <div className="flex items-center space-x-1 overflow-hidden rounded-lg bg-slate-500/10 py-1 px-3">
+                <div className="flex min-w-0 items-center space-x-1 overflow-hidden rounded-lg bg-slate-500/10 py-1 px-3">
                   {breadcrumbs?.map((breadcrumb, i) => (
                     <div className="flex shrink-0 items-center" key={i}>
                       <Link href={breadcrumb.href}>
@@ -217,7 +217,9 @@ export const AppLayout: React.VFC<{
                       <ChevronRight className="inline-block h-5 text-gray-400" />
                     </div>
                   ))}
-                  <div className="truncate font-medium">{title}</div>
+                  <div className="min-w-0 shrink truncate font-medium">
+                    {title}
+                  </div>
                 </div>
               </div>
               <div className="hidden items-center md:flex lg:space-x-2">

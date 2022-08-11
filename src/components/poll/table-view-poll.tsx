@@ -79,9 +79,6 @@ const TableViewPoll: React.VoidFunctionComponent<
   const [shouldShowNewParticipantForm, setShouldShowNewParticipantForm] =
     React.useState(!userAlreadyVoted);
 
-  const pollWidth =
-    sidebarWidth + options.length * columnWidth + actionColumnWidth;
-
   const goToNextPage = () => {
     setScrollPosition(
       Math.min(
@@ -115,56 +112,51 @@ const TableViewPoll: React.VoidFunctionComponent<
         maxScrollPosition,
       }}
     >
-      <div className="flex flex-col overflow-hidden">
-        <div>
-          <div className="flex py-2">
-            <div
-              className="flex shrink-0 items-center py-2 pl-4 pr-2 font-medium"
-              style={{ width: sidebarWidth }}
-            >
-              <div className="flex h-full grow items-end">
-                {t("participantCount", { count: participants.length })}
-              </div>
+      <div className="relative flex flex-col">
+        <div className="sticky top-0 z-20 flex rounded-t-lg bg-white/75 py-2 backdrop-blur-md">
+          <div
+            className="flex shrink-0 items-center py-2 pl-5 pr-2 font-medium"
+            style={{ width: sidebarWidth }}
+          >
+            <div className="flex h-full grow items-end">
+              {t("participantCount", { count: participants.length })}
+            </div>
+            <AnimatePresence initial={false}>
+              {scrollPosition > 0 ? (
+                <MotionButton
+                  transition={{ duration: 0.1 }}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  rounded={true}
+                  onClick={goToPreviousPage}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </MotionButton>
+              ) : null}
+            </AnimatePresence>
+          </div>
+          <PollHeader options={options} />
+          <div className="flex items-center py-3 px-2">
+            {maxScrollPosition > 0 ? (
               <AnimatePresence initial={false}>
-                {scrollPosition > 0 ? (
+                {scrollPosition < maxScrollPosition ? (
                   <MotionButton
                     transition={{ duration: 0.1 }}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
+                    className="text-xs"
                     rounded={true}
-                    onClick={goToPreviousPage}
+                    onClick={() => {
+                      goToNextPage();
+                    }}
                   >
-                    <ArrowLeft className="h-4 w-4" />
+                    <ArrowRight className="h-4 w-4" />
                   </MotionButton>
                 ) : null}
               </AnimatePresence>
-            </div>
-            <PollHeader options={options} />
-            <div
-              className="flex items-center py-3 px-2"
-              style={{ width: actionColumnWidth }}
-            >
-              {maxScrollPosition > 0 ? (
-                <AnimatePresence initial={false}>
-                  {scrollPosition < maxScrollPosition ? (
-                    <MotionButton
-                      transition={{ duration: 0.1 }}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="text-xs"
-                      rounded={true}
-                      onClick={() => {
-                        goToNextPage();
-                      }}
-                    >
-                      <ArrowRight className="h-4 w-4" />
-                    </MotionButton>
-                  ) : null}
-                </AnimatePresence>
-              ) : null}
-            </div>
+            ) : null}
           </div>
         </div>
         {participants.length > 0 ? (
@@ -273,7 +265,7 @@ const TableViewPoll: React.VoidFunctionComponent<
 const Resizer: React.VoidFunctionComponent<PollProps> = (props) => {
   const [ref, { width }] = useMeasure<HTMLDivElement>();
   return (
-    <div ref={ref} className="w-full overflow-hidden">
+    <div ref={ref}>
       {width > 0 ? <TableViewPoll {...props} width={width} /> : null}
     </div>
   );

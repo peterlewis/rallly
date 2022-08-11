@@ -49,7 +49,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
   return (
     <div data-testid="participant-row" className="group flex h-14">
       <div
-        className="flex shrink-0 items-center px-4"
+        className="flex shrink-0 items-center pl-5 pr-4"
         style={{ width: sidebarWidth }}
       >
         <UserAvatar
