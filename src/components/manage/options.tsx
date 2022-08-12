@@ -1,4 +1,3 @@
-import isEqual from "lodash/isEqual";
 import { Trans, useTranslation } from "next-i18next";
 
 import { encodeDateOption, parseValue } from "../../utils/date-time-utils";
@@ -32,22 +31,19 @@ export const Options: React.VFC = () => {
           options: poll.options.map(({ value }) => parseValue(value)),
         }}
         onSubmit={async (data) => {
+          const encodedOptions = data.options.map(encodeDateOption);
           const optionsToDelete = poll.options.filter((option) => {
-            return !data.options.some((o) => isEqual(o, option.value));
+            return !encodedOptions.includes(option.value);
           });
 
-          const optionsToAdd = data.options
-            .filter(
-              (option) =>
-                !poll.options.some((o) =>
-                  isEqual(o.value, encodeDateOption(option)),
-                ),
-            )
-            .map(encodeDateOption);
+          const optionsToAdd = encodedOptions.filter(
+            (encodedOption) =>
+              !poll.options.find((o) => o.value === encodedOption),
+          );
 
           const onOk = async () => {
             await updatePoll.mutateAsync({
-              urlId: poll.id,
+              urlId: poll.adminUrlId,
               timeZone: data.timeZone,
               optionsToDelete: optionsToDelete.map(({ id }) => id),
               optionsToAdd,
