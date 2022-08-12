@@ -90,20 +90,6 @@ const PollPage: NextPage = () => {
     }
   }, [plausible, urlId, router, updatePollMutation, t]);
 
-  const checkIfWideScreen = () => window.innerWidth > 640;
-
-  const [isWideScreen, setIsWideScreen] = React.useState(checkIfWideScreen);
-
-  React.useEffect(() => {
-    const listener = () => setIsWideScreen(checkIfWideScreen());
-
-    window.addEventListener("resize", listener);
-
-    return () => {
-      window.removeEventListener("resize", listener);
-    };
-  }, []);
-
   const names = React.useMemo(
     () => participants?.map(({ name }) => name) ?? [],
     [participants],
