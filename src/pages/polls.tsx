@@ -52,15 +52,7 @@ const Polls: React.VoidFunctionComponent = () => {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between space-x-8">
-        <div className="font-bold">{polls.length} polls</div>
-
         <div className="flex space-x-4">
-          <Link href="/new">
-            <a className="btn-primary pr-4">
-              <Plus className="-ml-1 mr-1 h-5" />
-              {t("newPoll")}
-            </a>
-          </Link>
           <TextInput
             value={query}
             icon={Search}
@@ -68,7 +60,14 @@ const Polls: React.VoidFunctionComponent = () => {
             placeholder={t("searchPlaceholder")}
             className="w-64"
           />
+          <Link href="/new">
+            <a className="btn-primary pr-4">
+              <Plus className="-ml-1 mr-1 h-5" />
+              {t("newPoll")}
+            </a>
+          </Link>
         </div>
+        <div className="font-semibold">{polls.length} polls</div>
       </div>
       <div className="space-y-4">
         {polls.map((poll) => {

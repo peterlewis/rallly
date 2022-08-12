@@ -20,12 +20,21 @@ export const DeletePollForm: React.VoidFunctionComponent<{
     useForm<{ confirmation: string }>();
 
   const plausible = usePlausible();
-
+  const queryClient = trpc.useContext();
   const confirmationText = watch("confirmation");
   const canDelete = confirmationText === confirmText;
   const deletePoll = trpc.useMutation("polls.delete", {
     onSuccess: () => {
       plausible("Deleted poll");
+      queryClient.setQueryData(
+        ["polls.get", { urlId, admin: true }],
+        (poll) => {
+          if (!poll) {
+            throw new Error("Poll not found");
+          }
+          return { ...poll, deleted: true };
+        },
+      );
     },
   });
 

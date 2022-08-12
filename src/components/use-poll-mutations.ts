@@ -1,5 +1,5 @@
 import { trpc } from "../utils/trpc";
-import { usePoll } from "./poll-context";
+import { usePoll } from "./poll-provider";
 
 export const usePollMutations = () => {
   const queryClient = trpc.useContext();

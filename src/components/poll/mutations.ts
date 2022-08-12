@@ -1,18 +1,7 @@
 import { usePlausible } from "next-plausible";
 
 import { trpc } from "../../utils/trpc";
-import { usePoll } from "../poll-context";
-import { ParticipantForm } from "./types";
-
-export const normalizeVotes = (
-  optionIds: string[],
-  votes: ParticipantForm["votes"],
-) => {
-  return optionIds.map((optionId, i) => ({
-    optionId,
-    type: votes[i]?.type ?? ("no" as const),
-  }));
-};
+import { usePoll } from "../poll-provider";
 
 export const useAddParticipantMutation = () => {
   const queryClient = trpc.useContext();

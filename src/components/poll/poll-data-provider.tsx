@@ -5,6 +5,7 @@ import * as React from "react";
 import { trpc } from "../../utils/trpc";
 import { PollOption } from "../../utils/trpc/types";
 import { useRequiredContext } from "../use-required-context";
+import { useUser } from "../user-provider";
 import MobilePoll from "./mobile-poll";
 import TableViewPoll from "./table-view-poll";
 import { ParticipantInfo } from "./types";
@@ -33,19 +34,14 @@ export const PollDataProvider: React.VoidFunctionComponent<{
   timeZone: string | null;
   admin?: boolean;
   pollId: string;
-  userId: string;
   targetTimeZone: string;
   options: PollOption[];
   participants: Array<Participant & { votes: Vote[] }>;
-}> = ({
-  options,
-  participants,
-  timeZone,
-  targetTimeZone,
-  pollId,
-  admin,
-  userId,
-}) => {
+}> = ({ options, participants, timeZone, targetTimeZone, pollId, admin }) => {
+  const { user } = useUser();
+
+  const userId = user.id;
+
   const pollParticipants = participants.map(
     ({ id, name, votes, userId: participantUserId }) => {
       const isYou = userId === participantUserId;
@@ -152,6 +148,11 @@ export const PollDataProvider: React.VoidFunctionComponent<{
     [participantsByVoteType],
   );
 
+  const userAlreadyVoted =
+    user && participants
+      ? participants.some((participant) => participant.userId === user.id)
+      : false;
+
   const contextValue = React.useMemo<PollDataContextValue>(
     () => ({
       participants,
@@ -252,6 +253,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
             });
           }}
           isBusy={addParticipant.isLoading || updateParticipant.isLoading}
+          userAlreadyVoted={userAlreadyVoted}
         />
       </div>
     </PollDataContext.Provider>

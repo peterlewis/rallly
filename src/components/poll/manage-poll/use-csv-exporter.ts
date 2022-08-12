@@ -1,6 +1,6 @@
 import { useTranslation } from "next-i18next";
 
-import { usePoll } from "@/components/poll-context";
+import { usePoll } from "@/components/poll-provider";
 
 import { useDayjs } from "../../../utils/dayjs";
 import { useParticipants } from "../../participants-provider";

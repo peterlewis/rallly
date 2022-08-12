@@ -10,7 +10,7 @@ import ChevronDown from "@/components/icons/chevron-down.svg";
 import Pencil from "@/components/icons/pencil-alt.svg";
 import PlusCircle from "@/components/icons/plus-circle.svg";
 import Trash from "@/components/icons/trash.svg";
-import { usePoll } from "@/components/poll-context";
+import { usePoll } from "@/components/poll-provider";
 
 import { useDayjs } from "../../utils/dayjs";
 import { requiredString } from "../../utils/form-validation";
@@ -27,11 +27,12 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
   participants,
   onEntry,
   onUpdateEntry,
+  userAlreadyVoted,
 }) => {
   const pollContext = usePoll();
 
   const { getParticipantInfoById } = usePollData();
-  const { poll, userAlreadyVoted } = pollContext;
+  const { poll } = pollContext;
 
   const form = useForm<ParticipantForm>({
     defaultValues: {

@@ -3,7 +3,7 @@ import * as React from "react";
 
 import { useDayjs } from "../../utils/dayjs";
 import Badge from "../badge";
-import { usePoll } from "../poll-context";
+import { usePoll } from "../poll-provider";
 import Tooltip from "../tooltip";
 
 const PollSubheader: React.VoidFunctionComponent = () => {

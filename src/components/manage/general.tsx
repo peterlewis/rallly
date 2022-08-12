@@ -6,7 +6,7 @@ import { Button } from "../button";
 import { useModalContext } from "../modal/modal-provider";
 import { DeletePollForm } from "../poll/manage-poll/delete-poll-form";
 import { useCsvExporter } from "../poll/manage-poll/use-csv-exporter";
-import { usePoll } from "../poll-context";
+import { usePoll } from "../poll-provider";
 import { TextInput } from "../text-input";
 import { usePollMutations } from "../use-poll-mutations";
 
@@ -32,8 +32,8 @@ export const General: React.VFC = () => {
   return (
     <div className="space-y-4">
       <div className="mb-4">
-        <div className="font-semibold leading-snug">Details</div>
-        <div className="text-gray-500">Update details of your poll</div>
+        <div className="font-semibold leading-snug">{t("Details")}</div>
+        <div className="text-gray-500">{t("Update details of your poll")}</div>
       </div>
       <form
         onSubmit={handleSubmit(async (data) => {
@@ -94,9 +94,9 @@ export const General: React.VFC = () => {
       <div className="card divide-y p-0">
         <div className="flex justify-between p-4">
           <div>
-            <div className="font-semibold leading-snug">{t("exportToCsv")}</div>
+            <div className="font-semibold leading-snug">{t("Export")}</div>
             <div className="text-gray-500">
-              Export your results to CSV format
+              {t("Export your results to CSV format")}
             </div>
           </div>
           <Button onClick={exportToCsv}>{t("exportToCsv")}</Button>
@@ -105,7 +105,7 @@ export const General: React.VFC = () => {
           <div>
             <div className="font-semibold leading-snug">{t("deletePoll")}</div>
             <div className="text-gray-500">
-              Once a poll is deleted it cannot be recovered
+              {t("Once a poll is deleted it cannot be recovered")}
             </div>
           </div>
           <Button
@@ -126,7 +126,7 @@ export const General: React.VFC = () => {
               });
             }}
           >
-            Delete
+            {t("delete")}
           </Button>
         </div>
       </div>

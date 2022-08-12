@@ -1,5 +1,5 @@
 import { useModalContext } from "../modal/modal-provider";
-import { usePoll } from "../poll-context";
+import { usePoll } from "../poll-provider";
 import { useDeleteParticipantMutation } from "./mutations";
 
 export const useDeleteParticipantModal = () => {

@@ -26,6 +26,7 @@ const defaultSelectFields: {
   legacy: true;
   demo: true;
   notifications: true;
+  deleted: true;
   options: {
     orderBy: {
       value: "asc";
@@ -36,6 +37,7 @@ const defaultSelectFields: {
   id: true,
   timeZone: true,
   userId: true,
+  deleted: true,
   title: true,
   location: true,
   description: true,

@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { useCopyToClipboard } from "react-use";
 
 import { Button } from "./button";
-import { usePoll } from "./poll-context";
+import { usePoll } from "./poll-provider";
 
 export interface SharingProps {
   onHide: () => void;

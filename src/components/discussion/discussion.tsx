@@ -16,7 +16,7 @@ import Trash from "../icons/trash.svg";
 import NameInput from "../name-input";
 import TruncatedLinkify from "../poll/truncated-linkify";
 import UserAvatar from "../poll/user-avatar";
-import { usePoll } from "../poll-context";
+import { usePoll } from "../poll-provider";
 import { useUser } from "../user-provider";
 
 interface CommentForm {

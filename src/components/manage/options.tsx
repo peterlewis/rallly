@@ -1,16 +1,36 @@
+import { Participant } from "@prisma/client";
 import { Trans, useTranslation } from "next-i18next";
+import React from "react";
 
 import { encodeDateOption, parseValue } from "../../utils/date-time-utils";
 import { Button } from "../button";
 import { PollOptionsForm } from "../forms";
 import { useModalContext } from "../modal/modal-provider";
-import { usePoll } from "../poll-context";
+import { useParticipants } from "../participants-provider";
+import { usePoll } from "../poll-provider";
 import { usePollMutations } from "../use-poll-mutations";
 
 const formId = "update-options";
 
 export const Options: React.VFC = () => {
-  const { poll, getParticipantsWhoVotedForOption } = usePoll();
+  const { poll } = usePoll();
+
+  const { participants } = useParticipants();
+
+  const participantsByOptionId = React.useMemo(() => {
+    return poll.options.reduce<Record<string, Participant[]>>((acc, option) => {
+      acc[option.id] = participants.filter((participant) =>
+        participant.votes.some(
+          ({ type, optionId }) => optionId === option.id && type === "yes",
+        ),
+      );
+      return acc;
+    }, {});
+  }, [participants, poll.options]);
+
+  const getParticipantsWhoVotedForOption = (optionId: string) =>
+    participantsByOptionId[optionId];
+
   const firstOption = parseValue(poll.options[0].value);
   const navigationDate =
     firstOption.type === "date" ? firstOption.date : firstOption.start;
@@ -56,7 +76,7 @@ export const Options: React.VFC = () => {
 
           if (optionsToDeleteThatHaveVotes.length > 0) {
             modalContext.render({
-              title: "Are you sure?",
+              title: t("areYouSure"),
               description: (
                 <Trans
                   t={t}
@@ -68,8 +88,8 @@ export const Options: React.VFC = () => {
               okButtonProps: {
                 type: "danger",
               },
-              okText: "Delete",
-              cancelText: "Cancel",
+              okText: t("delete"),
+              cancelText: t("cancel"),
             });
           } else {
             onOk();

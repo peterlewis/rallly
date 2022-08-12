@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { trpc } from "../utils/trpc";
 import FullPageLoader from "./full-page-loader";
+import { usePoll } from "./poll-provider";
 import { useRequiredContext } from "./use-required-context";
 
 const ParticipantsContext =
@@ -18,8 +19,9 @@ export const useParticipants = () => {
 
 export const ParticipantsProvider: React.VoidFunctionComponent<{
   children?: React.ReactNode;
-  pollId: string;
-}> = ({ children, pollId }) => {
+}> = ({ children }) => {
+  const { poll } = usePoll();
+  const pollId = poll.id;
   const { t } = useTranslation("app");
 
   const { data: participants } = trpc.useQuery([
@@ -40,8 +42,6 @@ export const ParticipantsProvider: React.VoidFunctionComponent<{
       });
     });
   };
-
-  // TODO (Luke Vella) [2022-05-18]: Add mutations here
 
   if (!participants) {
     return <FullPageLoader>{t("loadingParticipants")}</FullPageLoader>;

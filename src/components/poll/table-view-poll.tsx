@@ -10,7 +10,7 @@ import Plus from "@/components/icons/plus-sm.svg";
 import { Button } from "../button";
 import ArrowLeft from "../icons/arrow-left.svg";
 import ArrowRight from "../icons/arrow-right.svg";
-import { usePoll } from "../poll-context";
+import { usePoll } from "../poll-provider";
 import ParticipantRow from "./desktop-poll/participant-row";
 import ParticipantRowForm from "./desktop-poll/participant-row-form";
 import { PollContext } from "./desktop-poll/poll-context";
@@ -35,11 +35,12 @@ const TableViewPoll: React.VoidFunctionComponent<
   onDeleteEntry,
   onUpdateEntry,
   isBusy,
+  userAlreadyVoted,
   width,
 }) => {
   const { t } = useTranslation("app");
 
-  const { poll, userAlreadyVoted } = usePoll();
+  const { poll } = usePoll();
 
   const [editingParticipantId, setEditingParticipantId] =
     React.useState<string | null>(null);

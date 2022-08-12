@@ -6,7 +6,7 @@ import { Button } from "@/components/button";
 import Bell from "@/components/icons/bell.svg";
 import BellCrossed from "@/components/icons/bell-crossed.svg";
 
-import { usePoll } from "../poll-context";
+import { usePoll } from "../poll-provider";
 import Tooltip from "../tooltip";
 import { useUser } from "../user-provider";
 import { useUpdatePollMutation } from "./mutations";

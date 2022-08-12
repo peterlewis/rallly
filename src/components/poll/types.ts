@@ -30,6 +30,7 @@ export interface ParticipantInfo {
 
 export interface PollProps {
   options: PollOption[];
+  userAlreadyVoted?: boolean;
   participants: ParticipantInfo[];
   onEntry?: (entry: ParticipantForm) => Promise<{ id: string }>;
   onUpdateEntry?: (id: string, entry: ParticipantForm) => Promise<void>;
