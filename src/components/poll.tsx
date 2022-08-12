@@ -1,6 +1,7 @@
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { NextPage } from "next";
 import Head from "next/head";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { usePlausible } from "next-plausible";
@@ -93,9 +94,9 @@ const PollPage: NextPage = () => {
             <>
               <div className="mb-4 flex space-x-2 lg:px-4">
                 <NotificationsToggle />
-                <ManagePoll
-                  placement={isWideScreen ? "bottom-end" : "bottom-start"}
-                />
+                <Link href={`/admin/${poll.adminUrlId}/manage`}>
+                  <a className="btn-default">{t("manage")}</a>
+                </Link>
                 <Button
                   type="primary"
                   icon={<Share />}
@@ -156,9 +157,9 @@ const PollPage: NextPage = () => {
               </div>
             </div>
           ) : null}
-          <motion.div layout="position" className="space-y-4 lg:space-y-8">
+          <motion.div layout="position" className="space-y-4">
             <div>
-              <div className="space-y-4 lg:px-4">
+              <div className="space-y-4 lg:p-4">
                 <div>
                   <div
                     className="mb-1 text-2xl font-semibold text-slate-700 md:text-left md:text-3xl"

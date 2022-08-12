@@ -28,7 +28,7 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-4 px-6 pt-3 pb-6 text-slate-400 lg:h-16 lg:flex-row lg:space-y-0 lg:space-x-6 lg:py-0 lg:px-8 lg:pb-3">
+    <div className="flex flex-col items-center justify-center space-y-4 px-6 pt-3 pb-6 text-slate-400 md:h-16 md:flex-row md:space-y-0 md:space-x-6 md:py-0 md:px-8 md:pb-3">
       <div>
         <Link href="https://rallly.co">
           <a className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
@@ -36,7 +36,7 @@ const Footer = () => {
           </a>
         </Link>
       </div>
-      <div className="hidden text-slate-300 lg:block">&bull;</div>
+      <div className="hidden text-slate-300 md:block">&bull;</div>
       <div className="flex items-center justify-center space-x-6 md:justify-start">
         <a
           target="_blank"
@@ -56,7 +56,7 @@ const Footer = () => {
             {t("common:blog")}
           </a>
         </Link>
-        <div className="hidden text-slate-300 lg:block">&bull;</div>
+        <div className="hidden text-slate-300 md:block">&bull;</div>
         <div className="flex items-center space-x-6">
           <a
             href="https://twitter.com/ralllyco"
@@ -78,7 +78,7 @@ const Footer = () => {
           </a>
         </div>
       </div>
-      <div className="hidden text-slate-300 lg:block">&bull;</div>
+      <div className="hidden text-slate-300 md:block">&bull;</div>
       <a
         href="https://www.paypal.com/donate/?hosted_button_id=7QXP2CUBLY88E"
         className="inline-flex h-8 items-center rounded-full bg-slate-100 pl-2 pr-3 text-sm text-slate-400 transition-colors hover:bg-primary-500 hover:text-white hover:no-underline focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 active:bg-primary-600"
@@ -194,76 +194,78 @@ export const AppLayout: React.VFC<{
   return (
     <DayjsProvider>
       <ModalProvider>
-        <div className="flex lg:min-h-[calc(100vh-64px)]">
-          <div className="grow p-4 lg:px-6">
-            <Head>
-              <title>{title}</title>
-            </Head>
-            <div className="mb-4 flex w-full items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Link href="/">
-                  <a>
-                    <Logo className="h-6 text-primary-500" />
-                  </a>
-                </Link>
-                <div className="flex min-w-0 items-center space-x-1 overflow-hidden rounded-lg bg-slate-500/10 py-1 px-3">
-                  {breadcrumbs?.map((breadcrumb, i) => (
-                    <div className="flex shrink-0 items-center" key={i}>
-                      <Link href={breadcrumb.href}>
-                        <a className="mr-1 inline-block text-gray-500 hover:text-gray-600">
-                          {breadcrumb.title}
-                        </a>
-                      </Link>
-                      <ChevronRight className="inline-block h-5 text-gray-400" />
-                    </div>
-                  ))}
-                  <div className="min-w-0 shrink truncate font-medium">
-                    {title}
-                  </div>
-                </div>
-              </div>
-              <div className="hidden items-center md:flex lg:space-x-2">
-                <Popover
-                  placement="bottom-end"
-                  trigger={
-                    <button
-                      type="button"
-                      className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
-                    >
-                      <Adjustments className="h-5 opacity-75" />
-                      <span className="ml-2">{t("preferences")}</span>
-                    </button>
-                  }
-                >
-                  <Preferences />
-                </Popover>
-                <IfGuest>
-                  <Link href="/login">
-                    <a className="flex w-full items-center space-x-2 whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300">
-                      <Login className="h-5 opacity-75" />
-                      <span className="ml-2">{t("login")}</span>
+        <div className="h-full overflow-y-scroll">
+          <div className="flex md:min-h-[calc(100vh-64px)]">
+            <div className="grow p-4 lg:px-6">
+              <Head>
+                <title>{title}</title>
+              </Head>
+              <div className="mb-4 flex w-full items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <Link href="/">
+                    <a>
+                      <Logo className="h-6 text-primary-500" />
                     </a>
                   </Link>
-                </IfGuest>
-                <UserDropdown
-                  key={user.id} // make sure dropdown closes when user changes. There are nicer ways to do this.
-                  placement="bottom-end"
-                  trigger={
-                    <button
-                      type="button"
-                      className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
-                    >
-                      <UserCircle className="h-5 opacity-75" />
-                      <span className="ml-2">{getName()}</span>
-                    </button>
-                  }
-                ></UserDropdown>
+                  <div className="s flex min-w-0 items-center space-x-1 overflow-hidden rounded-lg bg-slate-500/10 py-1 px-3">
+                    {breadcrumbs?.map((breadcrumb, i) => (
+                      <div className="flex shrink-0 items-center" key={i}>
+                        <Link href={breadcrumb.href}>
+                          <a className="mr-1 inline-block text-gray-500 hover:text-gray-600">
+                            {breadcrumb.title}
+                          </a>
+                        </Link>
+                        <ChevronRight className="inline-block h-5 text-gray-400" />
+                      </div>
+                    ))}
+                    <div className="min-w-0 shrink truncate font-medium">
+                      {title}
+                    </div>
+                  </div>
+                </div>
+                <div className="hidden items-center md:flex lg:space-x-2">
+                  <Popover
+                    placement="bottom-end"
+                    trigger={
+                      <button
+                        type="button"
+                        className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
+                      >
+                        <Adjustments className="h-5 opacity-75" />
+                        <span className="ml-2">{t("preferences")}</span>
+                      </button>
+                    }
+                  >
+                    <Preferences />
+                  </Popover>
+                  <IfGuest>
+                    <Link href="/login">
+                      <a className="flex w-full items-center space-x-2 whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300">
+                        <Login className="h-5 opacity-75" />
+                        <span className="ml-2">{t("login")}</span>
+                      </a>
+                    </Link>
+                  </IfGuest>
+                  <UserDropdown
+                    key={user.id} // make sure dropdown closes when user changes. There are nicer ways to do this.
+                    placement="bottom-end"
+                    trigger={
+                      <button
+                        type="button"
+                        className="flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300"
+                      >
+                        <UserCircle className="h-5 opacity-75" />
+                        <span className="ml-2">{getName()}</span>
+                      </button>
+                    }
+                  ></UserDropdown>
+                </div>
               </div>
+              <div className="mx-auto max-w-4xl">{children}</div>
             </div>
-            <div className="mx-auto max-w-4xl">{children}</div>
           </div>
+          <Footer />
         </div>
-        <Footer />
       </ModalProvider>
     </DayjsProvider>
   );

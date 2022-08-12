@@ -44,7 +44,7 @@ const TableViewPoll: React.VoidFunctionComponent<
   const [editingParticipantId, setEditingParticipantId] =
     React.useState<string | null>(null);
 
-  const actionColumnWidth = 140;
+  const actionColumnWidth = 100;
   const columnWidth = Math.min(
     130,
     Math.max(
@@ -113,7 +113,7 @@ const TableViewPoll: React.VoidFunctionComponent<
       }}
     >
       <div className="relative flex flex-col">
-        <div className="sticky top-0 z-20 flex rounded-t-lg bg-white/75 py-2 backdrop-blur-md">
+        <div className="sticky top-0 z-20 flex rounded-lg bg-white/75 py-2 backdrop-blur-md">
           <div
             className="flex shrink-0 items-center py-2 pl-5 pr-2 font-medium"
             style={{ width: sidebarWidth }}
