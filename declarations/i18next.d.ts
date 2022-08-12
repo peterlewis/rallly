@@ -6,6 +6,7 @@ import errors from "~/public/locales/en/errors.json";
 import homepage from "~/public/locales/en/homepage.json";
 import login from "~/public/locales/en/login.json";
 import register from "~/public/locales/en/register.json";
+import timeZones from "~/public/locales/en/time-zones.json";
 
 declare module "next-i18next" {
   interface Resources {
@@ -15,5 +16,6 @@ declare module "next-i18next" {
     errors: typeof errors;
     register: typeof register;
     login: typeof login;
+    timeZones: typeof timeZones;
   }
 }

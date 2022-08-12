@@ -16,7 +16,6 @@ import { preventWidows } from "@/utils/prevent-widows";
 
 import { AppLayoutHeading } from "./app-layout";
 import { useParticipants } from "./participants-provider";
-import ManagePoll from "./poll/manage-poll";
 import { useUpdatePollMutation } from "./poll/mutations";
 import NotificationsToggle from "./poll/notifications-toggle";
 import { PollDataProvider } from "./poll/poll-data-provider";
@@ -27,7 +26,38 @@ import { UserAvatarProvider } from "./poll/user-avatar";
 import VoteIcon from "./poll/vote-icon";
 import { usePoll } from "./poll-context";
 import Sharing from "./sharing";
+import TimeZonePicker from "./time-zone-picker";
+import { useTimeZones } from "./time-zone-picker/time-zone-picker";
 import { useUser } from "./user-provider";
+
+const TimeZone = () => {
+  const { t } = useTranslation("app");
+  const { findFuzzyTz } = useTimeZones();
+  const { targetTimeZone, setTargetTimeZone } = usePoll();
+
+  const [isEditing, setEditing] = React.useState(false);
+  if (isEditing) {
+    return (
+      <div className="mt-1 flex space-x-3">
+        <TimeZonePicker
+          className="w-96"
+          value={targetTimeZone}
+          onChange={setTargetTimeZone}
+        />
+        <Button onClick={() => setEditing(false)}>Done</Button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <span>{findFuzzyTz(targetTimeZone).label}</span>
+      <Button className="ml-3" onClick={() => setEditing(true)}>
+        {t("change")}
+      </Button>
+    </div>
+  );
+};
 
 const PollPage: NextPage = () => {
   const { poll, urlId, admin, targetTimeZone } = usePoll();
@@ -182,6 +212,16 @@ const PollPage: NextPage = () => {
                       {t("location")}
                     </div>
                     <TruncatedLinkify>{poll.location}</TruncatedLinkify>
+                  </div>
+                ) : null}
+                {poll.timeZone ? (
+                  <div className="lg:text-lg">
+                    <div className="text-sm text-slate-500">
+                      {t("timesShown")}
+                    </div>
+                    <div>
+                      <TimeZone />
+                    </div>
                   </div>
                 ) : null}
                 <div>

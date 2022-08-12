@@ -7,13 +7,15 @@ import {
 } from "@floating-ui/react-dom-interactions";
 import { Combobox } from "@headlessui/react";
 import clsx from "clsx";
+import { useTranslation } from "next-i18next";
 import React from "react";
 import spacetime from "spacetime";
 import soft from "timezone-soft";
 
+import timeZones from "~/public/locales/en/time-zones.json";
+
 import ChevronDown from "../../components/icons/chevron-down.svg";
 import { styleMenuItem } from "../menu-styles";
-import timeZones from "./time-zones.json";
 
 interface TimeZoneOption {
   value: string;
@@ -21,7 +23,8 @@ interface TimeZoneOption {
   offset: number;
 }
 
-const useTimeZones = () => {
+export const useTimeZones = () => {
+  const { t } = useTranslation("timeZones");
   const options = React.useMemo(() => {
     return Object.entries(timeZones)
       .reduce<TimeZoneOption[]>((selectOptions, zone) => {
@@ -33,7 +36,10 @@ const useTimeZones = () => {
         const min = tz.current.offset * 60;
         const hr =
           `${(min / 60) ^ 0}:` + (min % 60 === 0 ? "00" : Math.abs(min % 60));
-        const prefix = `(GMT${hr.includes("-") ? hr : `+${hr}`}) ${zone[1]}`;
+        const prefix = `(GMT${hr.includes("-") ? hr : `+${hr}`}) ${t(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          zone[1] as any,
+        )}`;
 
         label = prefix;
 
@@ -46,7 +52,7 @@ const useTimeZones = () => {
         return selectOptions;
       }, [])
       .sort((a: TimeZoneOption, b: TimeZoneOption) => a.offset - b.offset);
-  }, []);
+  }, [t]);
 
   const findFuzzyTz = React.useCallback(
     (zone: string): TimeZoneOption => {
@@ -124,7 +130,7 @@ const TimeZonePicker: React.VoidFunctionComponent<{
   style?: React.CSSProperties;
   disabled?: boolean;
 }> = ({ value, onChange, onBlur, className, style, disabled }) => {
-  const { options, findFuzzyTz } = useTimeZones();
+  const { options: timeZoneOptions, findFuzzyTz } = useTimeZones();
 
   const { reference, floating, x, y, strategy, refs } = useFloating({
     strategy: "fixed",
@@ -142,18 +148,6 @@ const TimeZonePicker: React.VoidFunctionComponent<{
       }),
     ],
   });
-
-  const timeZoneOptions = React.useMemo(
-    () => [
-      {
-        value: "",
-        label: "Ignore time zone",
-        offset: 0,
-      },
-      ...options,
-    ],
-    [options],
-  );
 
   const selectedTimeZone = React.useMemo(
     () =>

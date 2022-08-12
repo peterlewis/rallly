@@ -29,36 +29,38 @@ const PollOptionsForm: React.VoidFunctionComponent<
   PollFormProps<PollOptionsData> & { title?: string }
 > = ({ formId, defaultValues, onSubmit, onChange, title }) => {
   const { t } = useTranslation("app");
-  const { handleSubmit, watch, setValue } = useForm<PollOptionsData>({
-    defaultValues,
-    resolver: (values) => {
-      return {
-        values,
-        errors:
-          values.options.length === 0
-            ? {
-                options: true,
-              }
-            : {},
-      };
+  const { handleSubmit, watch, setValue, formState } = useForm<PollOptionsData>(
+    {
+      defaultValues,
+      resolver: (values) => {
+        return {
+          values,
+          errors:
+            values.options.length === 0
+              ? {
+                  options: true,
+                }
+              : {},
+        };
+      },
     },
-  });
+  );
 
   const views = React.useMemo(() => {
     const res = [
       {
-        label: "Month view",
+        label: t("monthView"),
         value: "month",
         Component: MonthCalendar,
       },
       {
-        label: "Week view",
+        label: t("weekView"),
         value: "week",
         Component: WeekCalendar,
       },
     ];
     return res;
-  }, []);
+  }, [t]);
 
   const watchView = watch("view");
 
@@ -80,6 +82,9 @@ const PollOptionsForm: React.VoidFunctionComponent<
         "options",
         watchOptions.filter((option) => option.type === "time"),
       );
+      if (!watchTimeZone) {
+        setValue("timeZone", getBrowserTimeZone());
+      }
     },
     cancelText: t("mixedOptionsKeepDates"),
     onCancel: () => {
@@ -87,6 +92,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
         "options",
         watchOptions.filter((option) => option.type === "date"),
       );
+      setValue("timeZone", "");
     },
   });
 
@@ -168,6 +174,21 @@ const PollOptionsForm: React.VoidFunctionComponent<
                 }}
                 onChange={(options) => {
                   setValue("options", options);
+                  if (
+                    options.length === 0 ||
+                    options.every((option) => option.type === "date")
+                  ) {
+                    // unset the timeZone if we only have date option
+                    setValue("timeZone", "");
+                  }
+                  if (
+                    options.length > 0 &&
+                    !formState.touchedFields.timeZone &&
+                    options.every((option) => option.type === "time")
+                  ) {
+                    // set timeZone if we are adding time ranges and we haven't touched the timeZone field
+                    setValue("timeZone", getBrowserTimeZone());
+                  }
                 }}
                 duration={watchDuration}
                 onChangeDuration={(duration) => {
@@ -177,7 +198,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
             </div>
             <div className="flex h-14 shrink-0 items-center justify-between space-x-4 border-t px-3">
               <TimezonePicker
-                value={watchTimeZone && !isAllDayEvent ? "auto" : "fixed"}
+                value={watchTimeZone ? "auto" : "fixed"}
                 disabled={isAllDayEvent}
                 onChange={(timezone) => {
                   setValue(

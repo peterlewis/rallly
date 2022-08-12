@@ -5,7 +5,6 @@ import * as React from "react";
 
 import ChevronLeft from "@/components/icons/chevron-left.svg";
 
-import { getBrowserTimeZone } from "../utils/date-time-utils";
 import { trpc } from "../utils/trpc";
 import { AppLayout } from "./app-layout";
 import { Button } from "./button";
@@ -33,7 +32,7 @@ const initialState: NewPollState = {
     duration: 30,
     options: [],
     view: "month",
-    timeZone: getBrowserTimeZone(),
+    timeZone: "",
   },
 };
 
