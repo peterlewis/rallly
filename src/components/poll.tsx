@@ -14,6 +14,7 @@ import LockClosed from "@/components/icons/lock-closed.svg";
 import Share from "@/components/icons/share.svg";
 import { preventWidows } from "@/utils/prevent-widows";
 
+import { AppLayoutHeading } from "./app-layout";
 import { useParticipants } from "./participants-provider";
 import ManagePoll from "./poll/manage-poll";
 import { useUpdatePollMutation } from "./poll/mutations";
@@ -88,25 +89,10 @@ const PollPage: NextPage = () => {
         <title>{poll.title}</title>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
-      <div className="relative max-w-full lg:mt-8">
+      <div className="relative max-w-full">
         <LayoutGroup>
           {admin ? (
             <>
-              <div className="mb-4 flex space-x-2 lg:px-4">
-                <NotificationsToggle />
-                <Link href={`/admin/${poll.adminUrlId}/manage`}>
-                  <a className="btn-default">{t("manage")}</a>
-                </Link>
-                <Button
-                  type="primary"
-                  icon={<Share />}
-                  onClick={() => {
-                    setSharingVisible((value) => !value);
-                  }}
-                >
-                  {t("share")}
-                </Button>
-              </div>
               <AnimatePresence initial={false}>
                 {isSharingVisible ? (
                   <motion.div
@@ -121,7 +107,7 @@ const PollPage: NextPage = () => {
                     }}
                     exit={{
                       opacity: 0,
-                      scale: 0.8,
+                      scale: 0.9,
                     }}
                     className="mb-4 overflow-hidden"
                   >
@@ -157,18 +143,32 @@ const PollPage: NextPage = () => {
               </div>
             </div>
           ) : null}
-          <motion.div layout="position" className="space-y-4">
+          <motion.div layout="position" initial={false} className="space-y-8">
             <div>
-              <div className="space-y-4 lg:p-4">
-                <div>
-                  <div
-                    className="mb-1 text-2xl font-semibold text-slate-700 md:text-left md:text-3xl"
-                    data-testid="poll-title"
-                  >
-                    {preventWidows(poll.title)}
-                  </div>
-                  <PollSubheader />
-                </div>
+              <div className="space-y-4">
+                <AppLayoutHeading
+                  title={preventWidows(poll.title)}
+                  description={<PollSubheader />}
+                  actions={
+                    admin ? (
+                      <div className="flex space-x-2">
+                        <NotificationsToggle />
+                        <Link href={`/admin/${poll.adminUrlId}/manage`}>
+                          <a className="btn-default">{t("manage")}</a>
+                        </Link>
+                        <Button
+                          type="primary"
+                          icon={<Share />}
+                          onClick={() => {
+                            setSharingVisible((value) => !value);
+                          }}
+                        >
+                          {t("share")}
+                        </Button>
+                      </div>
+                    ) : null
+                  }
+                />
                 {poll.description ? (
                   <div className="border-primary whitespace-pre-line lg:text-lg">
                     <TruncatedLinkify>

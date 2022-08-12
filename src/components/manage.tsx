@@ -1,7 +1,9 @@
 import { Tab } from "@headlessui/react";
 import clsx from "clsx";
+import { Trans, useTranslation } from "next-i18next";
 import React from "react";
 
+import { AppLayoutHeading } from "./app-layout";
 import { General } from "./manage/general";
 import { Options } from "./manage/options";
 
@@ -23,9 +25,13 @@ const TabItem: React.VFC<{ children?: React.ReactNode }> = ({ children }) => {
 };
 
 export const Manage: React.VFC = () => {
+  const { t } = useTranslation("app");
   return (
     <div className="mt-8">
-      <div className="mb-4 text-3xl">Manage your meeting poll</div>
+      <AppLayoutHeading
+        title={t("manage")}
+        description="Manage your poll details and settings"
+      />
       <Tab.Group>
         <Tab.List className="mb-4 flex space-x-6 border-b">
           <TabItem>General</TabItem>

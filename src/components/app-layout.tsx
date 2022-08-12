@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import Head from "next/head";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
@@ -90,6 +91,32 @@ const Footer = () => {
   );
 };
 
+export const AppLayoutHeading: React.VoidFunctionComponent<{
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  actions?: React.ReactNode;
+  className?: string;
+}> = ({ title, description, actions, className }) => {
+  return (
+    <div
+      className={clsx("flex items-start justify-between space-x-4", className)}
+    >
+      <div className="grow">
+        <div
+          className="mb-1 text-2xl font-semibold text-slate-700 md:text-left md:text-3xl"
+          data-testid="poll-title"
+        >
+          {title}
+        </div>
+        {description ? (
+          <div className="text-slate-500/75 lg:text-lg">{description}</div>
+        ) : null}
+      </div>
+      {actions}
+    </div>
+  );
+};
+
 const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
   children,
   ...forwardProps
@@ -177,7 +204,7 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
 
 export const AppLayout: React.VFC<{
   children?: React.ReactNode;
-  title: string;
+  title: React.ReactNode;
   breadcrumbs?: Array<{ title: React.ReactNode; href: string }>;
 }> = ({ title, breadcrumbs, children }) => {
   const { t } = useTranslation("app");
@@ -261,7 +288,7 @@ export const AppLayout: React.VFC<{
                   ></UserDropdown>
                 </div>
               </div>
-              <div className="mx-auto max-w-4xl">{children}</div>
+              <div className="mx-auto mt-8 max-w-4xl">{children}</div>
             </div>
           </div>
           <Footer />

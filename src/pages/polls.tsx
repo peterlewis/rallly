@@ -8,7 +8,7 @@ import Calendar from "@/components/icons/calendar.svg";
 import Plus from "@/components/icons/plus-sm.svg";
 import Search from "@/components/icons/search.svg";
 
-import { AppLayout } from "../components/app-layout";
+import { AppLayout, AppLayoutHeading } from "../components/app-layout";
 import FullPageLoader from "../components/full-page-loader";
 import { TextInput } from "../components/text-input";
 import { withUserSession } from "../components/user-provider";
@@ -51,7 +51,9 @@ const Polls: React.VoidFunctionComponent = () => {
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex items-center justify-between space-x-8">
+        <div className="font-bold">{polls.length} polls</div>
+
         <div className="flex space-x-4">
           <Link href="/new">
             <a className="btn-primary pr-4">
@@ -122,6 +124,11 @@ const Page = () => {
 
   return (
     <AppLayout title={t("meetingPolls")}>
+      <AppLayoutHeading
+        className="mb-4"
+        title={t("meetingPolls")}
+        description="Ask participants which days and times they are available to meet."
+      />
       <Polls />
     </AppLayout>
   );
