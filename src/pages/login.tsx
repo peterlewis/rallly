@@ -14,7 +14,7 @@ import { validEmail } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
 import { withPageTranslations } from "../utils/with-page-translations";
 
-const Page: NextPage = () => {
+const Page: NextPage<{ referrer?: string }> = ({ referrer }) => {
   const { register, handleSubmit, formState, setError } =
     useForm<{ email: string; password: string }>();
   const login = trpc.useMutation("user.login");
@@ -35,13 +35,13 @@ const Page: NextPage = () => {
             {t("login")}
           </div>
           {login.data?.ok === true ? (
-            <div>Please check your email to proceed.</div>
+            <div>{t("checkYourEmail")}</div>
           ) : (
             <form
               onSubmit={handleSubmit(async (data) => {
                 const res = await login.mutateAsync({
                   email: data.email,
-                  redirect: router.query.redirect as string,
+                  redirect: (router.query.redirect as string) ?? referrer,
                 });
                 if (!res.ok) {
                   setError("email", {
@@ -100,7 +100,18 @@ export const getServerSideProps: GetServerSideProps = withSessionSsr(
       };
     }
 
-    return await withPageTranslations(["common", "login"])(ctx);
+    const res = await withPageTranslations(["common", "login"])(ctx);
+
+    if ("props" in res) {
+      return {
+        props: {
+          ...res.props,
+          referrer: ctx.req.headers.referer,
+        },
+      };
+    }
+
+    return res;
   },
 );
 

@@ -10,7 +10,7 @@ export const getServerSideProps = withSessionSsr(async (ctx) => {
   ctx.req.session.destroy();
   return {
     redirect: {
-      destination: "/login",
+      destination: ctx.req.headers.referer ?? "/login",
       permanent: false,
     },
   };

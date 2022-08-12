@@ -1,9 +1,14 @@
 import Link, { LinkProps } from "next/link";
 
-export const LinkText = (props: React.PropsWithChildren<LinkProps>) => {
+export const LinkText = ({
+  href,
+  onClick,
+  children,
+  ...forwardProps
+}: React.PropsWithChildren<LinkProps>) => {
   return (
-    <Link {...props} href={props.href || ""}>
-      <a>{props.children}</a>
+    <Link {...forwardProps} href={href}>
+      <a onClick={onClick}>{children}</a>
     </Link>
   );
 };
