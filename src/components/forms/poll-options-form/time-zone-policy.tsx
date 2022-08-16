@@ -23,7 +23,7 @@ const TimeZonePolicyOption: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "flex cursor-default select-none items-start space-x-4 px-4 py-3 transition-all hover:bg-slate-300/10 active:bg-slate-500/10",
+        "flex max-w-sm cursor-default select-none items-start space-x-4 px-4 py-3 transition-all hover:bg-slate-300/10 active:bg-slate-500/10",
         className,
       )}
     >
@@ -114,7 +114,7 @@ export const TimezonePicker: React.VoidFunctionComponent<{
                       <TimeZonePolicyOption
                         icon={Globe}
                         title="Automatic time zones"
-                        description="Times will be automatically adjusted for each"
+                        description="Times will be automatically adjusted for each participant."
                         active={selected}
                       />
                     )}
@@ -124,7 +124,7 @@ export const TimezonePicker: React.VoidFunctionComponent<{
                       <TimeZonePolicyOption
                         icon={LocationMarker}
                         title="Fixed time zone"
-                        description="Everyone will see the same times"
+                        description="Everyone will see the same times regardless of their time zone."
                         active={selected}
                       />
                     )}

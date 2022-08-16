@@ -25,7 +25,7 @@ import Popover from "./popover";
 import Preferences from "./preferences";
 import { IfAuthenticated, IfGuest, useUser } from "./user-provider";
 
-const Footer = () => {
+const Footer: React.VoidFunctionComponent = () => {
   const { t } = useTranslation();
 
   return (
