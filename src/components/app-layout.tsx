@@ -202,6 +202,27 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
   );
 };
 
+const Breadcrumbs: React.VoidFunctionComponent<{
+  title: React.ReactNode;
+  breadcrumbs?: Array<{ title: React.ReactNode; href: string }>;
+}> = ({ title, breadcrumbs }) => {
+  return (
+    <div className="flex items-center space-x-1 overflow-hidden rounded-lg bg-slate-500/10 py-1 px-3">
+      {breadcrumbs?.map((breadcrumb, i) => (
+        <div className="flex shrink-0 items-center" key={i}>
+          <Link href={breadcrumb.href}>
+            <a className="mr-1 inline-block text-gray-500 hover:text-gray-600">
+              {breadcrumb.title}
+            </a>
+          </Link>
+          <ChevronRight className="inline-block h-5 text-gray-400" />
+        </div>
+      ))}
+      <div className="shrink truncate font-medium">{title}</div>
+    </div>
+  );
+};
+
 export const AppLayout: React.VFC<{
   children?: React.ReactNode;
   title: React.ReactNode;
@@ -221,34 +242,20 @@ export const AppLayout: React.VFC<{
   return (
     <DayjsProvider>
       <ModalProvider>
-        <div className="h-full overflow-y-scroll">
+        <div className="h-full max-w-full overflow-x-hidden overflow-y-scroll">
           <div className="flex md:min-h-[calc(100vh-64px)]">
-            <div className="grow p-4 lg:px-6">
+            <div className="max-w-full grow p-4 lg:px-6">
               <Head>
                 <title>{title}</title>
               </Head>
-              <div className="mb-4 flex w-full items-center justify-between">
-                <div className="flex items-center space-x-4">
+              <div className="mb-4 flex w-full max-w-full items-center justify-between">
+                <div className="flex items-center space-x-4 overflow-hidden">
                   <Link href="/">
                     <a>
                       <Logo className="h-6 text-primary-500" />
                     </a>
                   </Link>
-                  <div className="s flex min-w-0 items-center space-x-1 overflow-hidden rounded-lg bg-slate-500/10 py-1 px-3">
-                    {breadcrumbs?.map((breadcrumb, i) => (
-                      <div className="flex shrink-0 items-center" key={i}>
-                        <Link href={breadcrumb.href}>
-                          <a className="mr-1 inline-block text-gray-500 hover:text-gray-600">
-                            {breadcrumb.title}
-                          </a>
-                        </Link>
-                        <ChevronRight className="inline-block h-5 text-gray-400" />
-                      </div>
-                    ))}
-                    <div className="min-w-0 shrink truncate font-medium">
-                      {title}
-                    </div>
-                  </div>
+                  <Breadcrumbs title={title} breadcrumbs={breadcrumbs} />
                 </div>
                 <div className="hidden items-center md:flex lg:space-x-2">
                   <Popover
