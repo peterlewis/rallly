@@ -114,7 +114,7 @@ export const TimezonePicker: React.VoidFunctionComponent<{
                       <TimeZonePolicyOption
                         icon={Globe}
                         title="Automatic time zones"
-                        description="Participants will see times adjusted to their timezone"
+                        description="Times will be automatically adjusted for each"
                         active={selected}
                       />
                     )}
@@ -124,7 +124,7 @@ export const TimezonePicker: React.VoidFunctionComponent<{
                       <TimeZonePolicyOption
                         icon={LocationMarker}
                         title="Fixed time zone"
-                        description="All participants will see the same times"
+                        description="Everyone will see the same times"
                         active={selected}
                       />
                     )}

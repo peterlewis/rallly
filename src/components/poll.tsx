@@ -28,7 +28,6 @@ import { usePoll } from "./poll-provider";
 import Sharing from "./sharing";
 import TimeZonePicker from "./time-zone-picker";
 import { useTimeZones } from "./time-zone-picker/time-zone-picker";
-import { useUser } from "./user-provider";
 
 const TimeZone = () => {
   const { t } = useTranslation("app");

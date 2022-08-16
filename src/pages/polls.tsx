@@ -67,7 +67,9 @@ const Polls: React.VoidFunctionComponent = () => {
             </a>
           </Link>
         </div>
-        <div className="font-semibold">{polls.length} polls</div>
+        <div className="font-semibold">
+          {t("pollCount", { count: polls.length })}
+        </div>
       </div>
       <div className="space-y-4">
         {polls.map((poll) => {
