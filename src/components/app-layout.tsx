@@ -343,7 +343,7 @@ const MobileNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = (
           ) : null}
         </AnimatePresence>
       </div>
-      <div className="border-b px-3 py-1 md:hidden">
+      <div className="no-scrollbar overflow-auto border-b px-3 py-1 md:hidden">
         <Breadcrumbs {...props} />
       </div>
     </>
@@ -405,7 +405,7 @@ const Breadcrumbs: React.VoidFunctionComponent<BreadcrumbsProps> = ({
   breadcrumbs,
 }) => {
   return (
-    <div className="flex items-center space-x-1 overflow-hidden py-1 md:rounded-lg md:bg-slate-500/10 md:px-3">
+    <div className="flex items-center space-x-1 whitespace-nowrap py-1 md:flex md:overflow-hidden md:rounded-lg md:bg-slate-500/10 md:px-3">
       {breadcrumbs?.map((breadcrumb, i) => (
         <div className="flex shrink-0 items-center" key={i}>
           <Link href={breadcrumb.href}>
@@ -413,10 +413,10 @@ const Breadcrumbs: React.VoidFunctionComponent<BreadcrumbsProps> = ({
               {breadcrumb.title}
             </a>
           </Link>
-          <ChevronRight className="inline-block h-5 text-gray-400" />
+          <ChevronRight className="inline-block h-5 shrink-0 text-gray-400" />
         </div>
       ))}
-      <div className="shrink truncate font-medium">{title}</div>
+      <div className="shrink font-medium md:truncate">{title}</div>
     </div>
   );
 };
