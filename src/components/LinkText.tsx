@@ -4,11 +4,14 @@ export const LinkText = ({
   href,
   onClick,
   children,
+  className,
   ...forwardProps
-}: React.PropsWithChildren<LinkProps>) => {
+}: React.PropsWithChildren<LinkProps & { className?: string }>) => {
   return (
     <Link {...forwardProps} href={href}>
-      <a onClick={onClick}>{children}</a>
+      <a className={className} onClick={onClick}>
+        {children}
+      </a>
     </Link>
   );
 };
