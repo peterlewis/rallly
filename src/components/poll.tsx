@@ -163,10 +163,10 @@ const PollPage: NextPage = () => {
             <motion.div
               layout="position"
               initial={false}
-              className="space-y-0 divide-y sm:space-y-4"
+              className="space-y-0 sm:space-y-4"
             >
               <div>
-                <div className="space-y-4 p-4">
+                <div className="space-y-4 p-4 sm:p-0">
                   <AppLayoutHeading
                     title={preventWidows(poll.title)}
                     description={<PollSubheader />}

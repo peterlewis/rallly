@@ -42,13 +42,14 @@ export const Manage: React.VFC = () => {
         },
       ]}
     >
-      <div>
+      <div className="">
         <AppLayoutHeading
+          className="p-4 sm:p-0"
           title={t("manage")}
           description="Manage your poll details and settings"
         />
         <Tab.Group>
-          <Tab.List className="mb-4 flex space-x-6 border-b">
+          <Tab.List className="sticky top-12 z-20 flex space-x-6 border-b bg-white px-3 sm:static sm:mb-4 sm:px-0">
             <TabItem>{t("General")}</TabItem>
             <TabItem>{t("options")}</TabItem>
           </Tab.List>

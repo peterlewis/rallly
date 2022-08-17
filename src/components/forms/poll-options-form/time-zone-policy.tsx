@@ -68,7 +68,8 @@ export const TimezonePicker: React.VoidFunctionComponent<{
   value: "auto" | "fixed";
   onChange: (value: "auto" | "fixed") => void;
   disabled?: boolean;
-}> = ({ value, onChange, disabled }) => {
+  className?: string;
+}> = ({ value, onChange, disabled, className }) => {
   const { reference, floating, x, y, strategy } = useFloating({
     strategy: "fixed",
     placement: "top-start",
@@ -78,7 +79,11 @@ export const TimezonePicker: React.VoidFunctionComponent<{
     <Listbox value={value} onChange={onChange} disabled={disabled}>
       {({ open }) => (
         <>
-          <Listbox.Button ref={reference} as={Button} className="shadow-none">
+          <Listbox.Button
+            ref={reference}
+            as={Button}
+            className={clsx("shadow-none", className)}
+          >
             {value === "auto" ? (
               <div className="flex items-center">
                 <Globe className="mr-2 inline-block w-5 text-slate-400" />

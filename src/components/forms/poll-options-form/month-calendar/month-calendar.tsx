@@ -188,7 +188,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                     {optionsForDay.map(({ option, index }) => {
                       if (option.type === "date") {
                         return (
-                          <div key={index} className="flex space-x-4">
+                          <div key={option.date} className="flex space-x-4">
                             <div className="grow rounded-lg border border-dashed p-4 text-center text-sm text-gray-400">
                               All-day
                             </div>
@@ -209,7 +209,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                       }
 
                       return (
-                        <div key={index}>
+                        <div key={`${index}-${option.start}-${option.end}`}>
                           <div className="mb-3 flex space-x-4">
                             <div className="flex grow items-center space-x-4">
                               <TimeSlotPicker
@@ -284,7 +284,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                           <DropdownItem
                             icon={Magic}
                             disabled={datepicker.selection.length < 2}
-                            label="Apply to all dates"
+                            label={t("applyToAllDates")}
                             onClick={() => {
                               const times = optionsForDay.map(({ option }) => {
                                 if (option.type === "date") {
@@ -318,7 +318,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                             }}
                           />
                           <DropdownItem
-                            label="Delete date"
+                            label={t("deleteDate")}
                             icon={Trash}
                             onClick={() => {
                               removeAllOptionsForDay(dateString);

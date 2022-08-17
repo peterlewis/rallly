@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { trpc } from "../../utils/trpc";
 import { PollOption } from "../../utils/trpc/types";
+import { useWideScreen } from "../../utils/use-wide-screen";
 import { useRequiredContext } from "../use-required-context";
 import { useUser } from "../user-provider";
 import MobilePoll from "./mobile-poll";
@@ -170,25 +171,13 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 
   const deleteParticipant = useDeleteParticipantModal();
 
-  const checkIfWideScreen = () => window.innerWidth > 640;
-
-  const [isWideScreen, setIsWideScreen] = React.useState(checkIfWideScreen);
-
-  React.useEffect(() => {
-    const listener = () => setIsWideScreen(checkIfWideScreen());
-
-    window.addEventListener("resize", listener);
-
-    return () => {
-      window.removeEventListener("resize", listener);
-    };
-  }, []);
+  const isWideScreen = useWideScreen();
 
   const Compononent = isWideScreen ? TableViewPoll : MobilePoll;
 
   return (
     <PollDataContext.Provider value={contextValue}>
-      <div className="bg-white sm:rounded-lg sm:border">
+      <div className="border-y bg-white sm:rounded-lg sm:border-x">
         <Compononent
           options={options.map((option, index) => {
             const score = participants.reduce((acc, curr) => {

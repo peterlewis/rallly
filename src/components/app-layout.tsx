@@ -136,7 +136,7 @@ export const AppLayoutHeading: React.VoidFunctionComponent<{
         className,
       )}
     >
-      <div className="mb-4 grow">
+      <div className="grow">
         <div
           className="mb-1 text-2xl font-semibold text-slate-700 md:text-left md:text-3xl"
           data-testid="poll-title"

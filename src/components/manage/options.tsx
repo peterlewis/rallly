@@ -40,7 +40,7 @@ export const Options: React.VFC = () => {
   const modalContext = useModalContext();
 
   return (
-    <div className="space-y-4">
+    <div>
       <PollOptionsForm
         formId={formId}
         defaultValues={{
@@ -96,11 +96,12 @@ export const Options: React.VFC = () => {
           }
         }}
       />
-      <div>
+      <div className="p-3 sm:px-0">
         <Button
           htmlType="submit"
           loading={updatePoll.isLoading}
           form={formId}
+          className="w-full sm:w-auto"
           type="primary"
         >
           {t("save")}
