@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import { usePlausible } from "next-plausible";
 import * as React from "react";
@@ -18,7 +19,7 @@ export const DeletePollForm: React.VoidFunctionComponent<{
 }> = ({ onCancel, onConfirm, urlId }) => {
   const { register, handleSubmit, formState, watch } =
     useForm<{ confirmation: string }>();
-
+  const router = useRouter();
   const plausible = usePlausible();
   const queryClient = trpc.useContext();
   const confirmationText = watch("confirmation");
@@ -35,6 +36,7 @@ export const DeletePollForm: React.VoidFunctionComponent<{
           return { ...poll, deleted: true };
         },
       );
+      router.push("/polls");
     },
   });
 
