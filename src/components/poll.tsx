@@ -129,6 +129,7 @@ const PollPage: NextPage = () => {
                       }}
                     >
                       <Sharing
+                        className="sm:mb-6"
                         onHide={() => {
                           setSharingVisible(false);
                         }}
@@ -160,85 +161,75 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
             ) : null}
-            <motion.div
-              layout="position"
-              initial={false}
-              className="space-y-0 sm:space-y-4"
-            >
-              <div>
-                <div className="space-y-4 p-4 sm:p-0">
-                  <AppLayoutHeading
-                    title={preventWidows(poll.title)}
-                    description={<PollSubheader />}
-                    actions={
-                      poll.admin ? (
-                        <div className="flex space-x-2">
-                          <NotificationsToggle />
-                          <Link href={`/admin/${poll.adminUrlId}/manage`}>
-                            <a className="btn-default">{t("manage")}</a>
-                          </Link>
-                          <Button
-                            type="primary"
-                            icon={<Share />}
-                            onClick={() => {
-                              setSharingVisible((value) => !value);
-                            }}
-                          >
-                            {t("share")}
-                          </Button>
-                        </div>
-                      ) : null
-                    }
-                  />
-                  {poll.description ? (
-                    <div className="border-primary whitespace-pre-line lg:text-lg">
-                      <TruncatedLinkify>
-                        {preventWidows(poll.description)}
-                      </TruncatedLinkify>
+            <motion.div layout="position" initial={false} className="space-y-4">
+              <AppLayoutHeading
+                title={preventWidows(poll.title)}
+                description={<PollSubheader />}
+                actions={
+                  poll.admin ? (
+                    <div className="flex space-x-2">
+                      <NotificationsToggle />
+                      <Link href={`/admin/${poll.adminUrlId}/manage`}>
+                        <a className="btn-default">{t("manage")}</a>
+                      </Link>
+                      <Button
+                        type="primary"
+                        icon={<Share />}
+                        onClick={() => {
+                          setSharingVisible((value) => !value);
+                        }}
+                      >
+                        {t("share")}
+                      </Button>
                     </div>
-                  ) : null}
-                  {poll.location ? (
-                    <div className="lg:text-lg">
-                      <div className="text-sm text-slate-500">
-                        {t("location")}
-                      </div>
-                      <TruncatedLinkify>{poll.location}</TruncatedLinkify>
+                  ) : null
+                }
+              />
+              <div className="space-y-4 px-4 sm:px-0">
+                {poll.description ? (
+                  <div className="border-primary whitespace-pre-line lg:text-lg">
+                    <TruncatedLinkify>
+                      {preventWidows(poll.description)}
+                    </TruncatedLinkify>
+                  </div>
+                ) : null}
+                {poll.location ? (
+                  <div className="lg:text-lg">
+                    <div className="text-sm text-slate-500">
+                      {t("location")}
                     </div>
-                  ) : null}
-                  {poll.timeZone ? (
-                    <div className="lg:text-lg">
-                      <div className="text-sm text-slate-500">
-                        {t("timesShown")}
-                      </div>
-                      <div>
-                        <TimeZone />
-                      </div>
+                    <TruncatedLinkify>{poll.location}</TruncatedLinkify>
+                  </div>
+                ) : null}
+                {poll.timeZone ? (
+                  <div className="lg:text-lg">
+                    <div className="text-sm text-slate-500">
+                      {t("timesShown")}
                     </div>
-                  ) : null}
-                  <div>
-                    <div className="mb-2 text-sm text-slate-500">
-                      {t("possibleAnswers")}
+                    <div>
+                      <TimeZone />
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <span className="inline-flex items-center space-x-1">
-                        <VoteIcon type="yes" />
-                        <span className="text-xs text-slate-500">
-                          {t("yes")}
-                        </span>
+                  </div>
+                ) : null}
+                <div>
+                  <div className="mb-2 text-sm text-slate-500">
+                    {t("possibleAnswers")}
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <span className="inline-flex items-center space-x-1">
+                      <VoteIcon type="yes" />
+                      <span className="text-xs text-slate-500">{t("yes")}</span>
+                    </span>
+                    <span className="inline-flex items-center space-x-1">
+                      <VoteIcon type="ifNeedBe" />
+                      <span className="text-xs text-slate-500">
+                        {t("ifNeedBe")}
                       </span>
-                      <span className="inline-flex items-center space-x-1">
-                        <VoteIcon type="ifNeedBe" />
-                        <span className="text-xs text-slate-500">
-                          {t("ifNeedBe")}
-                        </span>
-                      </span>
-                      <span className="inline-flex items-center space-x-1">
-                        <VoteIcon type="no" />
-                        <span className="text-xs text-slate-500">
-                          {t("no")}
-                        </span>
-                      </span>
-                    </div>
+                    </span>
+                    <span className="inline-flex items-center space-x-1">
+                      <VoteIcon type="no" />
+                      <span className="text-xs text-slate-500">{t("no")}</span>
+                    </span>
                   </div>
                 </div>
               </div>

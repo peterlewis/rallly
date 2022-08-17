@@ -132,7 +132,7 @@ export const AppLayoutHeading: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "space-y-4 sm:flex sm:items-start sm:justify-between sm:space-y-0 sm:space-x-4",
+        "space-y-4 p-4 sm:flex sm:items-start sm:justify-between sm:space-y-0 sm:space-x-4 sm:p-0",
         className,
       )}
     >

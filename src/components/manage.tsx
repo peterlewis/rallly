@@ -44,7 +44,6 @@ export const Manage: React.VFC = () => {
     >
       <div className="">
         <AppLayoutHeading
-          className="p-4 sm:p-0"
           title={t("manage")}
           description="Manage your poll details and settings"
         />

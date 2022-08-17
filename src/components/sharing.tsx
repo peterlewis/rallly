@@ -29,19 +29,19 @@ const Sharing: React.VoidFunctionComponent<SharingProps> = ({
   const participantUrl = `${window.location.origin}/p/${poll.participantUrlId}`;
   const [didCopy, setDidCopy] = React.useState(false);
   return (
-    <div className={clsx("card p-4", className)}>
+    <div className={clsx("rounded-lg bg-primary-300/10 p-4", className)}>
       <div className="mb-1 flex items-center justify-between">
-        <div className="text-lg font-semibold text-slate-700">
+        <div className="text-lg font-semibold text-primary-800/90">
           {t("shareLink")}
         </div>
         <button
           onClick={onHide}
-          className="h-8 items-center justify-center rounded-md px-3 text-slate-400 transition-colors hover:bg-slate-500/10 hover:text-slate-500 active:bg-slate-500/20"
+          className="h-8 items-center justify-center rounded-md px-3 text-primary-800/80 transition-colors hover:bg-slate-500/10 hover:text-slate-500 active:bg-slate-500/20"
         >
           {t("hide")}
         </button>
       </div>
-      <div className="mb-4 text-slate-600">
+      <div className="mb-4 text-primary-800/70">
         <Trans
           t={t}
           i18nKey="shareDescription"
@@ -52,7 +52,7 @@ const Sharing: React.VoidFunctionComponent<SharingProps> = ({
         <input
           readOnly={true}
           className={clsx(
-            "mb-4 w-full rounded-md bg-gray-100 p-2 text-slate-600 transition-all md:mb-0 md:p-3 md:text-lg",
+            "mb-4 w-full rounded-md bg-primary-300/10 p-2 font-mono text-primary-800/90 transition-all md:mb-0 md:p-3 md:text-lg",
             {
               "bg-slate-50 opacity-75": didCopy,
             },

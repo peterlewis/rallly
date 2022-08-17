@@ -81,104 +81,107 @@ const Discussion: React.VoidFunctionComponent = () => {
   }
 
   return (
-    <div className="overflow-hidden shadow-sm sm:rounded-lg sm:border">
-      <div className="border-b bg-white px-4 py-2">
-        <div className="font-medium">{t("comments")}</div>
-      </div>
-      <div
-        className={clsx({
-          "space-y-3 border-b bg-slate-50 p-4": comments.length > 0,
-        })}
-      >
-        <AnimatePresence initial={false}>
-          {comments.map((comment) => {
-            const canDelete =
-              poll.admin || !comment.userId || comment.userId === user.id;
-
-            return (
-              <motion.div
-                layoutId={comment.id}
-                transition={{ duration: 0.2 }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex"
-                key={comment.id}
-              >
-                <motion.div
-                  initial={{ scale: 0.8, y: 10 }}
-                  animate={{ scale: 1, y: 0 }}
-                  exit={{ scale: 0.8 }}
-                  data-testid="comment"
-                  className="w-fit rounded-xl border bg-white px-3 py-2 shadow-sm"
-                >
-                  <div className="flex items-center space-x-2">
-                    <UserAvatar
-                      name={comment.authorName}
-                      showName={true}
-                      isYou={user.id === comment.userId}
-                    />
-                    <div className="mb-1">
-                      <span className="mr-1 text-slate-400">&bull;</span>
-                      <span className="text-sm text-slate-500">
-                        {dayjs(new Date(comment.createdAt)).fromNow()}
-                      </span>
-                    </div>
-                    <Dropdown
-                      placement="bottom-start"
-                      trigger={<CompactButton icon={DotsHorizontal} />}
-                    >
-                      <DropdownItem
-                        icon={Trash}
-                        label={t("deleteComment")}
-                        disabled={!canDelete}
-                        onClick={() => {
-                          deleteComment.mutate({
-                            commentId: comment.id,
-                            pollId,
-                          });
-                        }}
-                      />
-                    </Dropdown>
-                  </div>
-                  <div className="w-fit whitespace-pre-wrap">
-                    <TruncatedLinkify>{comment.content}</TruncatedLinkify>
-                  </div>
-                </motion.div>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-      </div>
-      <form
-        className="bg-white p-4"
-        onSubmit={handleSubmit(async ({ authorName, content }) => {
-          await addComment.mutateAsync({ authorName, content, pollId });
-          reset({ authorName, content: "" });
-        })}
-      >
-        <textarea
-          id="comment"
-          placeholder={t("commentPlaceholder")}
-          className="input w-full py-2 pl-3 pr-4"
-          {...register("content", { validate: requiredString })}
-        />
-        <div className="mt-1 flex space-x-3">
-          <div>
-            <Controller
-              name="authorName"
-              control={control}
-              rules={{ validate: requiredString }}
-              render={({ field }) => (
-                <NameInput {...field} className="w-full" />
-              )}
-            />
-          </div>
-          <Button htmlType="submit" loading={formState.isSubmitting}>
-            {t("comment")}
-          </Button>
+    <div className="p-3 sm:p-0">
+      <div className="overflow-hidden rounded-lg border shadow-sm sm:shadow-none">
+        <div className="border-b bg-white px-4 py-2">
+          <div className="font-medium">{t("comments")}</div>
         </div>
-      </form>
+        <div
+          className={clsx({
+            "space-y-3 border-b bg-slate-50 p-3": comments.length > 0,
+          })}
+        >
+          <AnimatePresence initial={false}>
+            {comments.map((comment) => {
+              const canDelete =
+                poll.admin || !comment.userId || comment.userId === user.id;
+
+              return (
+                <motion.div
+                  layoutId={comment.id}
+                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex"
+                  key={comment.id}
+                >
+                  <motion.div
+                    initial={{ scale: 0.8, y: 10 }}
+                    animate={{ scale: 1, y: 0 }}
+                    exit={{ scale: 0.8 }}
+                    data-testid="comment"
+                    className="w-fit rounded-xl border bg-white px-3 py-2 shadow-sm"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <UserAvatar
+                        name={comment.authorName}
+                        showName={true}
+                        isYou={user.id === comment.userId}
+                      />
+                      <div className="mb-1">
+                        <span className="mr-1 text-slate-400">&bull;</span>
+                        <span className="text-sm text-slate-500">
+                          {dayjs(new Date(comment.createdAt)).fromNow()}
+                        </span>
+                      </div>
+                      <Dropdown
+                        placement="bottom-start"
+                        trigger={<CompactButton icon={DotsHorizontal} />}
+                      >
+                        <DropdownItem
+                          icon={Trash}
+                          label={t("deleteComment")}
+                          disabled={!canDelete}
+                          onClick={() => {
+                            deleteComment.mutate({
+                              commentId: comment.id,
+                              pollId,
+                            });
+                          }}
+                        />
+                      </Dropdown>
+                    </div>
+                    <div className="w-fit whitespace-pre-wrap">
+                      <TruncatedLinkify>{comment.content}</TruncatedLinkify>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+        <form
+          className="bg-white p-3"
+          onSubmit={handleSubmit(async ({ authorName, content }) => {
+            await addComment.mutateAsync({ authorName, content, pollId });
+            reset({ authorName, content: "" });
+          })}
+        >
+          <textarea
+            id="comment"
+            rows={3}
+            placeholder={t("commentPlaceholder")}
+            className="input w-full py-2 pl-3 pr-4"
+            {...register("content", { validate: requiredString })}
+          />
+          <div className="mt-1 flex space-x-3">
+            <div>
+              <Controller
+                name="authorName"
+                control={control}
+                rules={{ validate: requiredString }}
+                render={({ field }) => (
+                  <NameInput {...field} className="w-full" />
+                )}
+              />
+            </div>
+            <Button htmlType="submit" loading={formState.isSubmitting}>
+              {t("comment")}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
