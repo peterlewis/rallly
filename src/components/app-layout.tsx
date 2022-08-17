@@ -6,12 +6,16 @@ import { useTranslation } from "next-i18next";
 import * as React from "react";
 
 import Adjustments from "@/components/icons/adjustments.svg";
+import Cash from "@/components/icons/cash.svg";
 import ChevronRight from "@/components/icons/chevron-right.svg";
+import Discord from "@/components/icons/discord.svg";
+import Github from "@/components/icons/github.svg";
 import Login from "@/components/icons/login.svg";
 import Logout from "@/components/icons/logout.svg";
 import Menu from "@/components/icons/menu.svg";
 import Question from "@/components/icons/question-mark-circle.svg";
 import Refresh from "@/components/icons/refresh.svg";
+import Twitter from "@/components/icons/twitter.svg";
 import User from "@/components/icons/user.svg";
 import UserCircle from "@/components/icons/user-circle.svg";
 import X from "@/components/icons/x.svg";
@@ -19,10 +23,6 @@ import Logo from "~/public/logo.svg";
 
 import { DayjsProvider } from "../utils/dayjs";
 import Dropdown, { DropdownItem, DropdownProps } from "./dropdown";
-import Cash from "./icons/cash.svg";
-import Discord from "./icons/discord.svg";
-import Github from "./icons/github.svg";
-import Twitter from "./icons/twitter.svg";
 import ModalProvider, { useModalContext } from "./modal/modal-provider";
 import Popover from "./popover";
 import Preferences from "./preferences";
@@ -132,7 +132,7 @@ export const AppLayoutHeading: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "space-y-4 p-4 sm:flex sm:items-start sm:justify-between sm:space-y-0 sm:space-x-4 sm:p-0",
+        "space-y-4 px-4 sm:flex sm:items-start sm:justify-between sm:space-y-0 sm:space-x-4 sm:px-0",
         className,
       )}
     >
@@ -280,10 +280,10 @@ const MobileNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = (
           {visible ? (
             <motion.div
               transition={{ duration: 0.2 }}
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute top-12 z-40 h-[calc(100vh-49px)] w-full divide-y overflow-auto bg-white"
+              className="absolute top-12 z-40 h-[calc(100vh-4px)] w-full divide-y overflow-auto bg-white"
             >
               <ul className="space-y-8 p-4">
                 <li>
@@ -439,7 +439,7 @@ export const AppLayout: React.VFC<{
             </Head>
             <MobileNavigation title={title} breadcrumbs={breadcrumbs} />
             <DesktopNavigation title={title} breadcrumbs={breadcrumbs} />
-            <div className="mx-auto max-w-4xl sm:p-4">{children}</div>
+            <div className="mx-auto max-w-4xl py-4 sm:px-4">{children}</div>
           </div>
           <Footer />
         </div>

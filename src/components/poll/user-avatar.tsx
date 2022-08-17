@@ -98,7 +98,6 @@ const UserAvatarInner: React.VoidFunctionComponent<UserAvaterProps> = ({
         },
         className,
       )}
-      title={name}
     >
       {trimmedName[0]?.toUpperCase()}
     </span>
@@ -124,9 +123,7 @@ const UserAvatar: React.VoidFunctionComponent<UserAvaterProps> = ({
       )}
     >
       <UserAvatarInner {...forwardedProps} />
-      <div className="min-w-0 truncate" title={forwardedProps.name}>
-        {forwardedProps.name}
-      </div>
+      <div className="min-w-0 truncate">{forwardedProps.name}</div>
       {isYou ? <Badge>{t("you")}</Badge> : null}
     </div>
   );

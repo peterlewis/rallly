@@ -6,7 +6,7 @@ import * as React from "react";
 import ChevronLeft from "@/components/icons/chevron-left.svg";
 
 import { trpc } from "../utils/trpc";
-import { AppLayout } from "./app-layout";
+import { AppLayout, AppLayoutHeading } from "./app-layout";
 import { Button } from "./button";
 import {
   PollDetailsForm,
@@ -103,7 +103,11 @@ const NewProceeding: React.VoidFunctionComponent = () => {
       title={t("newPoll")}
     >
       <NewPollContext.Provider value={{ state, dispatch }}>
-        <div className="mb-4 text-2xl">{t("createPollTitle")}</div>
+        <AppLayoutHeading
+          title={t("createPollTitle")}
+          description={t("stepSummary", { current: state.step + 1, total: 2 })}
+          className="mb-4"
+        />
         <div className="h-full space-y-4">
           {(() => {
             switch (state.step) {

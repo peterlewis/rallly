@@ -96,7 +96,7 @@ const Tooltip: React.VoidFunctionComponent<TooltipProps> = ({
   return (
     <>
       <span
-        className={clsx("inline-flex", className)}
+        className={clsx("inline-flex cursor-default", className)}
         {...getReferenceProps({ ref: reference })}
       >
         {children}
@@ -105,7 +105,7 @@ const Tooltip: React.VoidFunctionComponent<TooltipProps> = ({
         <AnimatePresence>
           {open ? (
             <motion.div
-              className="z-30 rounded-md bg-slate-700 px-3 py-2 text-slate-200 shadow-md"
+              className="z-30 rounded-md bg-slate-700 px-2 py-1 text-sm text-slate-200 shadow-md"
               initial="hidden"
               transition={{
                 duration: 0.1,
@@ -148,4 +148,4 @@ const Tooltip: React.VoidFunctionComponent<TooltipProps> = ({
   );
 };
 
-export default React.memo(Tooltip);
+export default Tooltip;

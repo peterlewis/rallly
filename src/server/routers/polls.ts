@@ -148,9 +148,16 @@ export const polls = createRouter()
           location: true,
           updatedAt: true,
           notifications: true,
+          participants: {
+            select: {
+              name: true,
+            },
+            orderBy: {
+              createdAt: "asc",
+            },
+          },
           _count: {
             select: {
-              participants: true,
               comments: true,
             },
           },
