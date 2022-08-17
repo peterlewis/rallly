@@ -61,7 +61,6 @@ const Sharing: React.VoidFunctionComponent<SharingProps> = ({
         />
         <Button
           disabled={didCopy}
-          type="primary"
           onClick={() => {
             copyToClipboard(participantUrl);
             setDidCopy(true);
