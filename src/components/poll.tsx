@@ -49,8 +49,8 @@ const TimeZone = () => {
   }
 
   return (
-    <div>
-      <span>{findFuzzyTz(targetTimeZone).label}</span>
+    <div className="flex items-center">
+      <span className="truncate">{findFuzzyTz(targetTimeZone).label}</span>
       <Button className="ml-3" onClick={() => setEditing(true)}>
         {t("change")}
       </Button>
@@ -127,7 +127,6 @@ const PollPage: NextPage = () => {
                         opacity: 0,
                         scale: 0.9,
                       }}
-                      className="mb-4 overflow-hidden"
                     >
                       <Sharing
                         onHide={() => {
@@ -161,9 +160,13 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
             ) : null}
-            <motion.div layout="position" initial={false} className="space-y-8">
+            <motion.div
+              layout="position"
+              initial={false}
+              className="space-y-0 divide-y sm:space-y-4"
+            >
               <div>
-                <div className="space-y-4">
+                <div className="space-y-4 p-4">
                   <AppLayoutHeading
                     title={preventWidows(poll.title)}
                     description={<PollSubheader />}

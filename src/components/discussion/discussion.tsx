@@ -81,7 +81,7 @@ const Discussion: React.VoidFunctionComponent = () => {
   }
 
   return (
-    <div className="overflow-hidden border-t border-b shadow-sm md:rounded-lg md:border">
+    <div className="overflow-hidden shadow-sm sm:rounded-lg sm:border">
       <div className="border-b bg-white px-4 py-2">
         <div className="font-medium">{t("comments")}</div>
       </div>

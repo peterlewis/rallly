@@ -131,9 +131,12 @@ export const AppLayoutHeading: React.VoidFunctionComponent<{
 }> = ({ title, description, actions, className }) => {
   return (
     <div
-      className={clsx("flex items-start justify-between space-x-4", className)}
+      className={clsx(
+        "space-y-4 sm:flex sm:items-start sm:justify-between sm:space-y-0 sm:space-x-4",
+        className,
+      )}
     >
-      <div className="grow">
+      <div className="mb-4 grow">
         <div
           className="mb-1 text-2xl font-semibold text-slate-700 md:text-left md:text-3xl"
           data-testid="poll-title"
@@ -343,9 +346,9 @@ const MobileNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = (
           ) : null}
         </AnimatePresence>
       </div>
-      <div className="no-scrollbar overflow-auto border-b px-3 py-1 md:hidden">
+      {/* <div className="no-scrollbar overflow-auto border-b px-3 py-1 md:hidden">
         <Breadcrumbs {...props} />
-      </div>
+      </div> */}
     </>
   );
 };
@@ -436,7 +439,7 @@ export const AppLayout: React.VFC<{
             </Head>
             <MobileNavigation title={title} breadcrumbs={breadcrumbs} />
             <DesktopNavigation title={title} breadcrumbs={breadcrumbs} />
-            <div className="mx-auto max-w-4xl p-4">{children}</div>
+            <div className="mx-auto max-w-4xl sm:p-4">{children}</div>
           </div>
           <Footer />
         </div>
