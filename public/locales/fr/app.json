@@ -109,7 +109,7 @@
   "stepSummary": "Étape {{current}} sur {{total}}",
   "sunday": "Dimanche",
   "timeAndDate": "Heure & date",
-  "timeFormat": "Format de l'heure :",
+  "timeFormat": "Format de l'heure",
   "timeZone": "Fuseau horaire :",
   "title": "Titre",
   "titlePlaceholder": "Réunion mensuelle",

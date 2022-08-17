@@ -119,7 +119,7 @@
   "specifyTimesDescription": "Include start and end times for each option",
   "stepSummary": "Step {{current}} of {{total}}",
   "timeAndDate": "Time & date",
-  "timeFormat": "Time format:",
+  "timeFormat": "Time format",
   "timeZone": "Time Zone:",
   "timesShown": "Showing times in",
   "change": "Change",

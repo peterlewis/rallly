@@ -16,18 +16,19 @@ const Preferences: React.VoidFunctionComponent = () => {
   return (
     <div>
       <div className="mb-4 space-y-2">
-        <div className="grow text-sm text-slate-500">
+        <div className="grow text-sm font-medium text-slate-700">
           {t("common:language")}
         </div>
         <LanguageSelect className="w-full" onChange={() => router.reload()} />
       </div>
       <div className="grow space-y-2">
         <div>
-          <div className="mb-2 grow text-sm text-slate-500">
+          <div className="mb-2 grow text-sm font-medium text-slate-700">
             {t("app:weekStartsOn")}
           </div>
           <div>
             <RadioGroup<StartOfWeek>
+              className="w-full sm:w-auto"
               value={weekStartsOn}
               onChange={setWeekStartsOn}
               options={[
@@ -44,10 +45,11 @@ const Preferences: React.VoidFunctionComponent = () => {
           </div>
         </div>
         <div className="">
-          <div className="mb-2 grow text-sm text-slate-500">
+          <div className="mb-2 grow text-sm font-medium text-slate-700">
             {t("app:timeFormat")}
           </div>
           <RadioGroup<TimeFormat>
+            className="w-full sm:w-auto"
             value={timeFormat}
             onChange={setTimeFormat}
             options={[

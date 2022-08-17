@@ -109,7 +109,7 @@
   "stepSummary": "Fase {{current}} di {{total}}",
   "sunday": "Domenica",
   "timeAndDate": "Data e ora",
-  "timeFormat": "Formato orario:",
+  "timeFormat": "Formato orario",
   "timeZone": "Fuso orario:",
   "title": "Titolo",
   "titlePlaceholder": "Riunione Mensile",

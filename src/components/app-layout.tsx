@@ -283,7 +283,7 @@ const MobileNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = (
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute top-12 z-40 w-full divide-y bg-white shadow-lg backdrop-blur-md"
+              className="absolute top-12 z-40 h-[calc(100vh-49px)] w-full divide-y overflow-auto bg-white"
             >
               <ul className="space-y-8 p-4">
                 <li>
