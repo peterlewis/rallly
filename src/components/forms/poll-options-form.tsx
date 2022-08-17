@@ -143,7 +143,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
       {calendarHelpModal}
       {dateOrTimeRangeModal}
       <div className="overflow-hidden bg-white sm:rounded-md sm:border">
-        <div className="hidden justify-center p-3 sm:flex">
+        <div className="hidden justify-center border-b p-3 sm:flex">
           <RadioGroup
             className="w-full sm:w-auto"
             value={selectedView.value}
