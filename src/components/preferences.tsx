@@ -1,20 +1,18 @@
-import clsx from "clsx";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import { usePlausible } from "next-plausible";
 import React from "react";
 
-import { useDayjs } from "../utils/dayjs";
+import { StartOfWeek, TimeFormat, useDayjs } from "../utils/dayjs";
 import { LanguageSelect } from "./poll/language-selector";
+import { RadioGroup } from "./radio";
 
 const Preferences: React.VoidFunctionComponent = () => {
   const { t } = useTranslation(["app", "common"]);
 
-  const { weekStartsOn, setWeekStartsOn, timeFormat, setTimeFormat } =
+  const { weekdays, weekStartsOn, setWeekStartsOn, timeFormat, setTimeFormat } =
     useDayjs();
   const router = useRouter();
 
-  const plausible = usePlausible();
   return (
     <div>
       <div className="mb-4 space-y-2">
@@ -29,80 +27,40 @@ const Preferences: React.VoidFunctionComponent = () => {
             {t("app:weekStartsOn")}
           </div>
           <div>
-            <div className="segment-button inline-flex">
-              <button
-                className={clsx({
-                  "segment-button-active": weekStartsOn === "monday",
-                })}
-                onClick={() => {
-                  setWeekStartsOn("monday");
-                  plausible("Change week start", {
-                    props: {
-                      timeFormat: "monday",
-                    },
-                  });
-                }}
-                type="button"
-              >
-                {t("app:monday")}
-              </button>
-              <button
-                className={clsx({
-                  "segment-button-active": weekStartsOn === "sunday",
-                })}
-                onClick={() => {
-                  setWeekStartsOn("sunday");
-                  plausible("Change week start", {
-                    props: {
-                      timeFormat: "sunday",
-                    },
-                  });
-                }}
-                type="button"
-              >
-                {t("app:sunday")}
-              </button>
-            </div>
+            <RadioGroup<StartOfWeek>
+              value={weekStartsOn}
+              onChange={setWeekStartsOn}
+              options={[
+                {
+                  label: weekdays[0],
+                  value: "sunday",
+                },
+                {
+                  label: weekdays[1],
+                  value: "monday",
+                },
+              ]}
+            />
           </div>
         </div>
         <div className="">
           <div className="mb-2 grow text-sm text-slate-500">
             {t("app:timeFormat")}
           </div>
-          <div className="segment-button inline-flex">
-            <button
-              className={clsx({
-                "segment-button-active": timeFormat === "12h",
-              })}
-              onClick={() => {
-                setTimeFormat("12h");
-                plausible("Change time format", {
-                  props: {
-                    timeFormat: "12h",
-                  },
-                });
-              }}
-              type="button"
-            >
-              {t("app:12h")}
-            </button>
-            <button
-              className={clsx({
-                "segment-button-active": timeFormat === "24h",
-              })}
-              onClick={() => {
-                setTimeFormat("24h");
-                plausible("Change time format", {
-                  props: {
-                    timeFormat: "24h",
-                  },
-                });
-              }}
-              type="button"
-            >
-              {t("app:24h")}
-            </button>
-          </div>
+          <RadioGroup<TimeFormat>
+            value={timeFormat}
+            onChange={setTimeFormat}
+            options={[
+              {
+                label: t("app:12h"),
+                value: "12h",
+              },
+              {
+                label: t("app:24h"),
+                value: "24h",
+              },
+            ]}
+          />
         </div>
       </div>
     </div>
