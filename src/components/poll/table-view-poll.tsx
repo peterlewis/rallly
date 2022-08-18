@@ -114,7 +114,7 @@ const TableViewPoll: React.VoidFunctionComponent<
       }}
     >
       <div className="relative flex flex-col">
-        <div className="sticky top-12 z-20 flex rounded-lg bg-white/75 py-2 backdrop-blur-md">
+        <div className="sticky top-12 z-20 flex rounded-t-lg bg-white/75 py-2 backdrop-blur-md">
           <div
             className="flex shrink-0 items-center py-2 pl-5 pr-2 font-medium"
             style={{ width: sidebarWidth }}
@@ -162,7 +162,7 @@ const TableViewPoll: React.VoidFunctionComponent<
         </div>
         {participants.length > 0 ? (
           <div
-            className="min-h-0 overflow-y-auto py-1"
+            className="min-h-0 overflow-y-auto bg-white py-1"
             ref={participantListContainerRef}
           >
             {participants.map((participant, i) => {

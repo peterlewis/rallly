@@ -88,7 +88,7 @@ const Discussion: React.VoidFunctionComponent = () => {
         </div>
         <div
           className={clsx({
-            "space-y-3 border-b bg-slate-50 p-3": comments.length > 0,
+            "space-y-3 border-b bg-slate-500/5 p-3": comments.length > 0,
           })}
         >
           <AnimatePresence initial={false}>

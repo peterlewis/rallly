@@ -7,6 +7,7 @@ import { useTranslation } from "next-i18next";
 import { usePlausible } from "next-plausible";
 import React from "react";
 import toast from "react-hot-toast";
+import { useWindowSize } from "react-use";
 
 import { Button } from "@/components/button";
 import Discussion from "@/components/discussion";
@@ -62,7 +63,7 @@ const PollPage: NextPage = () => {
   const { poll, urlId, targetTimeZone } = usePoll();
   const { participants } = useParticipants();
   const router = useRouter();
-
+  const { width: windowWidth } = useWindowSize();
   useTouchBeacon(poll.id);
 
   const { t } = useTranslation("app");
@@ -107,7 +108,7 @@ const PollPage: NextPage = () => {
           <title>{poll.title}</title>
           <meta name="robots" content="noindex,nofollow" />
         </Head>
-        <div className="relative max-w-full">
+        <div className="max-w-full">
           <LayoutGroup>
             {poll.admin ? (
               <>
@@ -161,7 +162,7 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
             ) : null}
-            <motion.div layout="position" initial={false} className="space-y-4">
+            <motion.div layout="position" initial={false} className="space-y-8">
               <AppLayoutHeading
                 title={preventWidows(poll.title)}
                 description={<PollSubheader />}
@@ -234,24 +235,33 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
               {participants ? (
-                <PollDataProvider
-                  admin={poll.admin}
-                  options={poll.options.map(({ id, value }) => ({
-                    id,
-                    value:
-                      value.indexOf("/") === -1
-                        ? { type: "date", date: value }
-                        : {
-                            type: "time",
-                            start: value.split("/")[0],
-                            end: value.split("/")[1],
-                          },
-                  }))}
-                  targetTimeZone={targetTimeZone}
-                  pollId={poll.id}
-                  timeZone={poll.timeZone}
-                  participants={participants}
-                />
+                <div className="py-8">
+                  <div
+                    className="line-pattern absolute -left-full -z-10 hidden -translate-y-8 sm:block"
+                    style={{
+                      width: windowWidth * 2,
+                      height: 250 + 57 * participants.length,
+                    }}
+                  />
+                  <PollDataProvider
+                    admin={poll.admin}
+                    options={poll.options.map(({ id, value }) => ({
+                      id,
+                      value:
+                        value.indexOf("/") === -1
+                          ? { type: "date", date: value }
+                          : {
+                              type: "time",
+                              start: value.split("/")[0],
+                              end: value.split("/")[1],
+                            },
+                    }))}
+                    targetTimeZone={targetTimeZone}
+                    pollId={poll.id}
+                    timeZone={poll.timeZone}
+                    participants={participants}
+                  />
+                </div>
               ) : null}
               <Discussion />
             </motion.div>
