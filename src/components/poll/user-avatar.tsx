@@ -19,15 +19,11 @@ const UserAvatarContext =
   React.createContext<((name: string) => string) | null>(null);
 
 const colors = [
-  "bg-fuchsia-300",
-  "bg-purple-400",
-  "bg-primary-400",
-  "bg-blue-400",
+  "bg-teal-400",
   "bg-sky-400",
   "bg-cyan-400",
-  "bg-sky-400",
   "bg-blue-400",
-  "bg-primary-400",
+  "bg-indigo-400",
   "bg-purple-400",
   "bg-fuchsia-400",
   "bg-pink-400",
