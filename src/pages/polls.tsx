@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import React from "react";
 
-import Bell from "@/components/icons/bell.svg";
-import BellCrossed from "@/components/icons/bell-crossed.svg";
 import Calendar from "@/components/icons/calendar.svg";
 import Chat from "@/components/icons/chat.svg";
 import Plus from "@/components/icons/plus-sm.svg";
