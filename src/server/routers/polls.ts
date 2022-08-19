@@ -281,4 +281,44 @@ export const polls = createRouter()
         },
       });
     },
+  })
+  .mutation("claim", {
+    input: z.object({
+      adminUrlId: z.string(),
+    }),
+    resolve: async ({ ctx, input }): Promise<GetPollApiResponse> => {
+      const poll = await prisma.poll.findUnique({
+        select: {
+          user: true,
+        },
+        where: {
+          adminUrlId: input.adminUrlId,
+        },
+      });
+
+      if (!poll) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+        });
+      }
+
+      if (poll.user) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This poll is already claimed.",
+        });
+      }
+
+      const claimedPoll = await prisma.poll.update({
+        select: defaultSelectFields,
+        where: {
+          adminUrlId: input.adminUrlId,
+        },
+        data: {
+          userId: ctx.user.id,
+        },
+      });
+
+      return { ...claimedPoll, admin: true };
+    },
   });

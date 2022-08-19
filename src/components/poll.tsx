@@ -3,19 +3,21 @@ import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "next-i18next";
 import { usePlausible } from "next-plausible";
 import React from "react";
 import toast from "react-hot-toast";
-import { useWindowSize } from "react-use";
 
 import { Button } from "@/components/button";
 import Discussion from "@/components/discussion";
+import InformationCircle from "@/components/icons/information-circle.svg";
 import LockClosed from "@/components/icons/lock-closed.svg";
 import Share from "@/components/icons/share.svg";
 import { preventWidows } from "@/utils/prevent-widows";
 
+import { trpc } from "../utils/trpc";
 import { AppLayout, AppLayoutHeading } from "./app-layout";
+import { LinkText } from "./LinkText";
 import { useParticipants } from "./participants-provider";
 import { useUpdatePollMutation } from "./poll/mutations";
 import NotificationsToggle from "./poll/notifications-toggle";
@@ -29,6 +31,74 @@ import { usePoll } from "./poll-provider";
 import Sharing from "./sharing";
 import TimeZonePicker from "./time-zone-picker";
 import { useTimeZones } from "./time-zone-picker/time-zone-picker";
+import { useUser } from "./user-provider";
+
+const UnclaimedPollAlert = () => {
+  const { t } = useTranslation("app");
+  const { poll } = usePoll();
+  const { user } = useUser();
+
+  const context = trpc.useContext();
+  const claimPoll = trpc.useMutation("polls.claim", {
+    onSuccess: (res) => {
+      context.setQueryData(
+        ["polls.get", { urlId: poll.adminUrlId, admin: true }],
+        res,
+      );
+    },
+  });
+
+  if (poll.user) {
+    return null;
+  }
+
+  if (user.isGuest) {
+    return (
+      <div className="flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-lg">
+        <div className="mr-2 hidden sm:block">
+          <InformationCircle className="h-6" />
+        </div>
+        <div>
+          <Trans
+            t={t}
+            i18nKey="guestPollNotice"
+            components={{
+              a: (
+                <LinkText
+                  className="text-blue-800/75 underline hover:text-blue-800 hover:underline"
+                  href="/login"
+                />
+              ),
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="justify-between space-y-4 rounded-lg bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:flex sm:space-y-0 sm:space-x-4">
+      <div>
+        <div className="font-semibold">
+          <Trans t={t} i18nKey="unclaimedNoticeTitle" />
+        </div>
+        <Trans t={t} i18nKey="unclaimedNoticeDescription" />
+      </div>
+      <div>
+        <button
+          className="rounded-md bg-blue-700/5 py-2 px-4 font-medium leading-tight transition-colors hover:bg-blue-700/10 active:bg-blue-700/20"
+          onClick={() => {
+            claimPoll.mutateAsync({
+              adminUrlId: poll.adminUrlId,
+            });
+          }}
+        >
+          {t("unclaimedNoticeAction")}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const TimeZone = () => {
   const { t } = useTranslation("app");
@@ -63,7 +133,7 @@ const PollPage: NextPage = () => {
   const { poll, urlId, targetTimeZone } = usePoll();
   const { participants } = useParticipants();
   const router = useRouter();
-  const { width: windowWidth } = useWindowSize();
+
   useTouchBeacon(poll.id);
 
   const { t } = useTranslation("app");
@@ -108,8 +178,9 @@ const PollPage: NextPage = () => {
           <title>{poll.title}</title>
           <meta name="robots" content="noindex,nofollow" />
         </Head>
-        <div className="max-w-full">
+        <div className="max-w-full space-y-4">
           <LayoutGroup>
+            <UnclaimedPollAlert />
             {poll.admin ? (
               <>
                 <AnimatePresence initial={false}>
@@ -163,30 +234,30 @@ const PollPage: NextPage = () => {
               </div>
             ) : null}
             <motion.div layout="position" initial={false} className="space-y-8">
-              <AppLayoutHeading
-                title={preventWidows(poll.title)}
-                description={<PollSubheader />}
-                actions={
-                  poll.admin ? (
-                    <div className="flex space-x-2">
-                      <NotificationsToggle />
-                      <Link href={`/admin/${poll.adminUrlId}/manage`}>
-                        <a className="btn-default">{t("manage")}</a>
-                      </Link>
-                      <Button
-                        type="primary"
-                        icon={<Share />}
-                        onClick={() => {
-                          setSharingVisible((value) => !value);
-                        }}
-                      >
-                        {t("share")}
-                      </Button>
-                    </div>
-                  ) : null
-                }
-              />
-              <div className="space-y-4 px-4 sm:px-0">
+              <div className="space-y-4 px-4">
+                <AppLayoutHeading
+                  title={preventWidows(poll.title)}
+                  description={<PollSubheader />}
+                  actions={
+                    poll.admin ? (
+                      <div className="flex space-x-2">
+                        <NotificationsToggle />
+                        <Link href={`/admin/${poll.adminUrlId}/manage`}>
+                          <a className="btn-default">{t("manage")}</a>
+                        </Link>
+                        <Button
+                          type="primary"
+                          icon={<Share />}
+                          onClick={() => {
+                            setSharingVisible((value) => !value);
+                          }}
+                        >
+                          {t("share")}
+                        </Button>
+                      </div>
+                    ) : null
+                  }
+                />
                 {poll.description ? (
                   <div className="border-primary whitespace-pre-line lg:text-lg">
                     <TruncatedLinkify>

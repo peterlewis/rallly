@@ -73,11 +73,11 @@
   }
 
   .btn-default {
-    @apply btn bg-white text-slate-700 hover:bg-slate-100/10 active:bg-slate-500/10;
+    @apply btn bg-white text-slate-700 hover:bg-gray-50 active:bg-slate-500/10;
   }
 
   a.btn-default {
-    @apply hover:text-primary-500;
+    @apply hover:text-slate-700;
   }
   .btn-danger {
     @apply btn border-rose-600 bg-rose-500 text-white hover:bg-rose-600 focus-visible:ring-rose-500;

@@ -132,7 +132,7 @@ export const AppLayoutHeading: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "space-y-4 px-4 sm:flex sm:items-start sm:justify-between sm:space-y-0 sm:space-x-4 sm:px-0",
+        "space-y-4 sm:flex sm:items-start sm:justify-between sm:space-y-0 sm:space-x-4",
         className,
       )}
     >
@@ -360,7 +360,7 @@ const DesktopNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = ({
   const { t } = useTranslation("app");
   const { user } = useUser();
   return (
-    <div className="sticky left-0 top-0 z-30 mb-4 hidden h-14 w-full max-w-full justify-between space-x-4 bg-white/90 px-4 backdrop-blur-md md:flex md:items-center">
+    <div className="sticky left-0 top-0 z-30 mb-4 hidden h-14 w-full max-w-full justify-between space-x-4 bg-white/75 px-4 backdrop-blur-md md:flex md:items-center">
       <div className="flex items-center space-x-4 overflow-hidden">
         <Link href="/">
           <a>
