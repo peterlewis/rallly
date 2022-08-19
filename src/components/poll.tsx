@@ -235,33 +235,24 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
               {participants ? (
-                <div className="py-8">
-                  <div
-                    className="line-pattern absolute -left-full -z-10 hidden -translate-y-8 sm:block"
-                    style={{
-                      width: windowWidth * 2,
-                      height: 250 + 57 * participants.length,
-                    }}
-                  />
-                  <PollDataProvider
-                    admin={poll.admin}
-                    options={poll.options.map(({ id, value }) => ({
-                      id,
-                      value:
-                        value.indexOf("/") === -1
-                          ? { type: "date", date: value }
-                          : {
-                              type: "time",
-                              start: value.split("/")[0],
-                              end: value.split("/")[1],
-                            },
-                    }))}
-                    targetTimeZone={targetTimeZone}
-                    pollId={poll.id}
-                    timeZone={poll.timeZone}
-                    participants={participants}
-                  />
-                </div>
+                <PollDataProvider
+                  admin={poll.admin}
+                  options={poll.options.map(({ id, value }) => ({
+                    id,
+                    value:
+                      value.indexOf("/") === -1
+                        ? { type: "date", date: value }
+                        : {
+                            type: "time",
+                            start: value.split("/")[0],
+                            end: value.split("/")[1],
+                          },
+                  }))}
+                  targetTimeZone={targetTimeZone}
+                  pollId={poll.id}
+                  timeZone={poll.timeZone}
+                  participants={participants}
+                />
               ) : null}
               <Discussion />
             </motion.div>

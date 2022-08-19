@@ -177,7 +177,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 
   return (
     <PollDataContext.Provider value={contextValue}>
-      <div className="border-y bg-white sm:rounded-lg sm:border-x sm:shadow-lg">
+      <div className="border-y bg-white sm:rounded-lg sm:border-x">
         <Compononent
           options={options.map((option, index) => {
             const score = participants.reduce((acc, curr) => {
