@@ -30,7 +30,6 @@ const optionValues = ["2022-12-14", "2022-12-15", "2022-12-16", "2022-12-17"];
 export const demo = createRouter().mutation("create", {
   resolve: async () => {
     const adminUrlId = await nanoid();
-    const demoUser = { name: "John Example", email: "noreply@rallly.co" };
 
     const options: Array<{ value: string; id: string }> = [];
 
@@ -82,14 +81,7 @@ export const demo = createRouter().mutation("create", {
         demo: true,
         adminUrlId,
         participantUrlId: await nanoid(),
-        user: {
-          connectOrCreate: {
-            where: {
-              email: demoUser.email,
-            },
-            create: demoUser,
-          },
-        },
+        userId: "demo-user",
         options: {
           createMany: {
             data: options,

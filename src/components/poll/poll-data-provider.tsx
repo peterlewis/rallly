@@ -177,74 +177,70 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 
   return (
     <PollDataContext.Provider value={contextValue}>
-      <div className="border-y bg-white sm:rounded-lg sm:border-x">
-        <Compononent
-          options={options.map((option, index) => {
-            const score = participants.reduce((acc, curr) => {
-              const vote = curr.votes.find(
-                (vote) => vote.optionId === option.id,
-              );
-              if (vote?.type === "yes") {
-                acc += 1;
-              }
-              return acc;
-            }, 0);
-
-            if (option.value.type === "time") {
-              const { start, end } = option.value;
-              let startTime = dayjs(start);
-              let endTime = dayjs(end);
-              if (timeZone) {
-                startTime = startTime.tz(timeZone).tz(targetTimeZone);
-                endTime = endTime.tz(timeZone).tz(targetTimeZone);
-              }
-              return {
-                type: "time",
-                index,
-                start: startTime.format("YYYY-MM-DDTHH:mm"),
-                end: endTime.format("YYYY-MM-DDTHH:mm"),
-                score,
-              };
+      <Compononent
+        options={options.map((option, index) => {
+          const score = participants.reduce((acc, curr) => {
+            const vote = curr.votes.find((vote) => vote.optionId === option.id);
+            if (vote?.type === "yes") {
+              acc += 1;
             }
+            return acc;
+          }, 0);
 
+          if (option.value.type === "time") {
+            const { start, end } = option.value;
+            let startTime = dayjs(start);
+            let endTime = dayjs(end);
+            if (timeZone) {
+              startTime = startTime.tz(timeZone).tz(targetTimeZone);
+              endTime = endTime.tz(timeZone).tz(targetTimeZone);
+            }
             return {
-              type: "date",
+              type: "time",
               index,
-              date: option.value.date,
+              start: startTime.format("YYYY-MM-DDTHH:mm"),
+              end: endTime.format("YYYY-MM-DDTHH:mm"),
               score,
             };
-          })}
-          participants={pollParticipants}
-          onEntry={async (participant) => {
-            return await addParticipant.mutateAsync({
-              pollId,
-              name: participant.name,
-              votes: options.map(({ id }, i) => {
-                return {
-                  optionId: id,
-                  type: participant.votes[i] ?? "no",
-                };
-              }),
-            });
-          }}
-          onDeleteEntry={deleteParticipant}
-          onUpdateEntry={async (participantId, participant) => {
-            await updateParticipant.mutateAsync({
-              participantId,
-              pollId,
-              votes: options.map(({ id }, i) => {
-                return {
-                  optionId: id,
-                  type: participant.votes[i] ?? "no",
-                };
-              }),
-              name: participant.name,
-            });
-          }}
-          isBusy={addParticipant.isLoading || updateParticipant.isLoading}
-          userAlreadyVoted={userAlreadyVoted}
-        />
-      </div>
+          }
+
+          return {
+            type: "date",
+            index,
+            date: option.value.date,
+            score,
+          };
+        })}
+        participants={pollParticipants}
+        onEntry={async (participant) => {
+          return await addParticipant.mutateAsync({
+            pollId,
+            name: participant.name,
+            votes: options.map(({ id }, i) => {
+              return {
+                optionId: id,
+                type: participant.votes[i] ?? "no",
+              };
+            }),
+          });
+        }}
+        onDeleteEntry={deleteParticipant}
+        onUpdateEntry={async (participantId, participant) => {
+          await updateParticipant.mutateAsync({
+            participantId,
+            pollId,
+            votes: options.map(({ id }, i) => {
+              return {
+                optionId: id,
+                type: participant.votes[i] ?? "no",
+              };
+            }),
+            name: participant.name,
+          });
+        }}
+        isBusy={addParticipant.isLoading || updateParticipant.isLoading}
+        userAlreadyVoted={userAlreadyVoted}
+      />
     </PollDataContext.Provider>
   );
 };

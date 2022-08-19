@@ -439,7 +439,7 @@ export const AppLayout: React.VFC<{
             </Head>
             <MobileNavigation title={title} breadcrumbs={breadcrumbs} />
             <DesktopNavigation title={title} breadcrumbs={breadcrumbs} />
-            <div className="mx-auto max-w-4xl py-4 sm:px-4">{children}</div>
+            <div className="mx-auto max-w-4xl sm:px-4">{children}</div>
           </div>
           <Footer />
         </div>
