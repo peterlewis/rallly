@@ -19,7 +19,10 @@ const Preferences: React.VoidFunctionComponent = () => {
         <div className="grow text-sm font-medium text-slate-700">
           {t("common:language")}
         </div>
-        <LanguageSelect className="w-full" onChange={() => router.reload()} />
+        <LanguageSelect
+          className="w-full"
+          onChange={() => router.replace(router.asPath, router.asPath)}
+        />
       </div>
       <div className="grow space-y-2">
         <div>
