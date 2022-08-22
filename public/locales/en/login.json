@@ -1,8 +1,16 @@
 {
   "login": "Login",
-  "userNotFound": "Couldn't find a user with that email",
+  "userNotFound": "A user with that email doesn't exist.",
   "email": "Email",
   "continue": "Continue",
   "emailPlaceholder": "john.doe@email.com",
-  "notRegistered": "Don't have an account? <a>Register →</a>"
+  "alreadyRegistered": "Already registered? <a>Login →</a>",
+  "createAnAccount": "Create an account",
+  "notRegistered": "Not registered? <a>Create an account →</a>",
+  "verificationCodePlaceholder": "Enter your 6-digit code",
+  "verificationCodeHelp": "Didn't get the email? Check your spam/junk.",
+  "verifyYourEmail": "Verify your email",
+  "verificationCodeSent": "A verification code has been sent to <s>{{email}}</s>",
+  "resendVerificationCode": "Resend verification code",
+  "wrongVerificationCode": "Your verification code is incorrect or expired"
 }
