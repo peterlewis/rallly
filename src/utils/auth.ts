@@ -14,7 +14,7 @@ import { randomid } from "./nanoid";
 
 const sessionOptions: IronSessionOptions = {
   password: process.env.SECRET_PASSWORD,
-  cookieName: "cc-session",
+  cookieName: "rallly-session",
   cookieOptions: {
     secure: process.env.NODE_ENV === "production",
   },
@@ -59,7 +59,7 @@ export const createToken = async <T extends Record<string, unknown>>(
 ) => {
   return await sealData(payload, {
     password: sessionOptions.password,
-    ttl: 60 * 15, // 15 minutes
+    ttl: 60 * 10, // 15 minutes
   });
 };
 
@@ -70,6 +70,7 @@ export type RegistrationTokenPayload = {
 
 export type LoginTokenPayload = {
   userId: string;
+  code: string;
   redirect?: string;
 };
 

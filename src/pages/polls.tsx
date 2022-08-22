@@ -69,11 +69,6 @@ const Polls: React.VoidFunctionComponent = () => {
               key={poll.id}
               className="flex overflow-hidden rounded-lg border bg-white p-4 shadow-sm"
             >
-              <div className="mr-4 block">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500/10">
-                  <Calendar className="h-5 text-primary-500" />
-                </div>
-              </div>
               <div className="grow">
                 <div className="flex justify-between space-x-2">
                   <Link href={`/admin/${poll.adminUrlId}`}>

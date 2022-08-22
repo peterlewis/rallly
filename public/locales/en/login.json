@@ -2,6 +2,7 @@
   "login": "Login",
   "userNotFound": "Couldn't find a user with that email",
   "email": "Email",
+  "continue": "Continue",
   "emailPlaceholder": "john.doe@email.com",
   "notRegistered": "Don't have an account? <a>Register →</a>"
 }

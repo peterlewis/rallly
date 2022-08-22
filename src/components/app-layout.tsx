@@ -34,11 +34,12 @@ const Footer: React.VoidFunctionComponent = () => {
   return (
     <div className="hidden h-16 items-center justify-center space-x-6 py-0 px-6 pt-3 pb-6 text-slate-400 md:flex">
       <div>
-        <Link href="https://rallly.co">
-          <a className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
-            <Logo className="h-5" />
-          </a>
-        </Link>
+        <a
+          href="https://rallly.co"
+          className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
+        >
+          <Logo className="h-5" />
+        </a>
       </div>
       <div className="text-slate-300">&bull;</div>
       <div className="flex items-center justify-center space-x-6 md:justify-start">
@@ -175,15 +176,7 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
       {children}
       <IfAuthenticated>
         <DropdownItem href="/profile" icon={User} label={t("app:profile")} />
-        <DropdownItem
-          href="/logout"
-          onClick={async (e) => {
-            e.preventDefault();
-            await reset();
-          }}
-          icon={Logout}
-          label={t("app:logout")}
-        />
+        <DropdownItem href="/logout" icon={Logout} label={t("app:logout")} />
       </IfAuthenticated>
       <IfGuest>
         <DropdownItem
@@ -257,7 +250,7 @@ const MobileNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = (
     <>
       <div className="sticky top-0 z-40 w-full bg-white md:hidden">
         <div className="flex items-center justify-between border-b py-2 px-4">
-          <Link href="/">
+          <Link href="/polls">
             <a>
               <Logo className="h-5 text-primary-500" />
             </a>
@@ -362,7 +355,7 @@ const DesktopNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = ({
   return (
     <div className="sticky left-0 top-0 z-30 mb-4 hidden h-14 w-full max-w-full justify-between space-x-4 bg-white/75 px-4 backdrop-blur-md md:flex md:items-center">
       <div className="flex items-center space-x-4 overflow-hidden">
-        <Link href="/">
+        <Link href="/polls">
           <a>
             <Logo className="h-6 text-primary-500" />
           </a>

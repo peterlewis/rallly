@@ -1,3 +1,8 @@
+/**
+ * This method of logging in is deprecated and is replaced with a different strategy.
+ * It remains in place so that existing tokens issued before the new strategy is released still work
+ * but it can be removed shortly after since all tokens would be expired anyway.
+ */
 import { GetServerSideProps, NextPage } from "next";
 
 import { prisma } from "~/prisma/db";

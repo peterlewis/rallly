@@ -5,12 +5,15 @@ import { absoluteUrl } from "@/utils/absolute-url";
 import {
   createGuestUser,
   createToken,
+  decryptToken,
   LoginTokenPayload,
+  mergeGuestsIntoUser,
   RegistrationTokenPayload,
 } from "@/utils/auth";
 import { sendEmail } from "@/utils/send-email";
 import { prisma } from "~/prisma/db";
 
+import { generateOtp } from "../../utils/nanoid";
 import { createRouter } from "../createRouter";
 
 export const user = createRouter()
@@ -41,7 +44,7 @@ export const user = createRouter()
       email: z.string(),
       redirect: z.string().optional(),
     }),
-    resolve: async ({ input }): Promise<{ ok: boolean }> => {
+    resolve: async ({ ctx, input }): Promise<{ ok: boolean }> => {
       const user = await prisma.user.findUnique({
         where: {
           email: input.email,
@@ -52,16 +55,67 @@ export const user = createRouter()
         return { ok: false };
       }
 
+      const otp = await generateOtp();
+
       const token = await createToken<LoginTokenPayload>({
         userId: user.id,
-        redirect: input.redirect,
+        code: otp,
       });
+
+      ctx.session.token = token;
+      await ctx.session.save();
 
       await sendEmail({
         to: input.email,
-        subject: "Login via magic link",
-        html: `<p>Click the link below to login.</p><p><a href="${absoluteUrl()}/auth-login?token=${token}">Confirm your email</a>`,
+        subject: `Your 6-digit code is: ${otp}`,
+        html: `
+          <p>Your 6-digit code is:</p>
+          <p><strong style="font-size: 24px">${otp}</strong></p>
+          <p>Use this code to complete the verification process.</p>
+          <p><strong>This code is valid for 15 minutes</strong></p>
+        `,
       });
+
+      return { ok: true };
+    },
+  })
+  .mutation("verify", {
+    input: z.object({
+      code: z.string(),
+    }),
+    resolve: async ({ ctx, input }) => {
+      if (!ctx.session.token) {
+        return { ok: false };
+      }
+
+      const { userId, code } = await decryptToken<LoginTokenPayload>(
+        ctx.session.token,
+      );
+
+      if (code !== input.code) {
+        return { ok: false };
+      }
+
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+
+      if (!user) {
+        return { ok: false };
+      }
+
+      if (ctx.session.user?.isGuest) {
+        await mergeGuestsIntoUser(user.id, [ctx.session.user.id]);
+      }
+
+      ctx.session.user = {
+        isGuest: false,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      };
+
+      delete ctx.session.token;
+
+      await ctx.session.save();
 
       return { ok: true };
     },

@@ -14,6 +14,56 @@ import { validEmail } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
 import { withPageTranslations } from "../utils/with-page-translations";
 
+const VerifyCode: React.VoidFunctionComponent<{ referrer?: string }> = ({
+  referrer,
+}) => {
+  const verifyCode = trpc.useMutation("user.verify");
+  const { register, handleSubmit, setError, formState } =
+    useForm<{ code: string }>();
+  const router = useRouter();
+  return (
+    <div>
+      <form
+        onSubmit={handleSubmit(async ({ code }) => {
+          const { ok } = await verifyCode.mutateAsync({ code });
+          if (ok) {
+            router.replace(referrer ?? "/polls");
+          } else {
+            setError("code", {
+              type: "not_found",
+              message: "",
+            });
+          }
+        })}
+      >
+        <fieldset>
+          <TextInput
+            size="lg"
+            maxLength={6}
+            placeholder="Enter 6-digit code"
+            {...register("code")}
+          />
+          <p className="mt-1 text-sm text-slate-400">
+            Didn't get the email? Check your spam/junk.
+          </p>
+          {formState.errors.code ? (
+            <div className="mt-1 text-sm text-rose-500">
+              {formState.errors.code.message}
+            </div>
+          ) : null}
+        </fieldset>
+        <Button
+          loading={formState.isSubmitting}
+          type="primary"
+          htmlType="submit"
+        >
+          Continue
+        </Button>
+      </form>
+    </div>
+  );
+};
+
 const Page: NextPage<{ referrer?: string }> = ({ referrer }) => {
   const { register, handleSubmit, formState, setError } =
     useForm<{ email: string; password: string }>();
@@ -35,7 +85,7 @@ const Page: NextPage<{ referrer?: string }> = ({ referrer }) => {
             {t("login")}
           </div>
           {login.data?.ok === true ? (
-            <div>{t("checkYourEmail")}</div>
+            <VerifyCode referrer={referrer} />
           ) : (
             <form
               onSubmit={handleSubmit(async (data) => {
@@ -72,7 +122,7 @@ const Page: NextPage<{ referrer?: string }> = ({ referrer }) => {
                 type="primary"
                 className="h-12 px-6"
               >
-                {t("login")}
+                {t("continue")}
               </Button>
             </form>
           )}
