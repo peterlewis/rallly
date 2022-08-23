@@ -21,12 +21,68 @@ import UserCircle from "@/components/icons/user-circle.svg";
 import X from "@/components/icons/x.svg";
 import Logo from "~/public/logo.svg";
 
+import { RegisteredUserSession } from "../utils/auth";
 import { DayjsProvider } from "../utils/dayjs";
+import { LoginForm, RegisterForm } from "./auth/login-form";
 import Dropdown, { DropdownItem, DropdownProps } from "./dropdown";
 import ModalProvider, { useModalContext } from "./modal/modal-provider";
 import Popover from "./popover";
 import Preferences from "./preferences";
 import { IfAuthenticated, IfGuest, useUser } from "./user-provider";
+
+const LoginModal: React.VoidFunctionComponent<{
+  onDone: (user: RegisteredUserSession) => void;
+}> = ({ onDone }) => {
+  const [hasAccount, setHasAccount] = React.useState(false);
+
+  return (
+    <div className="p-8 sm:w-[480px]">
+      {hasAccount ? (
+        <RegisterForm
+          onRegistered={onDone}
+          onClickLogin={(e) => {
+            e.preventDefault();
+            setHasAccount(false);
+          }}
+        />
+      ) : (
+        <LoginForm
+          onAuthenticated={onDone}
+          onClickRegister={(e) => {
+            e.preventDefault();
+            setHasAccount(true);
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+const useLoginModal = () => {
+  const modalContext = useModalContext();
+  const { setUser } = useUser();
+
+  const openLoginModal = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    modalContext.render({
+      overlayClosable: true,
+      showClose: true,
+      content: function Content({ close }) {
+        return (
+          <LoginModal
+            onDone={(user) => {
+              setUser(user);
+              close();
+            }}
+          />
+        );
+      },
+      footer: null,
+    });
+  };
+  return { openLoginModal };
+};
 
 const Footer: React.VoidFunctionComponent = () => {
   const { t } = useTranslation();
@@ -113,9 +169,6 @@ const NavigationButton = React.forwardRef<
       type={!href ? "button" : undefined}
       className={clsx(
         "flex items-center whitespace-nowrap rounded-md px-2 py-1 font-medium text-slate-600 transition-colors hover:bg-gray-200 hover:text-slate-600 hover:no-underline active:bg-gray-300",
-        {
-          "cursor-default": href,
-        },
         className,
       )}
     >
@@ -160,6 +213,9 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
   const { user, reset, getAlias } = useUser();
   const { t } = useTranslation(["common", "app"]);
   const modalContext = useModalContext();
+
+  const { openLoginModal } = useLoginModal();
+
   if (!user) {
     return null;
   }
@@ -215,7 +271,12 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
             });
           }}
         />
-        <DropdownItem icon={Login} href="/login" label={t("app:login")} />
+        <DropdownItem
+          icon={Login}
+          onClick={openLoginModal}
+          href="/login"
+          label={t("app:login")}
+        />
         <DropdownItem
           icon={Refresh}
           label={t("app:forgetMe")}
@@ -352,6 +413,7 @@ const DesktopNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = ({
 }) => {
   const { t } = useTranslation("app");
   const { user } = useUser();
+  const { openLoginModal } = useLoginModal();
   return (
     <div className="sticky left-0 top-0 z-30 mb-4 hidden h-14 w-full max-w-full justify-between space-x-4 bg-white/75 px-4 backdrop-blur-md md:flex md:items-center">
       <div className="flex items-center space-x-4 overflow-hidden">
@@ -376,7 +438,7 @@ const DesktopNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = ({
         </Popover>
         <IfGuest>
           <Link href="/login" passHref={true}>
-            <NavigationButton>
+            <NavigationButton onClick={openLoginModal}>
               <Login className="h-5 opacity-75" />
               <span className="ml-2">{t("login")}</span>
             </NavigationButton>

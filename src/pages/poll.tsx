@@ -20,7 +20,7 @@ const PollPageLoader: NextPage = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = withSessionSsr(
-  withPageTranslations(["common", "app", "errors", "timeZones"]),
+  withPageTranslations(["common", "app", "errors", "timeZones", "login"]),
 );
 
 export default withUserSession(PollPageLoader);

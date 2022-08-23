@@ -56,6 +56,8 @@ export const withUserSession = <P extends { user: UserSession }>(
       onSuccess: setUser,
     });
 
+    const context = trpc.useContext();
+
     const getAlias = React.useCallback(() => {
       if (!user.isGuest) {
         return user.name;
@@ -70,7 +72,10 @@ export const withUserSession = <P extends { user: UserSession }>(
       <UserContext.Provider
         value={{
           user,
-          setUser,
+          setUser: (newUser) => {
+            context.invalidateQueries();
+            setUser(newUser);
+          },
           reset: resetUser.mutateAsync,
           getAlias,
         }}

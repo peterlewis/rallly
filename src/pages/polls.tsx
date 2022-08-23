@@ -131,7 +131,7 @@ const Page = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = withSessionSsr(
-  withPageTranslations(["common", "app"]),
+  withPageTranslations(["common", "app", "login"]),
 );
 
 export default withUserSession(Page);
