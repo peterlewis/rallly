@@ -1,23 +1,33 @@
 import { NextPage } from "next";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 
 import { AuthLayout } from "../components/auth/auth-layout";
 import { RegisterForm } from "../components/auth/login-form";
+import { withUserSession } from "../components/user-provider";
+import { withSessionSsr } from "../utils/auth";
 import { withPageTranslations } from "../utils/with-page-translations";
 
 const Page: NextPage = () => {
   const { t } = useTranslation("register");
+  const router = useRouter();
   return (
     <AuthLayout>
       <Head>
         <title>{t("register")}</title>
       </Head>
-      <RegisterForm />
+      <RegisterForm
+        onRegistered={() => {
+          router.replace("/polls");
+        }}
+      />
     </AuthLayout>
   );
 };
 
-export const getServerSideProps = withPageTranslations(["common", "login"]);
+export const getServerSideProps = withSessionSsr(
+  withPageTranslations(["common", "login"]),
+);
 
-export default Page;
+export default withUserSession(Page);

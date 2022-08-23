@@ -39,71 +39,14 @@ export const user = createRouter()
       await ctx.session.save();
     },
   })
-  .mutation("login", {
-    input: z.object({
-      email: z.string(),
-      redirect: z.string().optional(),
-    }),
-    resolve: async ({ ctx, input }): Promise<{ ok: boolean }> => {
-      const user = await prisma.user.findUnique({
-        where: {
-          email: input.email,
-        },
-      });
-
-      if (!user) {
-        return { ok: false };
-      }
-
-      const otp = await generateOtp();
-
-      const token = await createToken<LoginTokenPayload>({
-        userId: user.id,
-        code: otp,
-      });
-
-      ctx.session.token = token;
-      await ctx.session.save();
-
-      await sendEmail({
-        to: input.email,
-        subject: `Your 6-digit code is: ${otp}`,
-        html: `
-          <table width="100%" border="0" cellspacing="0" cellpadding="0" style="color: rgb(51 65 85); font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;">
-            <tr>
-              <td style="text-align:center">
-                <table style="text-align:left; max-width: 100%" width="600px">
-                  <tr>
-                    <td style="padding-top:32px; padding-bottom:32px">
-                      <p><img src="${absoluteUrl()}/logo.png" width="150" height="28" /></p>
-                      <p>Hi ${user.name},</p>
-                      <p>Your 6-digit code is:</p>
-                      <p><strong style="font-size: 24px">${otp}</strong></p>
-                      <p>Use this code to complete the verification process.</p>
-                      <p><strong>This code is valid for 15 minutes</strong></p>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
-        `,
-      });
-
-      return { ok: true };
-    },
-  })
   .mutation("verify", {
     input: z.object({
+      token: z.string(),
       code: z.string(),
     }),
     resolve: async ({ ctx, input }) => {
-      if (!ctx.session.token) {
-        return { ok: false };
-      }
-
       const { userId, code } = await decryptToken<LoginTokenPayload>(
-        ctx.session.token,
+        input.token,
       );
 
       if (code !== input.code) {
@@ -127,28 +70,9 @@ export const user = createRouter()
         email: user.email,
       };
 
-      delete ctx.session.token;
-
       await ctx.session.save();
 
       return { ok: true };
-    },
-  })
-  .mutation("register", {
-    input: z.object({
-      name: z.string(),
-      email: z.string(),
-    }),
-    resolve: async ({ input }) => {
-      const token = await createToken<RegistrationTokenPayload>(input);
-
-      const baseUrl = absoluteUrl();
-
-      await sendEmail({
-        to: input.email,
-        subject: "Please confirm your email address",
-        html: `<p>Hi ${input.name},</p><p>Click the link below to confirm your email address.</p><p><a href="${baseUrl}/auth-register?token=${token}">Confirm your email</a>`,
-      });
     },
   })
   .mutation("reset", {

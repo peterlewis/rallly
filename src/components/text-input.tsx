@@ -55,7 +55,7 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
           ref={ref}
           type="text"
           className={clsx(
-            "h-full appearance-none border-0 bg-transparent p-0 placeholder:text-slate-400 focus:outline-none focus:ring-0",
+            "h-full w-full appearance-none border-0 bg-transparent p-0 placeholder:text-slate-400 focus:outline-none focus:ring-0",
             {
               "text-xl": size === "lg",
             },

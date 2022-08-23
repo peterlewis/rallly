@@ -1,8 +1,8 @@
-import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import React from "react";
 import { useForm } from "react-hook-form";
 
+import { RegisteredUserSession } from "../../utils/auth";
 import { requiredString, validEmail } from "../../utils/form-validation";
 import { trpc } from "../../utils/trpc";
 import { Button } from "../button";
@@ -10,22 +10,36 @@ import { LinkText } from "../LinkText";
 import { TextInput } from "../text-input";
 
 const VerifyCode: React.VoidFunctionComponent<{
-  referrer?: string;
   email: string;
-}> = ({ referrer, email }) => {
-  const verifyCode = trpc.useMutation("user.verify");
+  onSubmit: (code: string) => Promise<void>;
+  onResend: () => Promise<void>;
+}> = ({ onSubmit, email, onResend }) => {
   const { register, handleSubmit, setError, formState } =
     useForm<{ code: string }>();
-  const router = useRouter();
   const { t } = useTranslation("login");
+  const [resendStatus, setResendStatus] =
+    React.useState<"ok" | "busy" | "disabled">("ok");
+
+  const handleResend = async () => {
+    setResendStatus("busy");
+    try {
+      await onResend();
+      setResendStatus("disabled");
+      setTimeout(() => {
+        setResendStatus("ok");
+      }, 1000 * 30);
+    } catch {
+      setResendStatus("ok");
+    }
+  };
+
   return (
     <div>
       <form
         onSubmit={handleSubmit(async ({ code }) => {
-          const { ok } = await verifyCode.mutateAsync({ code });
-          if (ok) {
-            router.replace(referrer ?? "/polls");
-          } else {
+          try {
+            await onSubmit(code);
+          } catch {
             setError("code", {
               type: "not_found",
               message: t("wrongVerificationCode"),
@@ -34,7 +48,7 @@ const VerifyCode: React.VoidFunctionComponent<{
         })}
       >
         <fieldset>
-          <div className="mb-4 text-3xl font-bold leading-normal">
+          <div className="mb-4 text-xl font-bold leading-normal sm:text-3xl">
             {t("verifyYourEmail")}
           </div>
           <p>
@@ -46,6 +60,7 @@ const VerifyCode: React.VoidFunctionComponent<{
             />
           </p>
           <TextInput
+            autoFocus={true}
             size="lg"
             error={!!formState.errors.code}
             placeholder={t("verificationCodePlaceholder")}
@@ -62,21 +77,23 @@ const VerifyCode: React.VoidFunctionComponent<{
             {t("verificationCodeHelp")}
           </p>
         </fieldset>
-        <div className="flex space-x-3">
+        <div className="space-y-4 sm:flex sm:space-y-0 sm:space-x-3">
           <Button
             loading={formState.isSubmitting || formState.isSubmitSuccessful}
             htmlType="submit"
             type="primary"
-            className="h-12 px-6"
+            className="h-12 w-full px-6 sm:w-auto"
           >
             {t("continue")}
           </Button>
-          <button
-            type="button"
-            className="rounded-lg px-4 text-slate-500 transition-colors hover:bg-slate-500/10 active:bg-slate-500/20"
+          <Button
+            onClick={handleResend}
+            loading={resendStatus === "busy"}
+            disabled={resendStatus === "disabled"}
+            className="h-12 w-full rounded-lg px-4 text-slate-500 transition-colors hover:bg-slate-500/10 active:bg-slate-500/20 sm:w-auto"
           >
             {t("resendVerificationCode")}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -85,40 +102,94 @@ const VerifyCode: React.VoidFunctionComponent<{
 
 export const RegisterForm: React.VoidFunctionComponent<{
   onClickLogin?: React.MouseEventHandler;
-  referrer?: string;
-}> = ({ onClickLogin, referrer }) => {
+  onRegistered: (user: RegisteredUserSession) => void;
+}> = ({ onClickLogin, onRegistered }) => {
   const { t } = useTranslation("login");
-  const { register, handleSubmit, getValues, formState, setError } =
+  const { register, handleSubmit, getValues, setError, formState } =
     useForm<{ email: string; name: string }>();
-  const login = trpc.useMutation("user.login");
-  const router = useRouter();
+  const requestRegistration = trpc.useMutation("auth.requestRegistration");
+  const authenticateRegistration = trpc.useMutation(
+    "auth.authenticateRegistration",
+  );
 
-  if (login.data?.ok) {
-    return <VerifyCode referrer={referrer} email={getValues("email")} />;
+  const token = requestRegistration.data?.ok
+    ? requestRegistration.data?.token
+    : null;
+
+  if (token) {
+    return (
+      <VerifyCode
+        onSubmit={async (code) => {
+          const res = await authenticateRegistration.mutateAsync({
+            token,
+            code,
+          });
+
+          if (!res.user) {
+            throw new Error("Failed to authenticate user");
+          }
+
+          onRegistered(res.user);
+        }}
+        onResend={async () => {
+          const values = getValues();
+          await requestRegistration.mutateAsync({
+            email: values.email,
+            name: values.name,
+          });
+        }}
+        email={getValues("email")}
+      />
+    );
   }
 
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
-        const res = await login.mutateAsync({
+        const res = await requestRegistration.mutateAsync({
           email: data.email,
-          redirect: (router.query.redirect as string) ?? referrer,
+          name: data.name,
         });
+
         if (!res.ok) {
-          setError("email", {
-            type: "not_found",
-            message: t("userNotFound"),
-          });
+          switch (res.code) {
+            case "userAlreadyExists":
+              setError("email", {
+                message: t("userAlreadyExists"),
+              });
+              break;
+          }
         }
       })}
     >
-      <div className="mb-1 text-3xl font-bold">{t("createAnAccount")}</div>
+      <div className="mb-4 text-xl font-bold sm:text-3xl">
+        {t("createAnAccount")}
+      </div>
+      <fieldset className="mb-4">
+        <label htmlFor="name" className="text-slate-500">
+          {t("name")}
+        </label>
+        <TextInput
+          className="w-full"
+          size="lg"
+          autoFocus={true}
+          error={!!formState.errors.name}
+          disabled={formState.isSubmitting}
+          placeholder={t("namePlaceholder")}
+          {...register("name", { validate: requiredString })}
+        />
+        {formState.errors.name?.message ? (
+          <div className="mt-2 text-sm text-rose-500">
+            {formState.errors.name.message}
+          </div>
+        ) : null}
+      </fieldset>
       <fieldset className="mb-4">
         <label htmlFor="email" className="text-slate-500">
           {t("email")}
         </label>
         <TextInput
-          className="w-96 max-w-full"
+          className="w-full"
           size="lg"
           disabled={formState.isSubmitting}
           placeholder={t("emailPlaceholder")}
@@ -138,7 +209,7 @@ export const RegisterForm: React.VoidFunctionComponent<{
       >
         {t("continue")}
       </Button>
-      <div className="mt-8 border-t pt-8 text-slate-500">
+      <div className="mt-4 border-t pt-4 text-sm text-slate-500 sm:mt-8 sm:pt-8 sm:text-base">
         <Trans
           t={t}
           i18nKey="alreadyRegistered"
@@ -153,41 +224,72 @@ export const RegisterForm: React.VoidFunctionComponent<{
 
 export const LoginForm: React.VoidFunctionComponent<{
   onClickRegister?: React.MouseEventHandler;
-  referrer?: string;
-}> = ({ onClickRegister, referrer }) => {
+  onAuthenticated: (user: RegisteredUserSession) => void;
+}> = ({ onAuthenticated, onClickRegister }) => {
   const { t } = useTranslation("login");
   const { register, handleSubmit, getValues, formState, setError } =
     useForm<{ email: string }>();
-  const login = trpc.useMutation("user.login");
-  const router = useRouter();
+  const requestLogin = trpc.useMutation("auth.requestLogin");
+  const authenticateLogin = trpc.useMutation("auth.authenticateLogin");
 
-  if (login.data?.ok) {
-    return <VerifyCode referrer={referrer} email={getValues("email")} />;
+  const [token, setToken] = React.useState<string>();
+
+  if (token) {
+    return (
+      <VerifyCode
+        onSubmit={async (code) => {
+          const res = await authenticateLogin.mutateAsync({
+            code,
+            token,
+          });
+
+          if (!res.user) {
+            throw new Error("Failed to authenticate user");
+          } else {
+            onAuthenticated(res.user);
+          }
+        }}
+        onResend={async () => {
+          const values = getValues();
+          const res = await requestLogin.mutateAsync({
+            email: values.email,
+          });
+
+          setToken(res.token);
+        }}
+        email={getValues("email")}
+      />
+    );
   }
 
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
-        const res = await login.mutateAsync({
+        const res = await requestLogin.mutateAsync({
           email: data.email,
-          redirect: (router.query.redirect as string) ?? referrer,
         });
-        if (!res.ok) {
+
+        if (!res.token) {
           setError("email", {
             type: "not_found",
             message: t("userNotFound"),
           });
+        } else {
+          setToken(res.token);
         }
       })}
     >
-      <div className="mb-4 text-3xl font-bold text-slate-700">{t("login")}</div>
+      <div className="mb-4 text-xl font-bold text-slate-700 sm:text-3xl">
+        {t("login")}
+      </div>
       <fieldset className="mb-4">
         <label htmlFor="email" className="text-slate-500">
           {t("email")}
         </label>
         <TextInput
-          className="w-96 max-w-full"
+          className="w-full"
           size="lg"
+          autoFocus={true}
           error={!!formState.errors.email}
           disabled={formState.isSubmitting}
           placeholder={t("emailPlaceholder")}
@@ -207,7 +309,7 @@ export const LoginForm: React.VoidFunctionComponent<{
       >
         {t("continue")}
       </Button>
-      <div className="mt-8 border-t pt-8 text-slate-500">
+      <div className="mt-4 border-t pt-4 text-sm text-slate-500 sm:mt-8 sm:pt-8 sm:text-base">
         <Trans
           t={t}
           i18nKey="notRegistered"

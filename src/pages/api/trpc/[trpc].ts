@@ -3,7 +3,7 @@ import superjson from "superjson";
 
 import { createContext } from "../../../server/context";
 import { createRouter } from "../../../server/createRouter";
-import { login } from "../../../server/routers/login";
+import { auth } from "../../../server/routers/auth";
 import { polls } from "../../../server/routers/polls";
 import { user } from "../../../server/routers/user";
 import { withSessionRoute } from "../../../utils/auth";
@@ -11,7 +11,7 @@ import { withSessionRoute } from "../../../utils/auth";
 export const appRouter = createRouter()
   .transformer(superjson)
   .merge("polls.", polls)
-  .merge(login)
+  .merge("auth.", auth)
   .merge("user.", user);
 
 // export type definition of API
