@@ -54,7 +54,7 @@ const NotificationsToggle: React.VoidFunctionComponent = () => {
       <Button
         loading={updatePoll.isLoading}
         icon={poll.notifications ? <Bell /> : <BellCrossed />}
-        onClick={async (e) => {
+        onClick={async () => {
           if (poll.user?.id === user.id && !user.isGuest) {
             await updatePoll.mutateAsync({
               urlId,

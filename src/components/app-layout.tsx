@@ -219,7 +219,6 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
         <DropdownItem
           icon={Login}
           onClick={openLoginModal}
-          href="/login"
           label={t("app:login")}
         />
         <DropdownItem
@@ -383,7 +382,12 @@ const DesktopNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = ({
         </Popover>
         <IfGuest>
           <Link href="/login" passHref={true}>
-            <NavigationButton onClick={openLoginModal}>
+            <NavigationButton
+              onClick={(e) => {
+                e.preventDefault();
+                openLoginModal();
+              }}
+            >
               <Login className="h-5 opacity-75" />
               <span className="ml-2">{t("login")}</span>
             </NavigationButton>

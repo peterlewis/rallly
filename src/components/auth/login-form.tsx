@@ -328,7 +328,7 @@ export const LoginForm: React.VoidFunctionComponent<{
           </div>
         ) : null}
       </fieldset>
-      <div className="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-4">
+      <div className="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-3">
         <Button
           loading={formState.isSubmitting}
           htmlType="submit"
@@ -337,21 +337,16 @@ export const LoginForm: React.VoidFunctionComponent<{
         >
           {t("continue")}
         </Button>
-        <div className="py-2 text-center text-slate-500 sm:py-0">
-          <Trans
-            t={t}
-            i18nKey="notRegistered"
-            components={{
-              a: (
-                <LinkText
-                  href="/register"
-                  onClick={(e) => {
-                    onClickRegister?.(e, getValues("email"));
-                  }}
-                />
-              ),
+        <div className="text-center text-slate-500 sm:py-0">
+          <LinkText
+            href="/register"
+            className="btn-default h-12 w-full sm:w-auto"
+            onClick={(e) => {
+              onClickRegister?.(e, getValues("email"));
             }}
-          />
+          >
+            {t("notRegistered")}
+          </LinkText>
         </div>
       </div>
     </form>

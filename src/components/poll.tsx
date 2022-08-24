@@ -66,7 +66,10 @@ const UnclaimedPollAlert = () => {
             components={{
               a: (
                 <LinkText
-                  onClick={openLoginModal}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openLoginModal();
+                  }}
                   className="text-blue-800/75 underline hover:text-blue-800 hover:underline"
                   href="/login"
                 />

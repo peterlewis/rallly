@@ -47,9 +47,7 @@ export const useLoginModal = () => {
   const modalContext = useModalContext();
   const { setUser } = useUser();
 
-  const openLoginModal = (e?: React.MouseEvent) => {
-    e?.preventDefault();
-
+  const openLoginModal = () => {
     modalContext.render({
       overlayClosable: true,
       showClose: true,
