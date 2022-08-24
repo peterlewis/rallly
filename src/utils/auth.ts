@@ -71,7 +71,7 @@ export function withSessionSsr(handler: GetServerSideProps) {
 
 export const decryptToken = async <P extends Record<string, unknown>>(
   token: string,
-): Promise<P> => {
+): Promise<P | Record<string, never>> => {
   return await unsealData(token, { password: sessionOptions.password });
 };
 
@@ -80,7 +80,7 @@ export const createToken = async <T extends Record<string, unknown>>(
 ) => {
   return await sealData(payload, {
     password: sessionOptions.password,
-    ttl: 60 * 10, // 15 minutes
+    ttl: 60 * 10, // 10 minutes
   });
 };
 

@@ -34,8 +34,8 @@ const sendVerificationEmail = async (
                   <p>Hi ${name},</p>
                   <p>Your 6-digit code is:</p>
                   <p><strong style="font-size: 24px">${code}</strong></p>
+                  <p>This code is <strong>valid for 10 minutes</strong></p>
                   <p>Use this code to complete the verification process.</p>
-                  <p><strong>This code is valid for 15 minutes</strong></p>
                 </td>
               </tr>
             </table>
