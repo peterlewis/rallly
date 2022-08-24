@@ -153,7 +153,7 @@
   }
 
   .line-pattern {
-    @apply bg-white;
+    @apply bg-slate-300/5;
     background-position: center center;
     background-size: 150px 150px;
     background-image: linear-gradient(

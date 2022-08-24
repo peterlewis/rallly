@@ -17,6 +17,7 @@ import { preventWidows } from "@/utils/prevent-widows";
 
 import { trpc } from "../utils/trpc";
 import { AppLayout, AppLayoutHeading } from "./app-layout";
+import { useLoginModal } from "./auth/login-modal";
 import { LinkText } from "./LinkText";
 import { useParticipants } from "./participants-provider";
 import { useUpdatePollMutation } from "./poll/mutations";
@@ -37,7 +38,7 @@ const UnclaimedPollAlert = () => {
   const { t } = useTranslation("app");
   const { poll } = usePoll();
   const { user } = useUser();
-
+  const { openLoginModal } = useLoginModal();
   const context = trpc.useContext();
   const claimPoll = trpc.useMutation("polls.claim", {
     onSuccess: (res) => {
@@ -65,6 +66,7 @@ const UnclaimedPollAlert = () => {
             components={{
               a: (
                 <LinkText
+                  onClick={openLoginModal}
                   className="text-blue-800/75 underline hover:text-blue-800 hover:underline"
                   href="/login"
                 />

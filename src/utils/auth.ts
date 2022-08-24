@@ -1,4 +1,9 @@
-import { IronSessionOptions, sealData, unsealData } from "iron-session";
+import {
+  IronSession,
+  IronSessionOptions,
+  sealData,
+  unsealData,
+} from "iron-session";
 import { withIronSessionApiRoute, withIronSessionSsr } from "iron-session/next";
 import {
   GetServerSideProps,
@@ -21,12 +26,29 @@ const sessionOptions: IronSessionOptions = {
   ttl: 0, // basically forever
 };
 
+const setUser = async (session: IronSession) => {
+  if (!session.user) {
+    session.user = await createGuestUser();
+    await session.save();
+  }
+
+  if (!session.user.isGuest) {
+    // Check registered user still exists
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!user) {
+      session.user = await createGuestUser();
+      await session.save();
+    }
+  }
+};
+
 export function withSessionRoute(handler: NextApiHandler) {
   return withIronSessionApiRoute(async (req, res) => {
-    if (!req.session.user) {
-      req.session.user = await createGuestUser();
-      await req.session.save();
-    }
+    await setUser(req.session);
+
     return await handler(req, res);
   }, sessionOptions);
 }
@@ -34,10 +56,9 @@ export function withSessionRoute(handler: NextApiHandler) {
 export function withSessionSsr(handler: GetServerSideProps) {
   return withIronSessionSsr(async (context) => {
     const { req } = context;
-    if (!req.session.user) {
-      req.session.user = await createGuestUser();
-      await req.session.save();
-    }
+
+    await setUser(req.session);
+
     const res = await handler(context);
 
     if ("props" in res) {

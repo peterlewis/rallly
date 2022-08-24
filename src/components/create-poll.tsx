@@ -96,7 +96,7 @@ const NewProceeding: React.VoidFunctionComponent = () => {
     <AppLayout
       breadcrumbs={[
         {
-          title: <>&larr; {t("meetingPolls")}</>,
+          title: <>&larr; {t("groupMeetings")}</>,
           href: "/polls",
         },
       ]}

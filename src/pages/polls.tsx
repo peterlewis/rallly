@@ -111,11 +111,11 @@ const Page = () => {
   const { t } = useTranslation("app");
 
   return (
-    <AppLayout title={t("meetingPolls")}>
+    <AppLayout title={t("groupMeetings")}>
       <AppLayoutHeading
         className="mb-4"
-        title={t("meetingPolls")}
-        description="Ask participants which days and times they are available to meet."
+        title={t("groupMeetings")}
+        description={t("groupMeetingsDescription")}
         actions={
           <Link href="/new">
             <a className="btn-primary pr-4">
@@ -131,7 +131,7 @@ const Page = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = withSessionSsr(
-  withPageTranslations(["common", "app", "login"]),
+  withPageTranslations(["common", "app"]),
 );
 
 export default withUserSession(Page);

@@ -21,68 +21,13 @@ import UserCircle from "@/components/icons/user-circle.svg";
 import X from "@/components/icons/x.svg";
 import Logo from "~/public/logo.svg";
 
-import { RegisteredUserSession } from "../utils/auth";
 import { DayjsProvider } from "../utils/dayjs";
-import { LoginForm, RegisterForm } from "./auth/login-form";
+import { useLoginModal } from "./auth/login-modal";
 import Dropdown, { DropdownItem, DropdownProps } from "./dropdown";
 import ModalProvider, { useModalContext } from "./modal/modal-provider";
 import Popover from "./popover";
 import Preferences from "./preferences";
 import { IfAuthenticated, IfGuest, useUser } from "./user-provider";
-
-const LoginModal: React.VoidFunctionComponent<{
-  onDone: (user: RegisteredUserSession) => void;
-}> = ({ onDone }) => {
-  const [hasAccount, setHasAccount] = React.useState(false);
-
-  return (
-    <div className="p-8 sm:w-[480px]">
-      {hasAccount ? (
-        <RegisterForm
-          onRegistered={onDone}
-          onClickLogin={(e) => {
-            e.preventDefault();
-            setHasAccount(false);
-          }}
-        />
-      ) : (
-        <LoginForm
-          onAuthenticated={onDone}
-          onClickRegister={(e) => {
-            e.preventDefault();
-            setHasAccount(true);
-          }}
-        />
-      )}
-    </div>
-  );
-};
-
-const useLoginModal = () => {
-  const modalContext = useModalContext();
-  const { setUser } = useUser();
-
-  const openLoginModal = (e: React.MouseEvent) => {
-    e.preventDefault();
-
-    modalContext.render({
-      overlayClosable: true,
-      showClose: true,
-      content: function Content({ close }) {
-        return (
-          <LoginModal
-            onDone={(user) => {
-              setUser(user);
-              close();
-            }}
-          />
-        );
-      },
-      footer: null,
-    });
-  };
-  return { openLoginModal };
-};
 
 const Footer: React.VoidFunctionComponent = () => {
   const { t } = useTranslation();

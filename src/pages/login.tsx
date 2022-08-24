@@ -8,8 +8,8 @@ import { LoginForm } from "../components/auth/login-form";
 import { withSessionSsr } from "../utils/auth";
 import { withPageTranslations } from "../utils/with-page-translations";
 
-const Page: NextPage<{ referer: string | null }> = ({ referer }) => {
-  const { t } = useTranslation("login");
+const Page: NextPage<{ referer: string | null }> = () => {
+  const { t } = useTranslation("app");
   const router = useRouter();
   return (
     <AuthLayout>
@@ -18,7 +18,7 @@ const Page: NextPage<{ referer: string | null }> = ({ referer }) => {
       </Head>
       <LoginForm
         onAuthenticated={() => {
-          router.replace(referer ?? "/polls");
+          router.replace("/polls");
         }}
       />
     </AuthLayout>
@@ -34,25 +34,7 @@ export const getServerSideProps: GetServerSideProps = withSessionSsr(
       };
     }
 
-    const res = await withPageTranslations(["common", "login"])(ctx);
-
-    const referer = ctx.req.headers.referer;
-
-    if ("props" in res) {
-      return {
-        props: {
-          ...res.props,
-          referer:
-            referer &&
-            // don't redirect to registration page after logging in
-            !referer.includes("/register")
-              ? referer
-              : null,
-        },
-      };
-    }
-
-    return res;
+    return await withPageTranslations(["common", "app"])(ctx);
   },
 );
 

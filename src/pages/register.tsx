@@ -10,7 +10,7 @@ import { withSessionSsr } from "../utils/auth";
 import { withPageTranslations } from "../utils/with-page-translations";
 
 const Page: NextPage = () => {
-  const { t } = useTranslation("register");
+  const { t } = useTranslation("app");
   const router = useRouter();
   return (
     <AuthLayout>
@@ -27,7 +27,7 @@ const Page: NextPage = () => {
 };
 
 export const getServerSideProps = withSessionSsr(
-  withPageTranslations(["common", "login"]),
+  withPageTranslations(["common", "app"]),
 );
 
 export default withUserSession(Page);

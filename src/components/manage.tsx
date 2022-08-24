@@ -34,7 +34,7 @@ export const Manage: React.VFC = () => {
       breadcrumbs={[
         {
           href: "/polls",
-          title: t("meetingPolls"),
+          title: t("groupMeetings"),
         },
         {
           href: `/admin/${poll.adminUrlId}`,

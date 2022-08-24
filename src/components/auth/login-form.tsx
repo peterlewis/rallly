@@ -16,7 +16,7 @@ const VerifyCode: React.VoidFunctionComponent<{
 }> = ({ onSubmit, email, onResend }) => {
   const { register, handleSubmit, setError, formState } =
     useForm<{ code: string }>();
-  const { t } = useTranslation("login");
+  const { t } = useTranslation("app");
   const [resendStatus, setResendStatus] =
     React.useState<"ok" | "busy" | "disabled">("ok");
 
@@ -48,9 +48,15 @@ const VerifyCode: React.VoidFunctionComponent<{
         })}
       >
         <fieldset>
-          <div className="mb-4 text-xl font-bold leading-normal sm:text-3xl">
+          <div className="mb-1 text-xl font-bold sm:text-3xl">
             {t("verifyYourEmail")}
           </div>
+          <p className="text-slate-500">
+            {t("stepSummary", {
+              current: 2,
+              total: 2,
+            })}
+          </p>
           <p>
             <Trans
               t={t}
@@ -100,21 +106,26 @@ const VerifyCode: React.VoidFunctionComponent<{
   );
 };
 
+type RegisterFormData = {
+  name: string;
+  email: string;
+};
+
 export const RegisterForm: React.VoidFunctionComponent<{
   onClickLogin?: React.MouseEventHandler;
   onRegistered: (user: RegisteredUserSession) => void;
-}> = ({ onClickLogin, onRegistered }) => {
-  const { t } = useTranslation("login");
+  defaultValues?: Partial<RegisterFormData>;
+}> = ({ onClickLogin, onRegistered, defaultValues }) => {
+  const { t } = useTranslation("app");
   const { register, handleSubmit, getValues, setError, formState } =
-    useForm<{ email: string; name: string }>();
+    useForm<RegisterFormData>({
+      defaultValues,
+    });
   const requestRegistration = trpc.useMutation("auth.requestRegistration");
   const authenticateRegistration = trpc.useMutation(
     "auth.authenticateRegistration",
   );
-
-  const token = requestRegistration.data?.ok
-    ? requestRegistration.data?.token
-    : null;
+  const [token, setToken] = React.useState<string>();
 
   if (token) {
     return (
@@ -159,12 +170,20 @@ export const RegisterForm: React.VoidFunctionComponent<{
               });
               break;
           }
+        } else {
+          setToken(res.token);
         }
       })}
     >
-      <div className="mb-4 text-xl font-bold sm:text-3xl">
+      <div className="mb-1 text-xl font-bold sm:text-3xl">
         {t("createAnAccount")}
       </div>
+      <p className="text-slate-500">
+        {t("stepSummary", {
+          current: 1,
+          total: 2,
+        })}
+      </p>
       <fieldset className="mb-4">
         <label htmlFor="name" className="text-slate-500">
           {t("name")}
@@ -191,11 +210,12 @@ export const RegisterForm: React.VoidFunctionComponent<{
         <TextInput
           className="w-full"
           size="lg"
+          error={!!formState.errors.email}
           disabled={formState.isSubmitting}
           placeholder={t("emailPlaceholder")}
           {...register("email", { validate: validEmail })}
         />
-        {formState.errors.email ? (
+        {formState.errors.email?.message ? (
           <div className="mt-1 text-sm text-rose-500">
             {formState.errors.email.message}
           </div>
@@ -209,7 +229,7 @@ export const RegisterForm: React.VoidFunctionComponent<{
       >
         {t("continue")}
       </Button>
-      <div className="mt-4 border-t pt-4 text-sm text-slate-500 sm:mt-8 sm:pt-8 sm:text-base">
+      <div className="mt-4 border-t pt-4 text-slate-500 sm:text-base">
         <Trans
           t={t}
           i18nKey="alreadyRegistered"
@@ -223,10 +243,13 @@ export const RegisterForm: React.VoidFunctionComponent<{
 };
 
 export const LoginForm: React.VoidFunctionComponent<{
-  onClickRegister?: React.MouseEventHandler;
+  onClickRegister?: (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    email: string,
+  ) => void;
   onAuthenticated: (user: RegisteredUserSession) => void;
 }> = ({ onAuthenticated, onClickRegister }) => {
-  const { t } = useTranslation("login");
+  const { t } = useTranslation("app");
   const { register, handleSubmit, getValues, formState, setError } =
     useForm<{ email: string }>();
   const requestLogin = trpc.useMutation("auth.requestLogin");
@@ -279,9 +302,13 @@ export const LoginForm: React.VoidFunctionComponent<{
         }
       })}
     >
-      <div className="mb-4 text-xl font-bold text-slate-700 sm:text-3xl">
-        {t("login")}
-      </div>
+      <div className="mb-1 text-xl font-bold sm:text-3xl">{t("login")}</div>
+      <p className="text-slate-500">
+        {t("stepSummary", {
+          current: 1,
+          total: 2,
+        })}
+      </p>
       <fieldset className="mb-4">
         <label htmlFor="email" className="text-slate-500">
           {t("email")}
@@ -301,22 +328,31 @@ export const LoginForm: React.VoidFunctionComponent<{
           </div>
         ) : null}
       </fieldset>
-      <Button
-        loading={formState.isSubmitting}
-        htmlType="submit"
-        type="primary"
-        className="h-12 px-6"
-      >
-        {t("continue")}
-      </Button>
-      <div className="mt-4 border-t pt-4 text-sm text-slate-500 sm:mt-8 sm:pt-8 sm:text-base">
-        <Trans
-          t={t}
-          i18nKey="notRegistered"
-          components={{
-            a: <LinkText href="/register" onClick={onClickRegister} />,
-          }}
-        />
+      <div className="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-4">
+        <Button
+          loading={formState.isSubmitting}
+          htmlType="submit"
+          type="primary"
+          className="h-12 w-full px-6 sm:w-auto"
+        >
+          {t("continue")}
+        </Button>
+        <div className="text-center text-slate-500">
+          <Trans
+            t={t}
+            i18nKey="notRegistered"
+            components={{
+              a: (
+                <LinkText
+                  href="/register"
+                  onClick={(e) => {
+                    onClickRegister?.(e, getValues("email"));
+                  }}
+                />
+              ),
+            }}
+          />
+        </div>
       </div>
     </form>
   );
