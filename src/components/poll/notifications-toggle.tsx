@@ -1,26 +1,24 @@
 import { Trans, useTranslation } from "next-i18next";
-import { usePlausible } from "next-plausible";
 import * as React from "react";
 
 import { Button } from "@/components/button";
 import Bell from "@/components/icons/bell.svg";
 import BellCrossed from "@/components/icons/bell-crossed.svg";
 
+import { useLoginModal } from "../auth/login-modal";
 import { usePoll } from "../poll-provider";
 import Tooltip from "../tooltip";
+import { usePollMutations } from "../use-poll-mutations";
 import { useUser } from "../user-provider";
-import { useUpdatePollMutation } from "./mutations";
 
 const NotificationsToggle: React.VoidFunctionComponent = () => {
   const { poll, urlId } = usePoll();
   const { t } = useTranslation("app");
-  const [isUpdatingNotifications, setIsUpdatingNotifications] =
-    React.useState(false);
+  React.useState(false);
 
   const { user } = useUser();
-  const { mutate: updatePollMutation } = useUpdatePollMutation();
-
-  const plausible = usePlausible();
+  const { updatePoll } = usePollMutations();
+  const { openLoginModal } = useLoginModal();
   return (
     <Tooltip
       content={
@@ -54,27 +52,17 @@ const NotificationsToggle: React.VoidFunctionComponent = () => {
       }
     >
       <Button
-        loading={isUpdatingNotifications}
+        loading={updatePoll.isLoading}
         icon={poll.notifications ? <Bell /> : <BellCrossed />}
-        disabled={!poll.user || poll.user.id !== user.id}
-        onClick={() => {
-          setIsUpdatingNotifications(true);
-          updatePollMutation(
-            {
+        onClick={async (e) => {
+          if (poll.user?.id === user.id && !user.isGuest) {
+            await updatePoll.mutateAsync({
               urlId,
               notifications: !poll.notifications,
-            },
-            {
-              onSuccess: ({ notifications }) => {
-                plausible(
-                  notifications
-                    ? "Turned notifications on"
-                    : "Turned notifications off",
-                );
-                setIsUpdatingNotifications(false);
-              },
-            },
-          );
+            });
+          } else {
+            openLoginModal();
+          }
         }}
       />
     </Tooltip>

@@ -302,7 +302,7 @@ export const LoginForm: React.VoidFunctionComponent<{
         }
       })}
     >
-      <div className="mb-1 text-2xl font-bold">{t("login")}</div>
+      <div className="mb-1 text-xl font-bold sm:text-3xl">{t("login")}</div>
       <p className="text-slate-500">
         {t("stepSummary", {
           current: 1,

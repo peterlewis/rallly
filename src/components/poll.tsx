@@ -20,7 +20,6 @@ import { AppLayout, AppLayoutHeading } from "./app-layout";
 import { useLoginModal } from "./auth/login-modal";
 import { LinkText } from "./LinkText";
 import { useParticipants } from "./participants-provider";
-import { useUpdatePollMutation } from "./poll/mutations";
 import NotificationsToggle from "./poll/notifications-toggle";
 import { PollDataProvider } from "./poll/poll-data-provider";
 import PollSubheader from "./poll/poll-subheader";
@@ -32,6 +31,7 @@ import { usePoll } from "./poll-provider";
 import Sharing from "./sharing";
 import TimeZonePicker from "./time-zone-picker";
 import { useTimeZones } from "./time-zone-picker/time-zone-picker";
+import { usePollMutations } from "./use-poll-mutations";
 import { useUser } from "./user-provider";
 
 const UnclaimedPollAlert = () => {
@@ -80,11 +80,16 @@ const UnclaimedPollAlert = () => {
 
   return (
     <div className="justify-between space-y-4 rounded-lg bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:flex sm:space-y-0 sm:space-x-4">
-      <div>
-        <div className="font-semibold">
-          <Trans t={t} i18nKey="unclaimedNoticeTitle" />
+      <div className="flex">
+        <div className="mr-2">
+          <InformationCircle className="h-6" />
         </div>
-        <Trans t={t} i18nKey="unclaimedNoticeDescription" />
+        <div>
+          <div className="font-semibold">
+            <Trans t={t} i18nKey="unclaimedNoticeTitle" />
+          </div>
+          <Trans t={t} i18nKey="unclaimedNoticeDescription" />
+        </div>
       </div>
       <div>
         <button
@@ -142,11 +147,11 @@ const PollPage: NextPage = () => {
 
   const plausible = usePlausible();
 
-  const { mutate: updatePollMutation } = useUpdatePollMutation();
+  const { updatePoll } = usePollMutations();
 
   React.useEffect(() => {
     if (router.query.unsubscribe) {
-      updatePollMutation(
+      updatePoll.mutate(
         { urlId: urlId, notifications: false },
         {
           onSuccess: () => {
@@ -159,7 +164,7 @@ const PollPage: NextPage = () => {
         shallow: true,
       });
     }
-  }, [plausible, urlId, router, updatePollMutation, t]);
+  }, [plausible, urlId, router, updatePoll, t]);
 
   const names = React.useMemo(
     () => participants?.map(({ name }) => name) ?? [],

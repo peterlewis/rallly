@@ -137,7 +137,7 @@
   "titlePlaceholder": "Monthly Meetup",
   "today": "Today",
   "unclaimedNoticeAction": "Yes, make me to owner",
-  "unclaimedNoticeDescription": "Claim ownership to avoid losing access.",
+  "unclaimedNoticeDescription": "This poll has not been claimed by a registered user.",
   "unclaimedNoticeTitle": "Are you the owner of this poll?",
   "unlockPoll": "Unlock poll",
   "unverifiedMessage": "An email has been sent to <b>{{email}}</b> with a link to verify the email address.",

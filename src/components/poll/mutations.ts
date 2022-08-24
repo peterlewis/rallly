@@ -67,15 +67,3 @@ export const useDeleteParticipantMutation = () => {
     },
   });
 };
-
-export const useUpdatePollMutation = () => {
-  const { urlId, admin } = usePoll();
-  const plausible = usePlausible();
-  const queryClient = trpc.useContext();
-  return trpc.useMutation(["polls.update"], {
-    onSuccess: (data) => {
-      queryClient.setQueryData(["polls.get", { urlId, admin }], data);
-      plausible("Updated poll");
-    },
-  });
-};

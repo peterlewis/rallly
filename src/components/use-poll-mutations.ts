@@ -8,7 +8,7 @@ export const usePollMutations = () => {
   const updatePoll = trpc.useMutation("polls.update", {
     onSuccess: (data) => {
       queryClient.setQueryData(
-        ["polls.get", { urlId: data.id, admin: poll.admin }],
+        ["polls.get", { urlId: data.adminUrlId, admin: poll.admin }],
         data,
       );
     },
