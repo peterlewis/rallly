@@ -1,19 +1,13 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { absoluteUrl } from "@/utils/absolute-url";
 import {
-  createGuestUser,
-  createToken,
   decryptToken,
   LoginTokenPayload,
   mergeGuestsIntoUser,
-  RegistrationTokenPayload,
 } from "@/utils/auth";
-import { sendEmail } from "@/utils/send-email";
 import { prisma } from "~/prisma/db";
 
-import { generateOtp } from "../../utils/nanoid";
 import { createRouter } from "../createRouter";
 
 export const user = createRouter()
