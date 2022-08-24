@@ -1,13 +1,13 @@
 import { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "next-i18next";
 import { useForm } from "react-hook-form";
 
 import Logo from "~/public/logo.svg";
 
 import { Button } from "../components/button";
+import { LinkText } from "../components/LinkText";
 import { TextInput } from "../components/text-input";
 import { withSessionSsr } from "../utils/auth";
 import { validEmail } from "../utils/form-validation";
@@ -19,7 +19,7 @@ const Page: NextPage = () => {
     useForm<{ email: string; password: string }>();
   const login = trpc.useMutation("user.login");
   const router = useRouter();
-  const { t } = useTranslation("app");
+  const { t } = useTranslation("login");
   return (
     <div className="flex h-full">
       <Head>
@@ -46,7 +46,7 @@ const Page: NextPage = () => {
                 if (!res.ok) {
                   setError("email", {
                     type: "not_found",
-                    message: "Could not find a user with that email.",
+                    message: t("userNotFound"),
                   });
                 }
               })}
@@ -72,16 +72,17 @@ const Page: NextPage = () => {
                 type="primary"
                 className="h-12 px-6"
               >
-                Login
+                {t("login")}
               </Button>
             </form>
           )}
           <div className="mt-8 border-t py-8">
             <p className="text-slate-500">
-              Don&apos;t have an account?{" "}
-              <Link href="/register">
-                <a>Register &rarr;</a>
-              </Link>
+              <Trans
+                t={t}
+                i18nKey="notRegistered"
+                components={{ a: <LinkText href="/register" /> }}
+              />
             </p>
           </div>
         </div>
@@ -99,7 +100,7 @@ export const getServerSideProps: GetServerSideProps = withSessionSsr(
       };
     }
 
-    return await withPageTranslations(["common", "app"])(ctx);
+    return await withPageTranslations(["common", "login"])(ctx);
   },
 );
 

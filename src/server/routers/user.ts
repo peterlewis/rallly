@@ -1,54 +1,18 @@
 import { TRPCError } from "@trpc/server";
-import { IronSessionData } from "iron-session";
 import { z } from "zod";
 
+import { absoluteUrl } from "@/utils/absolute-url";
+import {
+  createToken,
+  LoginTokenPayload,
+  RegistrationTokenPayload,
+} from "@/utils/auth";
+import { sendEmail } from "@/utils/send-email";
 import { prisma } from "~/prisma/db";
 
-import { absoluteUrl } from "../../utils/absolute-url";
-import { createToken, LoginTokenPayload } from "../../utils/auth";
-import { sendEmail } from "../../utils/send-email";
 import { createRouter } from "../createRouter";
 
-const requireUser = (user: IronSessionData["user"]) => {
-  if (!user) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "Tried to access user route without a session",
-    });
-  }
-  return user;
-};
-
 export const user = createRouter()
-  .query("getPolls", {
-    resolve: async ({ ctx }) => {
-      const user = requireUser(ctx.session.user);
-      const userPolls = await prisma.user.findUnique({
-        where: {
-          id: user.id,
-        },
-        select: {
-          polls: {
-            where: {
-              deleted: false,
-            },
-            select: {
-              title: true,
-              closed: true,
-              verified: true,
-              createdAt: true,
-              adminUrlId: true,
-            },
-            take: 10,
-            orderBy: {
-              createdAt: "desc",
-            },
-          },
-        },
-      });
-      return userPolls;
-    },
-  })
   .mutation("changeName", {
     input: z.object({
       name: z.string().min(1).max(100),
@@ -99,5 +63,22 @@ export const user = createRouter()
       });
 
       return { ok: true };
+    },
+  })
+  .mutation("register", {
+    input: z.object({
+      name: z.string(),
+      email: z.string(),
+    }),
+    resolve: async ({ input }) => {
+      const token = await createToken<RegistrationTokenPayload>(input);
+
+      const baseUrl = absoluteUrl();
+
+      await sendEmail({
+        to: input.email,
+        subject: "Please confirm your email address",
+        html: `<p>Hi ${input.name},</p><p>Click the link below to confirm your email address.</p><p><a href="${baseUrl}/auth-register?token=${token}">Confirm your email</a>`,
+      });
     },
   });

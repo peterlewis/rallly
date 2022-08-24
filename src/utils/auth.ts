@@ -63,6 +63,11 @@ export const createToken = async <T extends Record<string, unknown>>(
   });
 };
 
+export type RegistrationTokenPayload = {
+  name: string;
+  email: string;
+};
+
 export type LoginTokenPayload = {
   userId: string;
   redirect?: string;
