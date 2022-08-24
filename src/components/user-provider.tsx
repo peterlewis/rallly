@@ -2,7 +2,7 @@ import { NextPage } from "next";
 import { useTranslation } from "next-i18next";
 import React from "react";
 
-import { GuestUserSession, UserSession } from "@/utils/auth";
+import { UserSession } from "@/utils/auth";
 
 import { trpc } from "../utils/trpc";
 import { useRequiredContext } from "./use-required-context";
@@ -11,7 +11,6 @@ export const UserContext =
   React.createContext<{
     user: UserSession;
     getAlias: () => string;
-    reset: () => Promise<GuestUserSession>;
     setUser: React.Dispatch<React.SetStateAction<UserSession>>;
   } | null>(null);
 
@@ -52,9 +51,6 @@ export const withUserSession = <P extends { user: UserSession }>(
   const Page: NextPage<P> = (props) => {
     const { t } = useTranslation("app");
     const [user, setUser] = React.useState<UserSession>(props.user);
-    const resetUser = trpc.useMutation("user.reset", {
-      onSuccess: setUser,
-    });
 
     const context = trpc.useContext();
 
@@ -76,7 +72,6 @@ export const withUserSession = <P extends { user: UserSession }>(
             context.invalidateQueries();
             setUser(newUser);
           },
-          reset: resetUser.mutateAsync,
           getAlias,
         }}
       >

@@ -1,7 +1,9 @@
+import { router } from "@trpc/server";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 
@@ -155,10 +157,10 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
   children,
   ...forwardProps
 }) => {
-  const { user, reset, getAlias } = useUser();
+  const { user, getAlias } = useUser();
   const { t } = useTranslation(["common", "app"]);
   const modalContext = useModalContext();
-
+  const router = useRouter();
   const { openLoginModal } = useLoginModal();
 
   if (!user) {
@@ -229,7 +231,7 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
               title: t("app:areYouSure"),
               description: t("app:endingGuestSessionNotice"),
               onOk: async () => {
-                await reset();
+                router.replace("/logout");
               },
               okButtonProps: {
                 type: "danger",

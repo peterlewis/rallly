@@ -74,13 +74,4 @@ export const user = createRouter()
 
       return { ok: true };
     },
-  })
-  .mutation("reset", {
-    resolve: async ({ ctx }) => {
-      const guestUser = await createGuestUser();
-      ctx.session.user = guestUser;
-      await ctx.session.save();
-
-      return guestUser;
-    },
   });
