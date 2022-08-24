@@ -56,7 +56,7 @@ const UnclaimedPollAlert = () => {
   if (user.isGuest) {
     return (
       <div className="flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-lg">
-        <div className="mr-2 hidden sm:block">
+        <div className="mr-2">
           <InformationCircle className="h-6" />
         </div>
         <div>
@@ -172,7 +172,9 @@ const PollPage: NextPage = () => {
 
   return (
     <AppLayout
-      breadcrumbs={[{ title: <>&larr; {t("meetingPolls")}</>, href: "/polls" }]}
+      breadcrumbs={[
+        { title: <>&larr; {t("groupMeetings")}</>, href: "/polls" },
+      ]}
       title={poll.title}
     >
       <UserAvatarProvider seed={poll.id} names={names}>

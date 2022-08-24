@@ -302,7 +302,7 @@ export const LoginForm: React.VoidFunctionComponent<{
         }
       })}
     >
-      <div className="mb-1 text-xl font-bold sm:text-3xl">{t("login")}</div>
+      <div className="mb-1 text-2xl font-bold">{t("login")}</div>
       <p className="text-slate-500">
         {t("stepSummary", {
           current: 1,
@@ -337,7 +337,7 @@ export const LoginForm: React.VoidFunctionComponent<{
         >
           {t("continue")}
         </Button>
-        <div className="text-center text-slate-500">
+        <div className="py-2 text-center text-slate-500 sm:py-0">
           <Trans
             t={t}
             i18nKey="notRegistered"
