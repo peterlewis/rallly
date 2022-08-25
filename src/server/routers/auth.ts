@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "~/prisma/db";
 
 import { absoluteUrl } from "../../utils/absolute-url";
+import { sendEmailTemplate } from "../../utils/api-utils";
 import {
   createToken,
   decryptToken,
@@ -12,7 +13,6 @@ import {
   RegistrationTokenPayload,
 } from "../../utils/auth";
 import { generateOtp } from "../../utils/nanoid";
-import { sendEmail } from "../../utils/send-email";
 import { createRouter } from "../createRouter";
 
 const sendVerificationEmail = async (
@@ -20,29 +20,15 @@ const sendVerificationEmail = async (
   name: string,
   code: string,
 ) => {
-  await sendEmail({
+  await sendEmailTemplate({
     to: email,
     subject: `Your 6-digit code is: ${code}`,
-    html: `
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="color: rgb(51 65 85); font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;">
-        <tr>
-          <td style="text-align:center">
-            <table style="text-align:left; max-width: 100%" width="600px">
-              <tr>
-                <td style="padding-top:32px; padding-bottom:32px">
-                  <p><img src="${absoluteUrl()}/logo.png" width="150" height="28" /></p>
-                  <p>Hi ${name},</p>
-                  <p>Your 6-digit code is:</p>
-                  <p><strong style="font-size: 24px">${code}</strong></p>
-                  <p>This code is <strong>valid for 10 minutes</strong></p>
-                  <p>Use this code to complete the verification process.</p>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    `,
+    templateName: "email-verification",
+    templateVars: {
+      homePageUrl: absoluteUrl(),
+      code,
+      name,
+    },
   });
 };
 

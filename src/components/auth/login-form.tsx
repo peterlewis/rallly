@@ -1,6 +1,10 @@
+import { Disclosure } from "@headlessui/react";
+import clsx from "clsx";
 import { Trans, useTranslation } from "next-i18next";
 import React from "react";
 import { useForm } from "react-hook-form";
+
+import ChevronRight from "@/components/icons/chevron-right.svg";
 
 import { RegisteredUserSession } from "../../utils/auth";
 import { requiredString, validEmail } from "../../utils/form-validation";
@@ -48,9 +52,7 @@ const VerifyCode: React.VoidFunctionComponent<{
         })}
       >
         <fieldset>
-          <div className="mb-1 text-xl font-bold sm:text-3xl">
-            {t("verifyYourEmail")}
-          </div>
+          <div className="mb-1 text-xl font-bold">{t("verifyYourEmail")}</div>
           <p className="text-slate-500">
             {t("stepSummary", {
               current: 2,
@@ -302,7 +304,7 @@ export const LoginForm: React.VoidFunctionComponent<{
         }
       })}
     >
-      <div className="mb-1 text-xl font-bold sm:text-3xl">{t("login")}</div>
+      <div className="mb-1 text-xl font-bold">{t("login")}</div>
       <p className="text-slate-500">
         {t("stepSummary", {
           current: 1,
@@ -328,27 +330,46 @@ export const LoginForm: React.VoidFunctionComponent<{
           </div>
         ) : null}
       </fieldset>
-      <div className="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-3">
+      <div className="mb-4 space-y-3 sm:flex sm:items-center sm:space-y-0 sm:space-x-3">
         <Button
           loading={formState.isSubmitting}
           htmlType="submit"
           type="primary"
-          className="h-12 w-full px-6 sm:w-auto"
+          className="h-12 w-full px-6 sm:grow"
         >
           {t("continue")}
         </Button>
-        <div className="text-center text-slate-500 sm:py-0">
-          <LinkText
-            href="/register"
-            className="btn-default h-12 w-full sm:w-auto"
-            onClick={(e) => {
-              onClickRegister?.(e, getValues("email"));
-            }}
-          >
-            {t("notRegistered")}
-          </LinkText>
-        </div>
+        <LinkText
+          href="/register"
+          className="btn-default h-12 w-full px-6 sm:grow"
+          onClick={(e) => {
+            onClickRegister?.(e, getValues("email"));
+          }}
+        >
+          {t("notRegistered")}
+        </LinkText>
       </div>
+      <Disclosure>
+        {({ open }) => (
+          <>
+            <Disclosure.Button className="flex items-center hover:underline">
+              <ChevronRight
+                className={clsx("mr-1 h-5 transition-transform", {
+                  "rotate-90": open,
+                })}
+              />
+              <div>{t("whyLogin")}</div>
+            </Disclosure.Button>
+            <Disclosure.Panel className="mt-2 text-sm text-slate-500">
+              <Trans
+                t={t}
+                i18nKey="whyLoginAnswer"
+                components={{ b: <strong /> }}
+              />
+            </Disclosure.Panel>
+          </>
+        )}
+      </Disclosure>
     </form>
   );
 };

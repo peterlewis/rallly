@@ -95,7 +95,11 @@ export const sendEmailTemplate = async ({
     path.resolve(process.cwd(), `./templates/${templateName}.html`),
   ).toString();
 
-  const rendered = await Eta.render(template, templateVars);
+  const rendered = await Eta.render(template, {
+    ...templateVars,
+    homePageUrl: absoluteUrl(),
+    supportEmail: process.env.SUPPORT_EMAIL,
+  });
 
   if (rendered) {
     await sendEmail({

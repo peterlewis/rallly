@@ -155,6 +155,8 @@
   "weekStartsOn": "Week starts on",
   "weekView": "Week view",
   "whatsThis": "What's this?",
+  "whyLogin": "Why should I login?",
+  "whyLoginAnswer": "As a guest, your content is associated to a <b>temporary user</b> that is tied to a <b>single device</b>. Logging in ensures you do not lose access to your content and allows you to manage it from multiple devices.",
   "wrongVerificationCode": "Your verification code is incorrect or has expired",
   "yes": "Yes",
   "you": "You",
