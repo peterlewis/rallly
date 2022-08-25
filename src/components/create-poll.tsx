@@ -108,7 +108,7 @@ const NewProceeding: React.VoidFunctionComponent = () => {
           description={t("stepSummary", { current: state.step + 1, total: 2 })}
           className="mb-4"
         />
-        <div className="h-full space-y-4">
+        <div className="space-y-4 px-4">
           {(() => {
             switch (state.step) {
               case 0:
@@ -144,26 +144,30 @@ const NewProceeding: React.VoidFunctionComponent = () => {
                 );
             }
           })()}
+          <motion.div layout="position" className="mt-4 flex items-center">
+            <div className="flex space-x-3">
+              <Button
+                disabled={isFirstStep}
+                icon={<ChevronLeft />}
+                onClick={() => dispatch({ type: "back" })}
+              />
+              <Button
+                type="primary"
+                loading={createPoll.isLoading}
+                htmlType="submit"
+                form={currentFormId}
+              >
+                <div>
+                  {state.step < 1 ? (
+                    <>{t("continue")} &rarr;</>
+                  ) : (
+                    t("createPoll")
+                  )}
+                </div>
+              </Button>
+            </div>
+          </motion.div>
         </div>
-        <motion.div layout="position" className="mt-4 flex items-center">
-          <div className="flex space-x-3">
-            <Button
-              disabled={isFirstStep}
-              icon={<ChevronLeft />}
-              onClick={() => dispatch({ type: "back" })}
-            />
-            <Button
-              type="primary"
-              loading={createPoll.isLoading}
-              htmlType="submit"
-              form={currentFormId}
-            >
-              <div>
-                {state.step < 1 ? <>{t("continue")} &rarr;</> : t("createPoll")}
-              </div>
-            </Button>
-          </div>
-        </motion.div>
       </NewPollContext.Provider>
     </AppLayout>
   );

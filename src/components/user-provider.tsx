@@ -46,7 +46,7 @@ export const IfGuest = (props: { children?: React.ReactNode }) => {
 };
 
 export const withUserSession = <P extends { user: UserSession }>(
-  Component: NextPage<P>,
+  Component: NextPage,
 ): NextPage<P> => {
   const Page: NextPage<P> = (props) => {
     const { t } = useTranslation("app");

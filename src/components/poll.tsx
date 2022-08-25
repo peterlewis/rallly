@@ -242,8 +242,8 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
             ) : null}
-            <motion.div layout="position" initial={false} className="space-y-8">
-              <div className="space-y-4 px-4">
+            <motion.div layout="position" initial={false} className="space-y-4">
+              <div>
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
                   description={<PollSubheader />}
@@ -267,50 +267,56 @@ const PollPage: NextPage = () => {
                     ) : null
                   }
                 />
-                {poll.description ? (
-                  <div className="border-primary whitespace-pre-line lg:text-lg">
-                    <TruncatedLinkify>
-                      {preventWidows(poll.description)}
-                    </TruncatedLinkify>
-                  </div>
-                ) : null}
-                {poll.location ? (
-                  <div className="lg:text-lg">
-                    <div className="text-sm text-slate-500">
-                      {t("location")}
+                <div className="space-y-4 px-4">
+                  {poll.description ? (
+                    <div className="border-primary whitespace-pre-line lg:text-lg">
+                      <TruncatedLinkify>
+                        {preventWidows(poll.description)}
+                      </TruncatedLinkify>
                     </div>
-                    <TruncatedLinkify>{poll.location}</TruncatedLinkify>
-                  </div>
-                ) : null}
-                {poll.timeZone ? (
-                  <div className="lg:text-lg">
-                    <div className="text-sm text-slate-500">
-                      {t("timesShown")}
+                  ) : null}
+                  {poll.location ? (
+                    <div className="lg:text-lg">
+                      <div className="text-sm text-slate-500">
+                        {t("location")}
+                      </div>
+                      <TruncatedLinkify>{poll.location}</TruncatedLinkify>
                     </div>
-                    <div>
-                      <TimeZone />
+                  ) : null}
+                  {poll.timeZone ? (
+                    <div className="lg:text-lg">
+                      <div className="text-sm text-slate-500">
+                        {t("timesShown")}
+                      </div>
+                      <div>
+                        <TimeZone />
+                      </div>
                     </div>
-                  </div>
-                ) : null}
-                <div>
-                  <div className="mb-2 text-sm text-slate-500">
-                    {t("possibleAnswers")}
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <span className="inline-flex items-center space-x-1">
-                      <VoteIcon type="yes" />
-                      <span className="text-xs text-slate-500">{t("yes")}</span>
-                    </span>
-                    <span className="inline-flex items-center space-x-1">
-                      <VoteIcon type="ifNeedBe" />
-                      <span className="text-xs text-slate-500">
-                        {t("ifNeedBe")}
+                  ) : null}
+                  <div>
+                    <div className="mb-2 text-sm text-slate-500">
+                      {t("possibleAnswers")}
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <span className="inline-flex items-center space-x-1">
+                        <VoteIcon type="yes" />
+                        <span className="text-xs text-slate-500">
+                          {t("yes")}
+                        </span>
                       </span>
-                    </span>
-                    <span className="inline-flex items-center space-x-1">
-                      <VoteIcon type="no" />
-                      <span className="text-xs text-slate-500">{t("no")}</span>
-                    </span>
+                      <span className="inline-flex items-center space-x-1">
+                        <VoteIcon type="ifNeedBe" />
+                        <span className="text-xs text-slate-500">
+                          {t("ifNeedBe")}
+                        </span>
+                      </span>
+                      <span className="inline-flex items-center space-x-1">
+                        <VoteIcon type="no" />
+                        <span className="text-xs text-slate-500">
+                          {t("no")}
+                        </span>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

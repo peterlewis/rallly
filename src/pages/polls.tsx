@@ -48,7 +48,7 @@ const Polls: React.VoidFunctionComponent = () => {
   );
 
   return (
-    <div className="space-y-4 px-4 sm:px-0">
+    <div className="space-y-4 px-4">
       <div className="flex items-center justify-between space-x-8">
         <TextInput
           value={query}
@@ -113,7 +113,6 @@ const Page = () => {
   return (
     <AppLayout title={t("groupMeetings")}>
       <AppLayoutHeading
-        className="mb-4"
         title={t("groupMeetings")}
         description={t("groupMeetingsDescription")}
         actions={
