@@ -1,5 +1,5 @@
+import { motion } from "framer-motion";
 import { NextPage } from "next";
-import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { useForm } from "react-hook-form";
 
@@ -15,6 +15,10 @@ import {
 import { requiredString, validEmail } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
 import { withPageTranslations } from "../utils/with-page-translations";
+
+const MotionButton = motion(Button);
+
+const formId = "update-profile";
 
 const Page: NextPage = () => {
   const { t } = useTranslation("app");
@@ -41,12 +45,27 @@ const Page: NextPage = () => {
         title={t("profile")}
         description={t("profileDescription")}
         actions={
-          <Link href="/logout">
-            <a className="btn-default">{t("logout")}</a>
-          </Link>
+          <div>
+            <MotionButton
+              variants={{
+                hidden: { opacity: 0, x: 10 },
+                visible: { opacity: 1, x: 0 },
+              }}
+              form={formId}
+              transition={{ duration: 0.1 }}
+              initial="hidden"
+              animate={formState.isDirty ? "visible" : "hidden"}
+              htmlType="submit"
+              loading={formState.isSubmitting}
+              type="primary"
+            >
+              {t("save")}
+            </MotionButton>
+          </div>
         }
       />
       <form
+        id={formId}
         onSubmit={handleSubmit(async (data) => {
           if (dirtyFields.name) {
             await changeName.mutateAsync({ name: data.name });
