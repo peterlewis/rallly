@@ -3,6 +3,7 @@ import { flip, FloatingPortal } from "@floating-ui/react-dom-interactions";
 import { Listbox } from "@headlessui/react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "next-i18next";
 import React from "react";
 
 import Check from "@/components/icons/check-alt.svg";
@@ -70,6 +71,7 @@ export const TimezonePicker: React.VoidFunctionComponent<{
   disabled?: boolean;
   className?: string;
 }> = ({ value, onChange, disabled, className }) => {
+  const { t } = useTranslation("app");
   const { reference, floating, x, y, strategy } = useFloating({
     strategy: "fixed",
     placement: "top-start",
@@ -87,12 +89,12 @@ export const TimezonePicker: React.VoidFunctionComponent<{
             {value === "auto" ? (
               <div className="flex items-center">
                 <Globe className="mr-2 inline-block w-5 text-slate-400" />
-                <div className="">Automatic time zones</div>
+                <div className="">{t("timezonePolicyAutomatic")}</div>
               </div>
             ) : (
               <div className="flex items-center">
                 <LocationMarker className="mr-2 inline-block w-5 text-slate-400" />
-                <div className="">Fixed time zone</div>
+                <div className="">{t("timezonePolicyFixed")}</div>
               </div>
             )}
             <ChevronDown className="ml-2 h-5" />
@@ -118,8 +120,8 @@ export const TimezonePicker: React.VoidFunctionComponent<{
                     {({ selected }) => (
                       <TimeZonePolicyOption
                         icon={Globe}
-                        title="Automatic time zones"
-                        description="Times will be automatically adjusted for each participant."
+                        title={t("timezonePolicyAutomatic")}
+                        description={t("timezonePolicyAutomaticDescription")}
                         active={selected}
                       />
                     )}
@@ -128,8 +130,8 @@ export const TimezonePicker: React.VoidFunctionComponent<{
                     {({ selected }) => (
                       <TimeZonePolicyOption
                         icon={LocationMarker}
-                        title="Fixed time zone"
-                        description="Everyone will see the same times regardless of their time zone."
+                        title={t("timezonePolicyFixed")}
+                        description={t("timezonePolicyFixedDescription")}
                         active={selected}
                       />
                     )}

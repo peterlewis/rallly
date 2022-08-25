@@ -29,7 +29,9 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   onChangeDuration,
 }) => {
   const { t } = useTranslation("app");
-  const isTimedEvent = options.some((option) => option.type === "time");
+  const [isAllDay, setIsAllDay] = React.useState(() => {
+    return !options.some((option) => option.type === "time");
+  });
 
   const optionsByDay = React.useMemo(() => {
     const res: Record<
@@ -88,7 +90,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
           weekStartsOn={weekStartsOn}
           onAddToSelection={(newDateString) => {
             let newOption: DateTimeOption;
-            if (isTimedEvent) {
+            if (!isAllDay) {
               const start = `${newDateString}T08:00:00`;
               newOption = {
                 type: "time",
@@ -124,8 +126,9 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
             <div>
               <Switch
                 data-testid="specify-times-switch"
-                checked={isTimedEvent}
+                checked={!isAllDay}
                 onChange={(checked) => {
+                  setIsAllDay(!checked);
                   if (checked) {
                     // convert dates to time slots
                     onChange(
