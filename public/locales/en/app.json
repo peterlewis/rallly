@@ -147,7 +147,7 @@
   "userNotFound": "A user with that email doesn't exist",
   "verificationCodeHelp": "Didn't get the email? Check your spam/junk.",
   "verificationCodePlaceholder": "Enter your 6-digit code",
-  "verificationCodeSent": "A verification code has been sent to <s>{{email}}</s>",
+  "verificationCodeSent": "A verification code has been sent to <b>{{email}}</b> <a>Change</a>",
   "verifyYourEmail": "Verify your email",
   "vote": "Vote",
   "voteCount_other": "{{count}} votes",

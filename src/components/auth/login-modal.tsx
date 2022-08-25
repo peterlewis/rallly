@@ -1,7 +1,5 @@
 import React from "react";
 
-import Logo from "~/public/logo.svg";
-
 import { RegisteredUserSession } from "../../utils/auth";
 import { useModalContext } from "../modal/modal-provider";
 import { useUser } from "../user-provider";
@@ -14,10 +12,7 @@ export const LoginModal: React.VoidFunctionComponent<{
   const [defaultEmail, setDefaultEmail] = React.useState("");
 
   return (
-    <div className="w-[480px] max-w-full overflow-hidden rounded-lg bg-white shadow-sm">
-      <div className="bg-pattern border-b bg-slate-500/5 p-4 text-center sm:p-8">
-        <Logo className="inline-block h-6 text-primary-500 sm:h-7" />
-      </div>
+    <div className="w-[460px] max-w-full overflow-hidden rounded-lg bg-white shadow-sm">
       <div className="p-4 sm:p-6">
         {hasAccount ? (
           <RegisterForm

@@ -82,16 +82,13 @@ const UnclaimedPollAlert = () => {
   }
 
   return (
-    <div className="justify-between space-y-4 rounded-lg bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:flex sm:space-y-0 sm:space-x-4">
+    <div className="items-center justify-between space-y-4 rounded-lg bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:flex sm:space-y-0 sm:space-x-4">
       <div className="flex">
         <div className="mr-2">
           <InformationCircle className="h-6" />
         </div>
         <div>
-          <div className="font-semibold">
-            <Trans t={t} i18nKey="unclaimedNoticeTitle" />
-          </div>
-          <Trans t={t} i18nKey="unclaimedNoticeDescription" />
+          <Trans t={t} i18nKey="unclaimedNoticeTitle" />
         </div>
       </div>
       <div>

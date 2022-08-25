@@ -17,7 +17,8 @@ const VerifyCode: React.VoidFunctionComponent<{
   email: string;
   onSubmit: (code: string) => Promise<void>;
   onResend: () => Promise<void>;
-}> = ({ onSubmit, email, onResend }) => {
+  onChange: () => void;
+}> = ({ onChange, onSubmit, email, onResend }) => {
   const { register, handleSubmit, setError, formState } =
     useForm<{ code: string }>();
   const { t } = useTranslation("app");
@@ -52,7 +53,7 @@ const VerifyCode: React.VoidFunctionComponent<{
         })}
       >
         <fieldset>
-          <div className="mb-1 text-xl font-bold">{t("verifyYourEmail")}</div>
+          <div className="mb-1 text-2xl font-bold">{t("verifyYourEmail")}</div>
           <p className="text-slate-500">
             {t("stepSummary", {
               current: 2,
@@ -64,7 +65,18 @@ const VerifyCode: React.VoidFunctionComponent<{
               t={t}
               i18nKey="verificationCodeSent"
               values={{ email }}
-              components={{ s: <strong className="whitespace-nowrap" /> }}
+              components={{
+                b: <strong className="whitespace-nowrap" />,
+                a: (
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onChange();
+                    }}
+                  />
+                ),
+              }}
             />
           </p>
           <TextInput
@@ -151,6 +163,7 @@ export const RegisterForm: React.VoidFunctionComponent<{
             name: values.name,
           });
         }}
+        onChange={() => setToken(undefined)}
         email={getValues("email")}
       />
     );
@@ -177,9 +190,7 @@ export const RegisterForm: React.VoidFunctionComponent<{
         }
       })}
     >
-      <div className="mb-1 text-xl font-bold sm:text-3xl">
-        {t("createAnAccount")}
-      </div>
+      <div className="mb-1 text-2xl font-bold">{t("createAnAccount")}</div>
       <p className="text-slate-500">
         {t("stepSummary", {
           current: 1,
@@ -282,6 +293,7 @@ export const LoginForm: React.VoidFunctionComponent<{
 
           setToken(res.token);
         }}
+        onChange={() => setToken(undefined)}
         email={getValues("email")}
       />
     );
@@ -304,7 +316,7 @@ export const LoginForm: React.VoidFunctionComponent<{
         }
       })}
     >
-      <div className="mb-1 text-xl font-bold">{t("login")}</div>
+      <div className="mb-1 text-2xl font-bold">{t("login")}</div>
       <p className="text-slate-500">
         {t("stepSummary", {
           current: 1,
@@ -330,18 +342,18 @@ export const LoginForm: React.VoidFunctionComponent<{
           </div>
         ) : null}
       </fieldset>
-      <div className="mb-4 space-y-3 sm:flex sm:items-center sm:space-y-0 sm:space-x-3">
+      <div className="mb-4 space-y-3">
         <Button
           loading={formState.isSubmitting}
           htmlType="submit"
           type="primary"
-          className="h-12 w-full px-6 sm:grow"
+          className="h-12 w-full px-6"
         >
           {t("continue")}
         </Button>
         <LinkText
           href="/register"
-          className="btn-default h-12 w-full px-6 sm:grow"
+          className="btn-default h-12 w-full px-6"
           onClick={(e) => {
             onClickRegister?.(e, getValues("email"));
           }}
@@ -349,18 +361,20 @@ export const LoginForm: React.VoidFunctionComponent<{
           {t("notRegistered")}
         </LinkText>
       </div>
-      <Disclosure>
+      <Disclosure as="div" className="mt-8 text-sm">
         {({ open }) => (
           <>
-            <Disclosure.Button className="flex items-center hover:underline">
+            <Disclosure.Button className="group flex items-center font-semibold">
               <ChevronRight
                 className={clsx("mr-1 h-5 transition-transform", {
                   "rotate-90": open,
                 })}
               />
-              <div>{t("whyLogin")}</div>
+              <div className="group-hover:text-primary-500 group-hover:underline">
+                {t("whyLogin")}
+              </div>
             </Disclosure.Button>
-            <Disclosure.Panel className="mt-2 text-sm text-slate-500">
+            <Disclosure.Panel className="mt-2">
               <Trans
                 t={t}
                 i18nKey="whyLoginAnswer"

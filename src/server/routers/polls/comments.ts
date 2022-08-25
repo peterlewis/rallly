@@ -40,6 +40,7 @@ export const comments = createRouter()
       await sendNotification(pollId, {
         type: "newComment",
         authorName: newComment.authorName,
+        comment: newComment.content,
       });
 
       return newComment;

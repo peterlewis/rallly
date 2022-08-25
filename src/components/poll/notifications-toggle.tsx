@@ -15,14 +15,20 @@ const NotificationsToggle: React.VoidFunctionComponent = () => {
   const { poll, urlId } = usePoll();
   const { t } = useTranslation("app");
   React.useState(false);
-
   const { user } = useUser();
+
+  const isDisabled = !user.isGuest && poll.user?.id !== user.id;
+
   const { updatePoll } = usePollMutations();
   const { openLoginModal } = useLoginModal();
   return (
     <Tooltip
       content={
-        poll.user ? (
+        isDisabled ? (
+          <div className="max-w-xs">
+            Only the owner of this poll can change the notification settings
+          </div>
+        ) : poll.user ? (
           poll.notifications ? (
             <div>
               <div className="font-medium text-primary-300">
@@ -53,6 +59,7 @@ const NotificationsToggle: React.VoidFunctionComponent = () => {
     >
       <Button
         loading={updatePoll.isLoading}
+        disabled={isDisabled}
         icon={poll.notifications ? <Bell /> : <BellCrossed />}
         onClick={async () => {
           if (poll.user?.id === user.id && !user.isGuest) {

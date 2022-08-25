@@ -15,6 +15,7 @@ type NotificationAction =
   | {
       type: "newComment";
       authorName: string;
+      comment: string;
     };
 
 export const sendNotification = async (
@@ -26,6 +27,7 @@ export const sendNotification = async (
       where: { id: pollId },
       include: { user: true },
     });
+
     /**
      * poll needs to:
      * - exist
@@ -43,7 +45,7 @@ export const sendNotification = async (
           await sendEmailTemplate({
             templateName: "new-participant",
             to: poll.user.email,
-            subject: `Rallly: ${poll.title} - New Participant`,
+            subject: `${poll.title}: New participant`,
             templateVars: {
               title: poll.title,
               name: poll.user.name,
@@ -59,11 +61,12 @@ export const sendNotification = async (
           await sendEmailTemplate({
             templateName: "new-comment",
             to: poll.user.email,
-            subject: `Rallly: ${poll.title} - New Comment`,
+            subject: `${poll.title}: New comment`,
             templateVars: {
               title: poll.title,
               name: poll.user.name,
-              author: action.authorName,
+              authorName: action.authorName,
+              comment: action.comment,
               pollUrl,
               homePageUrl: absoluteUrl(),
               supportEmail: process.env.SUPPORT_EMAIL,
