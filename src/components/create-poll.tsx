@@ -10,7 +10,7 @@ import { AppLayout, AppLayoutHeading } from "./app-layout";
 import { Button } from "./button";
 import {
   PollDetailsForm,
-  ProceedingDetailsStep,
+  PollDetailsStep,
 } from "./create-poll/poll-details-step";
 import { PollOptionsData, PollOptionsForm } from "./forms";
 
@@ -113,7 +113,7 @@ const NewProceeding: React.VoidFunctionComponent = () => {
             switch (state.step) {
               case 0:
                 return (
-                  <ProceedingDetailsStep
+                  <PollDetailsStep
                     formId={currentFormId}
                     defaultValues={state.details}
                     onSubmit={(payload) => {

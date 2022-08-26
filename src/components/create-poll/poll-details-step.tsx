@@ -11,7 +11,7 @@ export type PollDetailsForm = {
   description: string;
 };
 
-export const ProceedingDetailsStep: React.VoidFunctionComponent<{
+export const PollDetailsStep: React.VoidFunctionComponent<{
   defaultValues?: PollDetailsForm;
   onSubmit: (values: PollDetailsForm) => void;
   formId?: string;
