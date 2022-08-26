@@ -155,6 +155,8 @@
   "timezonePolicyFixed": "Fixed time zone",
   "timezonePolicyFixedDescription": "Show participants the same times regardless of their time zone",
   "vote": "Vote",
+  "goToPolls": "Go to your polls →",
+  "requiredString": "“{{name}}” is required",
   "voteCount_other": "{{count}} votes",
   "voteCount": "{{count}} vote",
   "weekStartsOn": "Week starts on",

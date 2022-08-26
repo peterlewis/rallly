@@ -1,6 +1,7 @@
-import { motion } from "framer-motion";
 import { NextPage } from "next";
+import Link from "next/link";
 import { useTranslation } from "next-i18next";
+import React from "react";
 import { useForm } from "react-hook-form";
 
 import { withSessionSsr } from "@/utils/auth";
@@ -12,25 +13,46 @@ import {
   useAuthenticatedUser,
   withUserSession,
 } from "../components/user-provider";
-import { requiredString, validEmail } from "../utils/form-validation";
+import { useFormValidation } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
 import { withPageTranslations } from "../utils/with-page-translations";
 
-const MotionButton = motion(Button);
+const FormField: React.VoidFunctionComponent<
+  React.PropsWithChildren<{
+    name: string;
+    error?: string;
+    help?: React.ReactNode;
+  }>
+> = ({ name, children, help, error }) => {
+  return (
+    <div className="py-4 sm:flex sm:space-x-3">
+      <div className="mb-2 sm:w-64">
+        <label>{name}</label>
+      </div>
+      <div className="sm:w-96">
+        <div>{children}</div>
+        {help ? (
+          <div className="mt-2 text-sm text-slate-400">{help}</div>
+        ) : null}
+        {error ? (
+          <div className="mt-1 text-sm text-rose-500">{error}</div>
+        ) : null}
+      </div>
+    </div>
+  );
+};
 
-const formId = "update-profile";
-
-const Page: NextPage = () => {
+const ChangeNameForm = () => {
   const { t } = useTranslation("app");
   const { user, setUser } = useAuthenticatedUser();
 
   const { register, formState, handleSubmit, reset } = useForm<{
     name: string;
-    email: string;
   }>({
-    defaultValues: { name: user.name, email: user.email },
+    defaultValues: { name: user.name },
   });
 
+  const { requiredString } = useFormValidation();
   const changeName = trpc.useMutation("user.changeName", {
     onSuccess: (_, { name }) => {
       setUser({ ...user, name });
@@ -40,79 +62,80 @@ const Page: NextPage = () => {
   const { dirtyFields } = formState;
 
   return (
+    <form
+      onSubmit={handleSubmit(async (data) => {
+        if (dirtyFields.name) {
+          await changeName.mutateAsync({ name: data.name });
+        }
+        reset(data);
+      })}
+    >
+      <FormField name={t("name")} error={formState.errors.name?.message}>
+        <div className="flex space-x-3">
+          <TextInput
+            id="name"
+            className="w-full"
+            placeholder={t("namePlaceholder")}
+            readOnly={formState.isSubmitting}
+            error={!!formState.errors.name}
+            {...register("name", {
+              validate: requiredString(t("name")),
+            })}
+          />
+          <Button htmlType="submit" loading={formState.isSubmitting}>
+            {t("save")}
+          </Button>
+        </div>
+      </FormField>
+    </form>
+  );
+};
+
+const ChangeEmailForm = () => {
+  const { t } = useTranslation("app");
+
+  return (
+    <FormField
+      name={t("email")}
+      help="It's not possible to change your email at this time."
+    >
+      <TextInput
+        id="email"
+        className="w-full"
+        placeholder={t("emailPlaceholder")}
+        disabled={true}
+      />
+    </FormField>
+  );
+};
+
+const Page: NextPage = () => {
+  const { t } = useTranslation("app");
+
+  return (
     <AppLayout title={t("profile")}>
       <AppLayoutHeading
         title={t("profile")}
         description={t("profileDescription")}
-        actions={
-          <div>
-            <MotionButton
-              variants={{
-                hidden: { opacity: 0, x: 10 },
-                visible: { opacity: 1, x: 0 },
-              }}
-              form={formId}
-              transition={{ duration: 0.1 }}
-              initial="hidden"
-              animate={formState.isDirty ? "visible" : "hidden"}
-              htmlType="submit"
-              loading={formState.isSubmitting}
-              type="primary"
-            >
-              {t("save")}
-            </MotionButton>
-          </div>
-        }
+        className="mb-8"
       />
-      <form
-        id={formId}
-        onSubmit={handleSubmit(async (data) => {
-          if (dirtyFields.name) {
-            await changeName.mutateAsync({ name: data.name });
-          }
-          reset(data);
-        })}
-        className="mb-4 px-4"
-      >
-        <div className="divide-y">
-          <div className="flex py-4">
-            <label htmlFor="name" className="w-1/3 text-slate-700">
-              {t("name")}
-            </label>
-            <div className="w-2/3">
-              <TextInput
-                id="name"
-                className="input w-full"
-                placeholder="Jessie"
-                readOnly={formState.isSubmitting}
-                error={!!formState.errors.name}
-                {...register("name", {
-                  validate: requiredString,
-                })}
-              />
-              {formState.errors.name ? (
-                <div className="mt-1 text-sm text-rose-500">
-                  {t("requiredNameError")}
-                </div>
-              ) : null}
-            </div>
-          </div>
-          <div className="flex py-4">
-            <label htmlFor="random-8904" className="w-1/3 text-slate-700">
-              {t("email")}
-            </label>
-            <div className="w-2/3">
-              <TextInput
-                id="random-8904"
-                className="input w-full"
-                placeholder="jessie.jackson@example.com"
-                disabled={true}
-                {...register("email", { validate: validEmail })}
-              />
-            </div>
+      <div className="space-y-4 sm:space-y-8">
+        <div>
+          <div className="text-lg font-medium sm:mb-4">{t("yourDetails")}</div>
+          <div className="divide-y">
+            <ChangeNameForm />
+            <ChangeEmailForm />
           </div>
         </div>
-      </form>
+        <div>
+          <div className="mb-4 text-lg font-medium">{t("yourPolls")}</div>
+          <div>
+            <Link href="/polls">
+              <a>{t("goToPolls")}</a>
+            </Link>
+          </div>
+        </div>
+      </div>
     </AppLayout>
   );
 };

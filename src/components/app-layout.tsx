@@ -132,7 +132,7 @@ export const AppLayoutHeading: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "space-y-4 bg-white p-4 sm:flex sm:items-start sm:justify-between sm:space-y-0 sm:space-x-4",
+        "space-y-4 sm:flex sm:items-start sm:justify-between sm:space-y-0 sm:space-x-4",
         className,
       )}
     >
@@ -444,7 +444,7 @@ export const AppLayout: React.VFC<{
             </Head>
             <MobileNavigation title={title} breadcrumbs={breadcrumbs} />
             <DesktopNavigation title={title} breadcrumbs={breadcrumbs} />
-            <div className="mx-auto max-w-4xl sm:p-4">{children}</div>
+            <div className="mx-auto max-w-4xl p-4">{children}</div>
           </div>
           <Footer />
         </div>
