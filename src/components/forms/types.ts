@@ -1,4 +1,4 @@
-export interface PollFormProps<T extends Record<string, unknown>> {
+export interface PollFormProps<T> {
   onSubmit: (data: T) => void;
   onChange?: (data: Partial<T>) => void;
   defaultValues?: Partial<T>;
