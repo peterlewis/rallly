@@ -106,9 +106,9 @@ const NewProceeding: React.VoidFunctionComponent = () => {
         <AppLayoutHeading
           title={t("createPollTitle")}
           description={t("stepSummary", { current: state.step + 1, total: 2 })}
-          className="mb-4"
+          className="mb-8"
         />
-        <div className="space-y-4 px-4">
+        <div className="space-y-4">
           {(() => {
             switch (state.step) {
               case 0:

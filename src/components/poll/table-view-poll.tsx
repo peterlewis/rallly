@@ -266,7 +266,7 @@ const TableViewPoll: React.VoidFunctionComponent<
 const Resizer: React.VoidFunctionComponent<PollProps> = (props) => {
   const [ref, { width }] = useMeasure<HTMLDivElement>();
   return (
-    <div ref={ref}>
+    <div className="rounded-lg border bg-white shadow-sm" ref={ref}>
       {width > 0 ? <TableViewPoll {...props} width={width} /> : null}
     </div>
   );

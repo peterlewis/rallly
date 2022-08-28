@@ -142,7 +142,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
     <form id={formId} onSubmit={handleSubmit(onSubmit, openHelpModal)}>
       {calendarHelpModal}
       {dateOrTimeRangeModal}
-      <div className="overflow-hidden bg-white sm:rounded-md sm:border">
+      <div className="mobile:zero-padding overflow-hidden bg-white sm:rounded-md sm:border">
         <div className="hidden justify-center border-b p-3 sm:flex">
           <RadioGroup
             className="w-full sm:w-auto"
@@ -200,20 +200,21 @@ const PollOptionsForm: React.VoidFunctionComponent<
             }}
           />
         </div>
-        <div className="shrink-0 space-y-4 border-y py-3 px-3 sm:flex sm:h-14 sm:items-center sm:justify-between sm:space-y-0 sm:space-x-4 sm:border-b-0">
-          <TimezonePicker
-            className="w-full sm:w-auto"
-            value={watchTimeZone ? "auto" : "fixed"}
-            disabled={isAllDayEvent}
-            onChange={(timezone) => {
-              setValue(
-                "timeZone",
-                timezone === "auto" ? getBrowserTimeZone() : "",
-              );
-            }}
-          />
+        <div className="shrink-0 space-y-3 border-y py-3 px-3 sm:flex sm:h-14 sm:items-center sm:justify-between sm:space-y-0 sm:space-x-4 sm:border-b-0">
+          <div>
+            <TimezonePicker
+              value={watchTimeZone ? "auto" : "fixed"}
+              disabled={isAllDayEvent}
+              onChange={(timezone) => {
+                setValue(
+                  "timeZone",
+                  timezone === "auto" ? getBrowserTimeZone() : "",
+                );
+              }}
+            />
+          </div>
           {watchOptions.length > 0 ? (
-            <div className="inline-flex h-8 items-center space-x-2 overflow-hidden rounded-md bg-primary-600/10 pl-2 text-sm text-primary-600">
+            <div className="inline-flex h-9 items-center space-x-2 overflow-hidden rounded-md bg-primary-600/10 pl-2 text-sm text-primary-600">
               <Clock className="h-5" />
               <div>
                 {t("optionsCount", {

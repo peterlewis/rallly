@@ -60,6 +60,7 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
   return (
     <FormProvider {...form}>
       <form
+        className="border-y bg-white sm:rounded-lg sm:border sm:shadow-sm"
         ref={formRef}
         onSubmit={handleSubmit(async (data) => {
           if (selectedParticipant) {
@@ -76,7 +77,7 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
           }
         })}
       >
-        <div className="sticky top-12 z-30 flex flex-col space-y-2 border-y bg-gray-50 p-3 sm:rounded-t-lg">
+        <div className="sticky top-12 z-30 flex flex-col space-y-2 border-b bg-gray-50 p-3 sm:rounded-t-lg">
           <div className="flex space-x-3">
             {!isEditing ? (
               <Listbox
@@ -212,7 +213,7 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
           groupClassName="top-[61px]"
           group={(option) => {
             if (option.type === "time") {
-              return dayjs(option.start).format("ddd D MMMM");
+              return dayjs(option.start).format("LL");
             } else {
               return dayjs(option.date).format("MMMM YYYY");
             }
@@ -234,7 +235,7 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
                 transition: { duration: 0.2 },
               }}
             >
-              <div className="flex border-t bg-gray-50 p-3">
+              <div className="sm:rouned-b-lg flex border-t bg-gray-50 p-3">
                 <Button
                   icon={<Check />}
                   className="w-full"

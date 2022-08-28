@@ -29,10 +29,28 @@ import { UserAvatarProvider } from "./poll/user-avatar";
 import VoteIcon from "./poll/vote-icon";
 import { usePoll } from "./poll-provider";
 import Sharing from "./sharing";
-import TimeZonePicker from "./time-zone-picker";
-import { useTimeZones } from "./time-zone-picker/time-zone-picker";
 import { usePollMutations } from "./use-poll-mutations";
 import { useUser } from "./user-provider";
+
+const Legend = () => {
+  const { t } = useTranslation("app");
+  return (
+    <div className="flex h-8 items-center space-x-3">
+      <span className="inline-flex items-center space-x-1">
+        <VoteIcon type="yes" />
+        <span className="text-xs text-slate-500">{t("yes")}</span>
+      </span>
+      <span className="inline-flex items-center space-x-1">
+        <VoteIcon type="ifNeedBe" />
+        <span className="text-xs text-slate-500">{t("ifNeedBe")}</span>
+      </span>
+      <span className="inline-flex items-center space-x-1">
+        <VoteIcon type="no" />
+        <span className="text-xs text-slate-500">{t("no")}</span>
+      </span>
+    </div>
+  );
+};
 
 const UnclaimedPollAlert = () => {
   const { t } = useTranslation("app");
@@ -55,7 +73,7 @@ const UnclaimedPollAlert = () => {
 
   if (user.isGuest) {
     return (
-      <div className="flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-lg">
+      <div className="break-container flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-lg">
         <div className="mr-2">
           <InformationCircle className="h-6" />
         </div>
@@ -107,37 +125,8 @@ const UnclaimedPollAlert = () => {
   );
 };
 
-const TimeZone = () => {
-  const { t } = useTranslation("app");
-  const { findFuzzyTz } = useTimeZones();
-  const { targetTimeZone, setTargetTimeZone } = usePoll();
-
-  const [isEditing, setEditing] = React.useState(false);
-  if (isEditing) {
-    return (
-      <div className="mt-1 flex space-x-3">
-        <TimeZonePicker
-          className="w-96"
-          value={targetTimeZone}
-          onChange={setTargetTimeZone}
-        />
-        <Button onClick={() => setEditing(false)}>Done</Button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex items-center">
-      <span className="truncate">{findFuzzyTz(targetTimeZone).label}</span>
-      <Button className="ml-3" onClick={() => setEditing(true)}>
-        {t("change")}
-      </Button>
-    </div>
-  );
-};
-
 const PollPage: NextPage = () => {
-  const { poll, urlId, targetTimeZone } = usePoll();
+  const { poll, urlId } = usePoll();
   const { participants } = useParticipants();
   const router = useRouter();
 
@@ -242,8 +231,12 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
             ) : null}
-            <motion.div layout="position" initial={false} className="space-y-4">
-              <div>
+            <motion.div
+              layout="position"
+              initial={false}
+              className="space-y-4 sm:space-y-8"
+            >
+              <div className="space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
                   description={<PollSubheader />}
@@ -267,78 +260,48 @@ const PollPage: NextPage = () => {
                     ) : null
                   }
                 />
-                <div className="space-y-4 px-4">
-                  {poll.description ? (
-                    <div className="border-primary whitespace-pre-line lg:text-lg">
-                      <TruncatedLinkify>
-                        {preventWidows(poll.description)}
-                      </TruncatedLinkify>
-                    </div>
-                  ) : null}
-                  {poll.location ? (
-                    <div className="lg:text-lg">
-                      <div className="text-sm text-slate-500">
-                        {t("location")}
-                      </div>
-                      <TruncatedLinkify>{poll.location}</TruncatedLinkify>
-                    </div>
-                  ) : null}
-                  {poll.timeZone ? (
-                    <div className="lg:text-lg">
-                      <div className="text-sm text-slate-500">
-                        {t("timesShown")}
-                      </div>
-                      <div>
-                        <TimeZone />
-                      </div>
-                    </div>
-                  ) : null}
-                  <div>
-                    <div className="mb-2 text-sm text-slate-500">
-                      {t("possibleAnswers")}
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span className="inline-flex items-center space-x-1">
-                        <VoteIcon type="yes" />
-                        <span className="text-xs text-slate-500">
-                          {t("yes")}
-                        </span>
-                      </span>
-                      <span className="inline-flex items-center space-x-1">
-                        <VoteIcon type="ifNeedBe" />
-                        <span className="text-xs text-slate-500">
-                          {t("ifNeedBe")}
-                        </span>
-                      </span>
-                      <span className="inline-flex items-center space-x-1">
-                        <VoteIcon type="no" />
-                        <span className="text-xs text-slate-500">
-                          {t("no")}
-                        </span>
-                      </span>
-                    </div>
+                {poll.description ? (
+                  <div className="border-primary whitespace-pre-line md:text-lg">
+                    <TruncatedLinkify>
+                      {preventWidows(poll.description)}
+                    </TruncatedLinkify>
                   </div>
+                ) : null}
+                {poll.location ? (
+                  <div className="lg:text-lg">
+                    <div className="text-sm text-slate-500">
+                      {t("location")}
+                    </div>
+                    <TruncatedLinkify>{poll.location}</TruncatedLinkify>
+                  </div>
+                ) : null}
+                <div className="lg:text-lg">
+                  <div className="text-sm text-slate-500">
+                    {t("possibleAnswers")}
+                  </div>
+                  <Legend />
                 </div>
               </div>
               {participants ? (
-                <PollDataProvider
-                  admin={poll.admin}
-                  options={poll.options.map(({ id, value }) => ({
-                    id,
-                    value:
-                      value.indexOf("/") === -1
-                        ? { type: "date", date: value }
-                        : {
-                            type: "time",
-                            start: value.split("/")[0],
-                            end: value.split("/")[1],
-                          },
-                  }))}
-                  targetTimeZone={targetTimeZone}
-                  pollId={poll.id}
-                  timeZone={poll.timeZone}
-                  participants={participants}
-                />
+                <div className="mobile:zero-padding sm:backdrop sm:bg-pattern sm:border-y sm:pt-4 sm:pb-8">
+                  <PollDataProvider
+                    admin={poll.admin}
+                    options={poll.options.map(({ id, value }) => ({
+                      id,
+                      value:
+                        value.indexOf("/") === -1
+                          ? { type: "date", date: value }
+                          : {
+                              type: "time",
+                              start: value.split("/")[0],
+                              end: value.split("/")[1],
+                            },
+                    }))}
+                    pollId={poll.id}
+                    timeZone={poll.timeZone}
+                    participants={participants}
+                  />
+                </div>
               ) : null}
               <Discussion />
             </motion.div>

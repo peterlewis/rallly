@@ -22,6 +22,7 @@ export interface PollOptionProps {
   participants: ParticipantInfo[];
   selectedParticipantId?: string;
   optionIndex: number;
+  expanded?: boolean;
 }
 
 const CollapsibleContainer: React.VoidFunctionComponent<{
@@ -185,10 +186,18 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
   editable = false,
   yesScore,
   optionIndex,
+  expanded: expandedFromProps,
 }) => {
   const showVotes = !!(selectedParticipantId || editable);
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = React.useState(expandedFromProps);
   const selectorRef = React.useRef<HTMLButtonElement>(null);
+
+  React.useEffect(() => {
+    if (expandedFromProps !== undefined) {
+      setExpanded(expandedFromProps);
+    }
+  }, [expandedFromProps]);
+
   return (
     <div
       className={clsx("space-y-4 overflow-hidden p-4", {

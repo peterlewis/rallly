@@ -417,7 +417,7 @@ const Breadcrumbs: React.VoidFunctionComponent<BreadcrumbsProps> = ({
       {breadcrumbs?.map((breadcrumb, i) => (
         <div className="flex shrink-0 items-center" key={i}>
           <Link href={breadcrumb.href}>
-            <a className="mr-1 inline-block text-gray-500 hover:text-gray-600">
+            <a className="mr-1 inline-block text-gray-500 hover:text-gray-600 hover:no-underline">
               {breadcrumb.title}
             </a>
           </Link>
@@ -444,7 +444,7 @@ export const AppLayout: React.VFC<{
             </Head>
             <MobileNavigation title={title} breadcrumbs={breadcrumbs} />
             <DesktopNavigation title={title} breadcrumbs={breadcrumbs} />
-            <div className="mx-auto max-w-4xl p-4">{children}</div>
+            <div className="mx-auto max-w-4xl px-4 py-8">{children}</div>
           </div>
           <Footer />
         </div>

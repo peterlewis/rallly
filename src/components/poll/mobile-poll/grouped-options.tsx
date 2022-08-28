@@ -23,7 +23,7 @@ const GroupedOptions: React.VoidFunctionComponent<GroupedOptionsProps> = ({
   const grouped = groupBy(options, group);
 
   return (
-    <div className="select-none divide-y bg-white">
+    <div className="select-none divide-y">
       {Object.entries(grouped).map(([day, options]) => {
         return (
           <div key={day}>

@@ -83,8 +83,8 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   );
 
   return (
-    <div className="h-full lg:flex">
-      <div className="border-b p-4 lg:w-[440px] lg:border-r lg:border-b-0">
+    <div className="h-full md:flex">
+      <div className="border-b p-4 md:w-[440px] md:border-r md:border-b-0">
         <MultiDateSelect
           selected={Object.keys(optionsByDay)}
           weekStartsOn={weekStartsOn}

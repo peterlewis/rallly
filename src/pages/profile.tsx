@@ -26,8 +26,8 @@ const FormField: React.VoidFunctionComponent<
 > = ({ name, children, help, error }) => {
   return (
     <div className="py-4 sm:flex sm:space-x-3">
-      <div className="mb-2 sm:w-64">
-        <label>{name}</label>
+      <div className="mb-2 sm:w-48">
+        <label className="font-semibold">{name}</label>
       </div>
       <div className="sm:w-96">
         <div>{children}</div>
@@ -121,14 +121,16 @@ const Page: NextPage = () => {
       />
       <div className="space-y-4 sm:space-y-8">
         <div>
-          <div className="text-lg font-medium sm:mb-4">{t("yourDetails")}</div>
+          <div className="text-lg font-semibold sm:mb-4">
+            {t("yourDetails")}
+          </div>
           <div className="divide-y">
             <ChangeNameForm />
             <ChangeEmailForm />
           </div>
         </div>
         <div>
-          <div className="mb-4 text-lg font-medium">{t("yourPolls")}</div>
+          <div className="mb-4 text-lg font-semibold">{t("yourPolls")}</div>
           <div>
             <Link href="/polls">
               <a>{t("goToPolls")}</a>

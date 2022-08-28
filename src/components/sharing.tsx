@@ -29,7 +29,12 @@ const Sharing: React.VoidFunctionComponent<SharingProps> = ({
   const participantUrl = `${window.location.origin}/p/${poll.participantUrlId}`;
   const [didCopy, setDidCopy] = React.useState(false);
   return (
-    <div className={clsx("rounded-lg bg-indigo-300/10 p-4", className)}>
+    <div
+      className={clsx(
+        "md:break-container rounded-lg bg-indigo-300/10 p-4",
+        className,
+      )}
+    >
       <div className="mb-1 flex items-center justify-between">
         <div className="text-lg font-semibold text-indigo-800/90">
           {t("shareLink")}

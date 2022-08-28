@@ -48,7 +48,7 @@ const Polls: React.VoidFunctionComponent = () => {
   );
 
   return (
-    <div className="space-y-4 px-4">
+    <div className="space-y-4">
       <div className="flex items-center justify-between space-x-8">
         <TextInput
           value={query}
@@ -123,6 +123,7 @@ const Page = () => {
             </a>
           </Link>
         }
+        className="mb-8"
       />
       <Polls />
     </AppLayout>

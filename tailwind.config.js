@@ -13,6 +13,7 @@ module.exports = {
       },
       screens: {
         xs: "375px",
+        mobile: { max: "640px" },
       },
       fontFamily: {
         sans: ["Inter", ...defaultTheme.fontFamily.sans],
