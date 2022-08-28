@@ -5,7 +5,7 @@ import * as React from "react";
 
 import ArrowsPointingIn from "@/components/icons/arrows-pointing-in.svg";
 import ArrowsPointingOut from "@/components/icons/arrows-pointing-out.svg";
-import Menu from "@/components/icons/menu.svg";
+import List from "@/components/icons/list.svg";
 import Table from "@/components/icons/table.svg";
 
 import { getBrowserTimeZone } from "../../utils/date-time-utils";
@@ -258,7 +258,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
               setPreferredView("list");
             }}
             active={preferredView === "list"}
-            icon={Menu}
+            icon={List}
           >
             List
           </ToolbarButton>

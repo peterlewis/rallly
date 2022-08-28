@@ -283,7 +283,7 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
               {participants ? (
-                <div className="mobile:zero-padding sm:backdrop sm:border-y sm:bg-slate-500/5 sm:pt-4 sm:pb-8">
+                <div className="mobile:zero-padding sm:backdrop sm:bg-pattern sm:border-y sm:py-4">
                   <PollDataProvider
                     admin={poll.admin}
                     options={poll.options.map(({ id, value }) => ({
