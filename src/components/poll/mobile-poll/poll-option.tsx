@@ -110,7 +110,7 @@ const PollOptionVoteSummary: React.VoidFunctionComponent<{
                     <VoteIcon
                       type="yes"
                       size="sm"
-                      className="absolute -right-1 -top-1 rounded-full"
+                      className="absolute -right-1 -top-1 rounded-full bg-white"
                     />
                   </div>
                   <div className="text-slate-500">{name}</div>
@@ -123,7 +123,7 @@ const PollOptionVoteSummary: React.VoidFunctionComponent<{
                     <VoteIcon
                       type="ifNeedBe"
                       size="sm"
-                      className="absolute -right-1 -top-1 rounded-full"
+                      className="absolute -right-1 -top-1 rounded-full bg-white"
                     />
                   </div>
                   <div className="text-slate-500">{name}</div>
@@ -138,7 +138,7 @@ const PollOptionVoteSummary: React.VoidFunctionComponent<{
                     <VoteIcon
                       type="no"
                       size="sm"
-                      className="absolute -right-1 -top-1 rounded-full"
+                      className="absolute -right-1 -top-1 rounded-full bg-white"
                     />
                   </div>
                   <div className="text-slate-500"> {name}</div>
@@ -255,14 +255,14 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
           )}
         </CollapsibleContainer>
       </div>
-      <AnimatePresence initial={false}>
-        {expanded ? <PollOptionVoteSummary optionIndex={optionIndex} /> : null}
-      </AnimatePresence>
       {!expanded && participants.length > 0 ? (
         <SummarizedParticipantList
           participants={participants.map(({ name }) => name)}
         />
       ) : null}
+      <AnimatePresence initial={false}>
+        {expanded ? <PollOptionVoteSummary optionIndex={optionIndex} /> : null}
+      </AnimatePresence>
     </div>
   );
 };
