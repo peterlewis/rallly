@@ -277,7 +277,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
         ) : null}
       </div>
       <div
-        className={clsx("px-4", {
+        className={clsx("sm:px-4", {
           "mx-auto max-w-4xl": !isExpanded || view !== "table",
         })}
       >

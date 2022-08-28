@@ -82,7 +82,7 @@ const Discussion: React.VoidFunctionComponent = () => {
 
   return (
     <div>
-      <div className="border-b bg-white py-2">
+      <div className="mobile:break-container border-b bg-white py-2 mobile:px-4">
         <div className="font-medium">{t("comments")}</div>
       </div>
       <div className="space-y-3 py-3">
