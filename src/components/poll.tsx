@@ -222,7 +222,7 @@ const PollPage: NextPage = () => {
               </div>
             ) : null}
             {poll.closed ? (
-              <div className="flex bg-sky-100 py-3 px-4 text-sky-700 md:mb-4 md:rounded-lg md:shadow-sm">
+              <div className="break-container flex bg-sky-100 py-3 px-4 text-sky-700 md:mb-4 md:rounded-lg md:shadow-sm">
                 <div className="mr-2 rounded-md">
                   <LockClosed className="w-6" />
                 </div>

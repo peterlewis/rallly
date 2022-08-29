@@ -25,7 +25,7 @@ if (typeof window !== "undefined") {
 const MotionButton = motion(Button);
 
 const actionColumnWidth = 100;
-const columnWidth = 80;
+const columnWidth = 100;
 const sidebarWidth = 200;
 
 const TableViewPoll: React.VoidFunctionComponent<
