@@ -11,14 +11,12 @@ export interface PollOptions {
   options: Array<PollOption>;
   editable?: boolean;
   selectedParticipantId?: string;
-  expanded?: boolean;
 }
 
 const PollOptions: React.VoidFunctionComponent<PollOptions> = ({
   options,
   editable,
   selectedParticipantId,
-  expanded,
 }) => {
   const { control } = useFormContext<ParticipantForm>();
 

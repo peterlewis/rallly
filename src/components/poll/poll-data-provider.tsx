@@ -1,6 +1,7 @@
 import { Participant, Vote, VoteType } from "@prisma/client";
 import clsx from "clsx";
 import dayjs from "dayjs";
+import { useTranslation } from "next-i18next";
 import * as React from "react";
 
 import ArrowsPointingIn from "@/components/icons/arrows-pointing-in.svg";
@@ -22,7 +23,7 @@ import { useDeleteParticipantModal } from "./use-delete-participant-modal";
 
 interface PollDataContextValue {
   participants: Participant[];
-  getParticipantInfoById: (id: string) => ParticipantInfo;
+  getParticipantInfoById: (id: string) => ParticipantInfo | undefined;
   getParticipantVoteForOptionAtIndex: (
     id: string,
     index: number,
@@ -88,6 +89,8 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 }> = ({ options, participants, timeZone, pollId, admin }) => {
   const { user } = useUser();
 
+  const { t } = useTranslation("app");
+
   const userId = user.id;
 
   const { options: timezoneOptions, findFuzzyTz } = useTimeZones();
@@ -123,7 +126,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
     (id: string) => {
       const participant = participantById.get(id);
       if (!participant) {
-        throw new Error(`Couldn't find participant with id ${id}`);
+        return undefined;
       }
       return participant;
     },
@@ -133,7 +136,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
   const getParticipantVoteForOptionAtIndex = React.useCallback(
     (id: string, index: number) => {
       const participantInfo = getParticipantInfoById(id);
-      return participantInfo.votes[index];
+      return participantInfo?.votes[index];
     },
     [getParticipantInfoById],
   );
@@ -226,27 +229,27 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 
   const isWideScreen = useWideScreen();
 
-  const [preferredView, setPreferredView] = React.useState("table");
+  const [preferredView, setPreferredView] = React.useState("grid");
 
   const view = isWideScreen ? preferredView : "list";
 
-  const Compononent = view === "table" ? TableViewPoll : MobilePoll;
+  const Compononent = view === "grid" ? TableViewPoll : MobilePoll;
 
   const [isExpanded, setExpanded] = React.useState(false);
 
   return (
     <PollDataContext.Provider value={contextValue}>
-      <div className="mx-auto mb-4 flex max-w-4xl justify-between space-x-4 px-4">
+      <div className="no-scrollbar mx-auto flex max-w-4xl justify-between space-x-4 overflow-x-auto px-4 pb-4">
         <div className="flex space-x-4">
           <ToolbarGroup>
             <ToolbarButton
               onClick={() => {
-                setPreferredView("table");
+                setPreferredView("grid");
               }}
-              active={preferredView === "table"}
+              active={preferredView === "grid"}
               icon={Table}
             >
-              Table
+              {t("grid")}
             </ToolbarButton>
 
             <ToolbarButton
@@ -256,10 +259,10 @@ export const PollDataProvider: React.VoidFunctionComponent<{
               active={preferredView === "list"}
               icon={List}
             >
-              List
+              {t("list")}
             </ToolbarButton>
           </ToolbarGroup>
-          {view === "table" ? (
+          {view === "grid" ? (
             <ToolbarGroup>
               <ToolbarButton
                 onClick={() => {
@@ -267,7 +270,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
                 }}
                 icon={isExpanded ? ArrowsPointingIn : ArrowsPointingOut}
               >
-                {isExpanded ? "Collapse" : "Expand"}
+                {isExpanded ? t("collapse") : t("expand")}
               </ToolbarButton>
             </ToolbarGroup>
           ) : null}
@@ -296,7 +299,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
       </div>
       <div
         className={clsx("sm:px-4", {
-          "mx-auto max-w-4xl": !isExpanded || view !== "table",
+          "mx-auto max-w-4xl": !isExpanded || view !== "grid",
         })}
       >
         <Compononent

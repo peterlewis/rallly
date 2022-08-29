@@ -27,6 +27,7 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
   participants,
   onEntry,
   onUpdateEntry,
+  onDeleteEntry,
   userAlreadyVoted,
 }) => {
   const pollContext = usePoll();
@@ -183,7 +184,7 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
                   type="danger"
                   onClick={() => {
                     if (selectedParticipant) {
-                      // confirmDeleteParticipant(selectedParticipant.id);
+                      onDeleteEntry?.(selectedParticipant.id);
                     }
                   }}
                 />

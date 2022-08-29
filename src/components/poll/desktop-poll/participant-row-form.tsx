@@ -43,6 +43,7 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
     control,
     formState: { errors, submitCount },
     reset,
+    setValue,
   } = useForm({
     defaultValues: {
       name: "",

@@ -101,10 +101,12 @@ const TableViewPoll: React.VoidFunctionComponent<
       <div
         className="relative mx-auto flex flex-col rounded-lg border bg-white shadow-sm"
         style={{
-          width:
+          width: Math.max(
+            640,
             sidebarWidth +
-            columnWidth * numberOfVisibleColumns +
-            actionColumnWidth,
+              columnWidth * numberOfVisibleColumns +
+              actionColumnWidth,
+          ),
         }}
       >
         <div className="sticky top-12 z-20 flex rounded-t-lg bg-white/75 py-2 backdrop-blur-md">
