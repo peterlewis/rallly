@@ -90,7 +90,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 
   const userId = user.id;
 
-  const { findFuzzyTz } = useTimeZones();
+  const { options: timezoneOptions, findFuzzyTz } = useTimeZones();
 
   const [targetTimeZone, setTargetTimeZone] = React.useState(
     () => findFuzzyTz(getBrowserTimeZone()).value,
@@ -236,45 +236,63 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 
   return (
     <PollDataContext.Provider value={contextValue}>
-      <div className="mx-auto mb-4 flex max-w-4xl space-x-4 px-4">
-        {timeZone ? (
-          <ToolbarGroup>
-            <ToolbarButton>{targetTimeZone}</ToolbarButton>
-          </ToolbarGroup>
-        ) : null}
-        <ToolbarGroup>
-          <ToolbarButton
-            onClick={() => {
-              setPreferredView("table");
-            }}
-            active={preferredView === "table"}
-            icon={Table}
-          >
-            Table
-          </ToolbarButton>
-
-          <ToolbarButton
-            onClick={() => {
-              setPreferredView("list");
-            }}
-            active={preferredView === "list"}
-            icon={List}
-          >
-            List
-          </ToolbarButton>
-        </ToolbarGroup>
-        {view === "table" ? (
+      <div className="mx-auto mb-4 flex max-w-4xl justify-between space-x-4 px-4">
+        <div className="flex space-x-4">
           <ToolbarGroup>
             <ToolbarButton
               onClick={() => {
-                setExpanded(!isExpanded);
+                setPreferredView("table");
               }}
-              icon={isExpanded ? ArrowsPointingIn : ArrowsPointingOut}
+              active={preferredView === "table"}
+              icon={Table}
             >
-              {isExpanded ? "Collapse" : "Expand"}
+              Table
+            </ToolbarButton>
+
+            <ToolbarButton
+              onClick={() => {
+                setPreferredView("list");
+              }}
+              active={preferredView === "list"}
+              icon={List}
+            >
+              List
             </ToolbarButton>
           </ToolbarGroup>
-        ) : null}
+          {view === "table" ? (
+            <ToolbarGroup>
+              <ToolbarButton
+                onClick={() => {
+                  setExpanded(!isExpanded);
+                }}
+                icon={isExpanded ? ArrowsPointingIn : ArrowsPointingOut}
+              >
+                {isExpanded ? "Collapse" : "Expand"}
+              </ToolbarButton>
+            </ToolbarGroup>
+          ) : null}
+        </div>
+        <div>
+          {timeZone ? (
+            <ToolbarGroup>
+              <select
+                className="h-8 w-64 appearance-none border-0 p-0 pl-2 pr-8 text-sm"
+                value={targetTimeZone}
+                onChange={(e) => {
+                  setTargetTimeZone(e.target.value);
+                }}
+              >
+                {timezoneOptions.map((option) => {
+                  return (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  );
+                })}
+              </select>
+            </ToolbarGroup>
+          ) : null}
+        </div>
       </div>
       <div
         className={clsx("sm:px-4", {
