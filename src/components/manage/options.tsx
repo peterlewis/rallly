@@ -104,7 +104,7 @@ export const Options: React.VFC = () => {
           }
         }}
       />
-      <div className="flex space-x-3 p-3 sm:px-0">
+      <div className="flex space-x-3 py-3 sm:px-0">
         <Button
           htmlType="submit"
           loading={updatePoll.isLoading}

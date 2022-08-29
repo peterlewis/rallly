@@ -14,8 +14,8 @@ const Section: React.VoidFunctionComponent<{
   title: string;
 }> = ({ title, className, children }) => {
   return (
-    <div className={clsx(className)}>
-      <div className="mb-4 text-xl">{title}</div>
+    <div className={clsx("py-6", className)}>
+      <h2>{title}</h2>
       {children}
     </div>
   );
@@ -38,13 +38,12 @@ export const Manage: React.VFC = () => {
         },
       ]}
     >
-      <div className="">
+      <div>
         <AppLayoutHeading
           title={t("manage")}
           description="Manage your poll details and settings"
-          className="mb-4"
         />
-        <div className="space-y-8">
+        <div className="divide-y">
           <Section title={t("details")}>
             <General />
           </Section>

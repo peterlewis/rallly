@@ -6,7 +6,6 @@ import LockClosed from "@/components/icons/lock-closed.svg";
 import Save from "@/components/icons/save.svg";
 import Trash from "@/components/icons/trash.svg";
 
-import { trpc } from "../../utils/trpc";
 import { Button } from "../button";
 import { useModalContext } from "../modal/modal-provider";
 import { DeletePollForm } from "../poll/manage-poll/delete-poll-form";
@@ -22,9 +21,11 @@ const AdvancedOption: React.VoidFunctionComponent<{
   icon?: React.ComponentType<{ className?: string }>;
 }> = ({ title, description, action, icon: Icon }) => {
   return (
-    <div className="flex justify-between space-x-4 p-4">
-      <div className="space-y-2 sm:flex sm:space-y-0 sm:space-x-4">
-        <div>{Icon ? <Icon className="h-6 text-primary-500" /> : null}</div>
+    <div className="justify-between p-4 sm:flex sm:space-x-4">
+      <div className="mb-4 flex flex-row-reverse sm:mb-0 sm:flex-row">
+        <div className="ml-4 sm:mr-4 sm:ml-0">
+          {Icon ? <Icon className="h-6 text-primary-500" /> : null}
+        </div>
         <div>
           <div className="font-semibold leading-snug">{title}</div>
           <div className="text-slate-500">{description}</div>

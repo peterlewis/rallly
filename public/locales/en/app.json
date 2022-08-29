@@ -47,6 +47,7 @@
   "errorCreate": "Uh oh! There was a problem creating your poll. The error has been logged and we'll try to fix it.",
   "exportToCsv": "Export to CSV",
   "finish": "Finish",
+  "detailsDescription": "Change the title or description of your poll",
   "forgetMe": "Forget me",
   "goToAdmin": "Go to Admin",
   "guest": "Guest",

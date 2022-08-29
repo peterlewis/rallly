@@ -34,7 +34,7 @@ const Footer: React.VoidFunctionComponent = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="hidden h-16 items-center justify-center space-x-6 py-0 px-6 pt-3 pb-6 text-slate-400 md:flex">
+    <div className="mt-8 hidden h-16 items-center justify-center space-x-6 py-0 px-6 pt-3 pb-6 text-slate-400 md:flex">
       <div>
         <a
           href="https://rallly.co"
@@ -444,7 +444,7 @@ export const AppLayout: React.VFC<{
             </Head>
             <MobileNavigation title={title} breadcrumbs={breadcrumbs} />
             <DesktopNavigation title={title} breadcrumbs={breadcrumbs} />
-            <div className="mx-auto max-w-4xl p-4 sm:py-8">{children}</div>
+            <div className="mx-auto max-w-4xl p-4">{children}</div>
           </div>
           <Footer />
         </div>
