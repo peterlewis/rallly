@@ -1,27 +1,23 @@
-import { Tab } from "@headlessui/react";
 import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import React from "react";
 
 import { AppLayout, AppLayoutHeading } from "./app-layout";
+import { Advanced } from "./manage/advanced";
 import { General } from "./manage/general";
 import { Options } from "./manage/options";
 import { usePoll } from "./poll-provider";
 
-const TabItem: React.VFC<{ children?: React.ReactNode }> = ({ children }) => {
+const Section: React.VoidFunctionComponent<{
+  className?: string;
+  children?: React.ReactNode;
+  title: string;
+}> = ({ title, className, children }) => {
   return (
-    <Tab
-      className={({ selected }) =>
-        clsx(
-          "border-b- -mb-[1px] h-12 border-b-2 px-1 font-medium",
-          selected
-            ? "border-b-primary-600 text-primary-600"
-            : "border-b-transparent text-gray-500 hover:text-gray-600",
-        )
-      }
-    >
+    <div className={clsx(className)}>
+      <div className="mb-4 text-xl">{title}</div>
       {children}
-    </Tab>
+    </div>
   );
 };
 
@@ -46,21 +42,19 @@ export const Manage: React.VFC = () => {
         <AppLayoutHeading
           title={t("manage")}
           description="Manage your poll details and settings"
+          className="mb-4"
         />
-        <Tab.Group>
-          <Tab.List className="sticky top-12 z-20 flex space-x-6 border-b bg-white px-3 sm:static sm:mb-4 sm:px-0">
-            <TabItem>{t("General")}</TabItem>
-            <TabItem>{t("options")}</TabItem>
-          </Tab.List>
-          <Tab.Panels>
-            <Tab.Panel>
-              <General />
-            </Tab.Panel>
-            <Tab.Panel>
-              <Options />
-            </Tab.Panel>
-          </Tab.Panels>
-        </Tab.Group>
+        <div className="space-y-8">
+          <Section title={t("details")}>
+            <General />
+          </Section>
+          <Section title={t("options")}>
+            <Options />
+          </Section>
+          <Section title={t("advanced")}>
+            <Advanced />
+          </Section>
+        </div>
       </div>
     </AppLayout>
   );

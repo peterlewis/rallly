@@ -25,7 +25,7 @@ if (typeof window !== "undefined") {
 const MotionButton = motion(Button);
 
 const actionColumnWidth = 100;
-const columnWidth = 90;
+const columnWidth = 80;
 const sidebarWidth = 200;
 
 const TableViewPoll: React.VoidFunctionComponent<
@@ -101,12 +101,10 @@ const TableViewPoll: React.VoidFunctionComponent<
       <div
         className="relative mx-auto flex flex-col rounded-lg border bg-white shadow-sm"
         style={{
-          width: Math.max(
-            640,
+          width:
             sidebarWidth +
-              columnWidth * numberOfVisibleColumns +
-              actionColumnWidth,
-          ),
+            columnWidth * numberOfVisibleColumns +
+            actionColumnWidth,
         }}
       >
         <div className="sticky top-12 z-20 flex rounded-t-lg bg-white/75 py-2 backdrop-blur-md">
@@ -221,16 +219,6 @@ const TableViewPoll: React.VoidFunctionComponent<
                 >
                   {t("cancel")}
                 </Button>
-                <div className="text-sm">
-                  <Trans
-                    t={t}
-                    i18nKey="saveInstruction"
-                    values={{
-                      save: t("save"),
-                    }}
-                    components={{ b: <strong /> }}
-                  />
-                </div>
               </div>
             ) : (
               <div className="flex w-full items-center space-x-3">

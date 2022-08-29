@@ -1,6 +1,7 @@
 import { Participant } from "@prisma/client";
 import { Trans, useTranslation } from "next-i18next";
 import React from "react";
+import toast from "react-hot-toast";
 
 import { encodeDateOption, parseValue } from "../../utils/date-time-utils";
 import { Button } from "../button";
@@ -62,12 +63,19 @@ export const Options: React.VFC = () => {
           );
 
           const onOk = async () => {
-            await updatePoll.mutateAsync({
-              urlId: poll.adminUrlId,
-              timeZone: data.timeZone,
-              optionsToDelete: optionsToDelete.map(({ id }) => id),
-              optionsToAdd,
-            });
+            await toast.promise(
+              updatePoll.mutateAsync({
+                urlId: poll.adminUrlId,
+                timeZone: data.timeZone,
+                optionsToDelete: optionsToDelete.map(({ id }) => id),
+                optionsToAdd,
+              }),
+              {
+                loading: t("saving"),
+                success: t("saved"),
+                error: t("saveFailed"),
+              },
+            );
           };
 
           const optionsToDeleteThatHaveVotes = optionsToDelete.filter(
@@ -96,13 +104,12 @@ export const Options: React.VFC = () => {
           }
         }}
       />
-      <div className="p-3 sm:px-0">
+      <div className="flex space-x-3 p-3 sm:px-0">
         <Button
           htmlType="submit"
           loading={updatePoll.isLoading}
           form={formId}
           className="w-full sm:w-auto"
-          type="primary"
         >
           {t("save")}
         </Button>

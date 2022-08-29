@@ -72,9 +72,20 @@ const ToolbarButton = React.forwardRef<
   );
 });
 
-const ToolbarGroup = ({ children }: { children?: React.ReactNode }) => {
+const ToolbarGroup = ({
+  children,
+  className,
+}: {
+  className?: string;
+  children?: React.ReactNode;
+}) => {
   return (
-    <div className="flex overflow-hidden rounded-md border bg-white shadow-sm">
+    <div
+      className={clsx(
+        "flex items-center overflow-hidden rounded-md border bg-white shadow-sm",
+        className,
+      )}
+    >
       {children}
     </div>
   );
@@ -278,8 +289,11 @@ export const PollDataProvider: React.VoidFunctionComponent<{
         <div>
           {timeZone ? (
             <ToolbarGroup>
+              <div className="whitespace-nowrap pl-2 text-xs text-slate-500">
+                {t("timeZone")}
+              </div>
               <select
-                className="h-8 w-64 appearance-none border-0 p-0 pl-2 pr-8 text-sm"
+                className="h-8 w-64 appearance-none text-ellipsis border-0 p-0 pl-2 pr-8 text-sm focus:ring-0"
                 value={targetTimeZone}
                 onChange={(e) => {
                   setTargetTimeZone(e.target.value);

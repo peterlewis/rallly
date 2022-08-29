@@ -8,6 +8,7 @@ import { withSessionSsr } from "@/utils/auth";
 
 import { AppLayout, AppLayoutHeading } from "../components/app-layout";
 import { Button } from "../components/button";
+import { FormField } from "../components/settings";
 import { TextInput } from "../components/text-input";
 import {
   useAuthenticatedUser,
@@ -16,31 +17,6 @@ import {
 import { useFormValidation } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
 import { withPageTranslations } from "../utils/with-page-translations";
-
-const FormField: React.VoidFunctionComponent<
-  React.PropsWithChildren<{
-    name: string;
-    error?: string;
-    help?: React.ReactNode;
-  }>
-> = ({ name, children, help, error }) => {
-  return (
-    <div className="py-4 sm:flex sm:space-x-3">
-      <div className="mb-2 sm:w-48">
-        <label className="font-semibold">{name}</label>
-      </div>
-      <div className="sm:w-96">
-        <div>{children}</div>
-        {help ? (
-          <div className="mt-2 text-sm text-slate-400">{help}</div>
-        ) : null}
-        {error ? (
-          <div className="mt-1 text-sm text-rose-500">{error}</div>
-        ) : null}
-      </div>
-    </div>
-  );
-};
 
 const ChangeNameForm = () => {
   const { t } = useTranslation("app");
@@ -124,7 +100,7 @@ const Page: NextPage = () => {
           <div className="text-lg font-semibold sm:mb-4">
             {t("yourDetails")}
           </div>
-          <div className="divide-y">
+          <div className="divide-y rounded-lg border">
             <ChangeNameForm />
             <ChangeEmailForm />
           </div>
