@@ -87,8 +87,8 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
 
     const renderPageControl = () => {
       return (
-        <div className="flex items-center space-x-3">
-          <div className="text-sm text-gray-400">
+        <div className="flex items-center">
+          <div className="px-3 text-sm font-medium text-gray-500">
             {t("optionCount", { count: options.length })}
           </div>
           {numberOfVisibleColumns < options.length ? (

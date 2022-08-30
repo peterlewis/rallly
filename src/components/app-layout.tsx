@@ -281,7 +281,7 @@ const MobileNavigation: React.VoidFunctionComponent<{
     <>
       <div className="sticky top-0 z-40 w-full bg-white md:hidden">
         <div className="flex items-center justify-between border-b py-2 px-4">
-          <Link href="/polls">
+          <Link href="/">
             <a>
               <Logo className="h-5 text-primary-500" />
             </a>
@@ -396,7 +396,7 @@ const DesktopNavigation: React.VoidFunctionComponent<{
       )}
     >
       <div className="flex items-center space-x-4 overflow-hidden">
-        <Link href="/polls">
+        <Link href="/">
           <a>
             <Logo className="h-6 text-primary-500" />
           </a>
