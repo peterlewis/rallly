@@ -28,7 +28,7 @@ import Dropdown, { DropdownItem, DropdownProps } from "./dropdown";
 import ModalProvider, { useModalContext } from "./modal/modal-provider";
 import Popover from "./popover";
 import Preferences from "./preferences";
-import { IfAuthenticated, IfGuest, useUser } from "./user-provider";
+import { IfGuest, useUser } from "./user-provider";
 
 const Footer: React.VoidFunctionComponent = () => {
   const { t } = useTranslation();
@@ -152,19 +152,100 @@ export const AppLayoutHeading: React.VoidFunctionComponent<{
   );
 };
 
-const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
+const GuestSessionDropdown: React.VoidFunctionComponent<DropdownProps> = ({
   children,
   ...forwardProps
 }) => {
-  const { user, getAlias } = useUser();
-  const { t } = useTranslation(["common", "app"]);
+  const { user } = useUser();
+  const { t } = useTranslation("app");
   const modalContext = useModalContext();
   const router = useRouter();
   const { openLoginModal } = useLoginModal();
 
-  if (!user) {
-    return null;
+  return (
+    <Dropdown
+      {...forwardProps}
+      trigger={
+        <button
+          type="button"
+          className="flex h-7 items-center whitespace-nowrap rounded-md bg-pink-500/10 px-3 font-medium text-pink-600 transition-colors hover:bg-pink-500/20 hover:no-underline active:bg-pink-600/20"
+        >
+          <span className="h-2 w-2 animate-pulse rounded-full bg-pink-500" />
+          <span className="ml-2 text-xs sm:text-base">{t("guestSession")}</span>
+        </button>
+      }
+    >
+      {children}
+      <DropdownItem
+        icon={Question}
+        label={t("whatsThis")}
+        onClick={() => {
+          modalContext.render({
+            showClose: true,
+            content: (
+              <div className="w-96 max-w-full p-6 pt-28">
+                <div className="absolute left-0 -top-8 w-full text-center">
+                  <div className="inline-flex h-20 w-20 items-center justify-center rounded-full border-8 border-white bg-gradient-to-b from-purple-400 to-primary-500">
+                    <User className="h-7 text-white" />
+                  </div>
+                  <div className="">
+                    <div className="text-lg font-medium leading-snug">
+                      {t("guest")}
+                    </div>
+                    <div className="text-sm text-slate-500">{user.id}</div>
+                  </div>
+                </div>
+                <p>{t("guestSessionNotice")}</p>
+                <div>
+                  <a
+                    href="https://support.rallly.co/guest-sessions"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {t("guestSessionReadMore")}
+                  </a>
+                </div>
+              </div>
+            ),
+            overlayClosable: true,
+            footer: null,
+          });
+        }}
+      />
+      <DropdownItem icon={Login} onClick={openLoginModal} label={t("login")} />
+      <DropdownItem
+        icon={Refresh}
+        label={t("forgetMe")}
+        onClick={() => {
+          modalContext.render({
+            title: t("areYouSure"),
+            description: t("endingGuestSessionNotice"),
+            onOk: async () => {
+              router.replace("/logout");
+            },
+            okButtonProps: {
+              type: "danger",
+            },
+            okText: t("endSession"),
+            cancelText: t("cancel"),
+          });
+        }}
+      />
+    </Dropdown>
+  );
+};
+
+const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
+  children,
+  ...forwardProps
+}) => {
+  const { t } = useTranslation("app");
+  const { user, getAlias } = useUser();
+
+  if (user.isGuest) {
+    return <GuestSessionDropdown {...forwardProps} />;
   }
+
   return (
     <Dropdown
       {...forwardProps}
@@ -176,71 +257,8 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
       }
     >
       {children}
-      <IfAuthenticated>
-        <DropdownItem href="/profile" icon={User} label={t("app:profile")} />
-        <DropdownItem href="/logout" icon={Logout} label={t("app:logout")} />
-      </IfAuthenticated>
-      <IfGuest>
-        <DropdownItem
-          icon={Question}
-          label={t("app:whatsThis")}
-          onClick={() => {
-            modalContext.render({
-              showClose: true,
-              content: (
-                <div className="w-96 max-w-full p-6 pt-28">
-                  <div className="absolute left-0 -top-8 w-full text-center">
-                    <div className="inline-flex h-20 w-20 items-center justify-center rounded-full border-8 border-white bg-gradient-to-b from-purple-400 to-primary-500">
-                      <User className="h-7 text-white" />
-                    </div>
-                    <div className="">
-                      <div className="text-lg font-medium leading-snug">
-                        {t("app:guest")}
-                      </div>
-                      <div className="text-sm text-slate-500">{user.id}</div>
-                    </div>
-                  </div>
-                  <p>{t("app:guestSessionNotice")}</p>
-                  <div>
-                    <a
-                      href="https://support.rallly.co/guest-sessions"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {t("app:guestSessionReadMore")}
-                    </a>
-                  </div>
-                </div>
-              ),
-              overlayClosable: true,
-              footer: null,
-            });
-          }}
-        />
-        <DropdownItem
-          icon={Login}
-          onClick={openLoginModal}
-          label={t("app:login")}
-        />
-        <DropdownItem
-          icon={Refresh}
-          label={t("app:forgetMe")}
-          onClick={() => {
-            modalContext.render({
-              title: t("app:areYouSure"),
-              description: t("app:endingGuestSessionNotice"),
-              onOk: async () => {
-                router.replace("/logout");
-              },
-              okButtonProps: {
-                type: "danger",
-              },
-              okText: t("app:endSession"),
-              cancelText: t("app:cancel"),
-            });
-          }}
-        />
-      </IfGuest>
+      <DropdownItem href="/profile" icon={User} label={t("profile")} />
+      <DropdownItem href="/logout" icon={Logout} label={t("logout")} />
     </Dropdown>
   );
 };
@@ -369,7 +387,7 @@ const DesktopNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = ({
         </Link>
         <Breadcrumbs title={title} breadcrumbs={breadcrumbs} />
       </div>
-      <div className="flex items-center lg:space-x-2">
+      <div className="flex items-center space-x-2">
         <Popover
           placement="bottom-end"
           trigger={
