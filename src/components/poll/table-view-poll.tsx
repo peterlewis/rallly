@@ -25,8 +25,8 @@ if (typeof window !== "undefined") {
 const MotionButton = motion(Button);
 
 const actionColumnWidth = 100;
-const columnWidth = 100;
-const sidebarWidth = 200;
+const columnWidth = 90;
+const minSidebarWidth = 160;
 
 const TableViewPoll: React.VoidFunctionComponent<
   PollProps & { width: number }
@@ -49,7 +49,12 @@ const TableViewPoll: React.VoidFunctionComponent<
 
   const numberOfVisibleColumns = Math.min(
     options.length,
-    Math.floor((width - (sidebarWidth + actionColumnWidth)) / columnWidth),
+    Math.floor((width - (minSidebarWidth + actionColumnWidth)) / columnWidth),
+  );
+
+  const sidebarWidth = Math.min(
+    width - numberOfVisibleColumns * columnWidth - actionColumnWidth,
+    360,
   );
 
   const availableSpace = numberOfVisibleColumns * columnWidth;
@@ -101,10 +106,7 @@ const TableViewPoll: React.VoidFunctionComponent<
       <div
         className="relative mx-auto flex flex-col rounded-lg border bg-white shadow-sm"
         style={{
-          width:
-            sidebarWidth +
-            columnWidth * numberOfVisibleColumns +
-            actionColumnWidth,
+          width,
         }}
       >
         <div className="sticky top-12 z-20 flex rounded-t-lg bg-white/75 py-2 backdrop-blur-md">
