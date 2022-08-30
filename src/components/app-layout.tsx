@@ -3,8 +3,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "next-i18next";
 import * as React from "react";
+import { useScroll, useWindowScroll } from "react-use";
 
 import Adjustments from "@/components/icons/adjustments.svg";
 import Cash from "@/components/icons/cash.svg";
@@ -183,7 +184,7 @@ const GuestSessionDropdown: React.VoidFunctionComponent<DropdownProps> = ({
           modalContext.render({
             showClose: true,
             content: (
-              <div className="w-96 max-w-full p-6 pt-28">
+              <div className="max-w-md p-6 pt-28">
                 <div className="absolute left-0 -top-8 w-full text-center">
                   <div className="inline-flex h-20 w-20 items-center justify-center rounded-full border-8 border-white bg-gradient-to-b from-purple-400 to-primary-500">
                     <User className="h-7 text-white" />
@@ -195,7 +196,13 @@ const GuestSessionDropdown: React.VoidFunctionComponent<DropdownProps> = ({
                     <div className="text-sm text-slate-500">{user.id}</div>
                   </div>
                 </div>
-                <p>{t("guestSessionNotice")}</p>
+                <p>
+                  <Trans
+                    t={t}
+                    i18nKey="whyLoginAnswer"
+                    components={{ b: <strong /> }}
+                  />
+                </p>
                 <div>
                   <a
                     href="https://support.rallly.co/guest-sessions"
@@ -263,9 +270,9 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
   );
 };
 
-const MobileNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = (
-  props,
-) => {
+const MobileNavigation: React.VoidFunctionComponent<{
+  breadcrumbs?: React.ReactNode;
+}> = (props) => {
   const { t } = useTranslation(["common", "app"]);
   const [visible, setVisible] = React.useState(false);
   const MenuIcon = visible ? X : Menu;
@@ -370,22 +377,31 @@ const MobileNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = (
   );
 };
 
-const DesktopNavigation: React.VoidFunctionComponent<BreadcrumbsProps> = ({
-  title,
-  breadcrumbs,
-}) => {
+const DesktopNavigation: React.VoidFunctionComponent<{
+  breadcrumbs?: React.ReactNode;
+}> = ({ breadcrumbs }) => {
+  const ref = React.useRef(document.getElementById("__next"));
+  const { y } = useScroll(ref);
   const { t } = useTranslation("app");
   const { user } = useUser();
   const { openLoginModal } = useLoginModal();
   return (
-    <div className="sticky left-0 top-0 z-30 hidden h-14 w-full max-w-full justify-between space-x-4 bg-white/75 px-4 backdrop-blur-md md:flex md:items-center">
+    <div
+      className={clsx(
+        "sticky left-0 top-0 z-30 hidden h-14 w-full max-w-full justify-between space-x-4 border-b bg-white/75 px-4 backdrop-blur-md transition-colors md:flex md:items-center",
+        {
+          "border-b-gray-200": y > 0,
+          "border-b-transparent": y === 0,
+        },
+      )}
+    >
       <div className="flex items-center space-x-4 overflow-hidden">
         <Link href="/polls">
           <a>
             <Logo className="h-6 text-primary-500" />
           </a>
         </Link>
-        <Breadcrumbs title={title} breadcrumbs={breadcrumbs} />
+        {breadcrumbs}
       </div>
       <div className="flex items-center space-x-2">
         <Popover
@@ -450,8 +466,16 @@ const Breadcrumbs: React.VoidFunctionComponent<BreadcrumbsProps> = ({
 export const AppLayout: React.VFC<{
   children?: React.ReactNode;
   title: React.ReactNode;
+  hideBreadcrumbs?: boolean;
   breadcrumbs?: Array<{ title: React.ReactNode; href: string }>;
-}> = ({ title, breadcrumbs, children }) => {
+}> = ({ title, breadcrumbs, hideBreadcrumbs, children }) => {
+  const renderBreadcrumbs = () => {
+    if (hideBreadcrumbs) {
+      return null;
+    }
+
+    return <Breadcrumbs breadcrumbs={breadcrumbs} title={title} />;
+  };
   return (
     <DayjsProvider>
       <ModalProvider>
@@ -460,8 +484,8 @@ export const AppLayout: React.VFC<{
             <Head>
               <title>{title}</title>
             </Head>
-            <MobileNavigation title={title} breadcrumbs={breadcrumbs} />
-            <DesktopNavigation title={title} breadcrumbs={breadcrumbs} />
+            <MobileNavigation breadcrumbs={renderBreadcrumbs()} />
+            <DesktopNavigation breadcrumbs={renderBreadcrumbs()} />
             <div className="mx-auto max-w-4xl p-4 pb-8">{children}</div>
           </div>
           <Footer />

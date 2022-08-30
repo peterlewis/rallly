@@ -73,7 +73,7 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
       className={clsx("flex h-14 shrink-0", className)}
     >
       <div
-        className="flex shrink-0 items-center pr-4 pl-3"
+        className="flex shrink-0 items-center px-2 pl-3"
         style={{ width: sidebarWidth }}
       >
         <Controller
@@ -122,7 +122,7 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
                 return (
                   <div
                     key={index}
-                    className="flex shrink-0 items-center justify-center pr-4"
+                    className="flex shrink-0 items-center justify-center px-2"
                     style={{ width: columnWidth }}
                   >
                     <VoteSelector

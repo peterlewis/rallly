@@ -39,18 +39,18 @@ const PollHeader: React.VoidFunctionComponent<{
         return (
           <div
             key={i}
-            className="shrink-0 space-y-3 py-2 pr-4 text-center"
+            className="shrink-0 space-y-3 py-2 px-2 text-center"
             style={{ width: columnWidth }}
           >
             <div>
               <div className="leading-9">
-                <div className="text-xs font-semibold uppercase text-primary-500">
+                <div className="text-xs font-semibold uppercase text-slate-500/75">
                   {date.format("ddd")}
                 </div>
                 <div className="text-2xl font-semibold text-slate-700">
                   {date.format("D")}
                 </div>
-                <div className="text-xs font-medium uppercase text-slate-400">
+                <div className="text-xs font-medium uppercase text-slate-500/75">
                   {date.format("MMM")}
                 </div>
               </div>

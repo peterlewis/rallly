@@ -2,7 +2,6 @@ import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { useMeasure } from "react-use";
 import smoothscroll from "smoothscroll-polyfill";
-import { number } from "zod";
 
 import Check from "@/components/icons/check.svg";
 import Plus from "@/components/icons/plus-sm.svg";
@@ -55,10 +54,8 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
       Math.floor((width - minSidebarWidth) / columnWidth),
     );
 
-    const sidebarWidth = Math.min(
-      300,
-      width - numberOfVisibleColumns * columnWidth,
-    );
+    const sidebarWidth =
+      Math.min(300, width - numberOfVisibleColumns * columnWidth) - 16;
 
     const [activeOptionId, setActiveOptionId] =
       React.useState<string | null>(null);
