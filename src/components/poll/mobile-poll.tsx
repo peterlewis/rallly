@@ -8,7 +8,7 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import Check from "@/components/icons/check.svg";
 import ChevronDown from "@/components/icons/chevron-down.svg";
 import Pencil from "@/components/icons/pencil-alt.svg";
-import PlusCircle from "@/components/icons/plus-circle.svg";
+import PlusSm from "@/components/icons/plus-sm.svg";
 import Trash from "@/components/icons/trash.svg";
 import { usePoll } from "@/components/poll-provider";
 
@@ -61,7 +61,7 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
   return (
     <FormProvider {...form}>
       <form
-        className="border-y bg-white sm:rounded-lg sm:border sm:shadow-sm"
+        className="mobile:zero-padding border-y bg-white sm:rounded-lg sm:border sm:shadow-sm"
         ref={formRef}
         onSubmit={handleSubmit(async (data) => {
           if (selectedParticipant) {
@@ -191,8 +191,7 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
               </div>
             ) : (
               <Button
-                type="primary"
-                icon={<PlusCircle />}
+                icon={<PlusSm />}
                 disabled={poll.closed}
                 onClick={() => {
                   reset({
@@ -236,7 +235,7 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
                 transition: { duration: 0.2 },
               }}
             >
-              <div className="flex border-t bg-gray-50 p-3 sm:rounded-b-xl">
+              <div className="flex justify-end border-t bg-gray-50 p-3 sm:rounded-b-xl">
                 <Button
                   icon={<Check />}
                   className="w-full sm:w-auto"

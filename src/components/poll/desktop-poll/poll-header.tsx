@@ -16,11 +16,11 @@ const TimeRange: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "relative -mr-2 inline-block pr-2 text-right text-xs font-semibold after:absolute after:top-2 after:right-0 after:h-4 after:w-1 after:border-t after:border-r after:border-b after:border-slate-300 after:content-['']",
+        "relative -mr-2 inline-block pr-2 text-right text-xs after:absolute after:top-2 after:right-0 after:h-4 after:w-1 after:border-t after:border-r after:border-b after:border-slate-300 after:content-['']",
         className,
       )}
     >
-      <div>{dayjs(startTime).format("LT")}</div>
+      <div className="text-slate-600">{dayjs(startTime).format("LT")}</div>
       <div className="text-slate-400">{dayjs(endTime).format("LT")}</div>
     </div>
   );
@@ -30,7 +30,7 @@ const PollHeader: React.VoidFunctionComponent<{
   options: Array<PollOption>;
 }> = ({ options }) => {
   const { columnWidth } = usePollContext();
-  const {dayjs} = useDayjs();
+  const { dayjs } = useDayjs();
   return (
     <ControlledScrollArea>
       {options.map((option, i) => {
@@ -39,16 +39,18 @@ const PollHeader: React.VoidFunctionComponent<{
         return (
           <div
             key={i}
-            className="shrink-0 space-y-3 py-2 text-center"
+            className="shrink-0 space-y-3 py-2 pr-4 text-center"
             style={{ width: columnWidth }}
           >
             <div>
               <div className="leading-9">
-                <div className="text-xs font-semibold uppercase text-slate-500/75">
+                <div className="text-xs font-semibold uppercase text-primary-500">
                   {date.format("ddd")}
                 </div>
-                <div className="text-2xl font-semibold">{date.format("D")}</div>
-                <div className="text-xs font-medium uppercase text-slate-500/50">
+                <div className="text-2xl font-semibold text-slate-700">
+                  {date.format("D")}
+                </div>
+                <div className="text-xs font-medium uppercase text-slate-400">
                   {date.format("MMM")}
                 </div>
               </div>

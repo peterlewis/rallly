@@ -71,7 +71,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
           return (
             <div
               key={i}
-              className="relative flex shrink-0 items-center justify-center px-2 transition-colors"
+              className="relative flex shrink-0 items-center justify-center pr-4 transition-colors"
               style={{ width: columnWidth }}
             >
               <div

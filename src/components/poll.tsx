@@ -231,11 +231,7 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
             ) : null}
-            <motion.div
-              layout="position"
-              initial={false}
-              className="space-y-4 sm:space-y-8"
-            >
+            <motion.div layout="position" initial={false} className="space-y-4">
               <div className="space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
@@ -283,25 +279,23 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
               {participants ? (
-                <div className="mobile:zero-padding sm:backdrop sm:bg-pattern sm:border-y sm:pt-4 sm:pb-4">
-                  <PollDataProvider
-                    admin={poll.admin}
-                    options={poll.options.map(({ id, value }) => ({
-                      id,
-                      value:
-                        value.indexOf("/") === -1
-                          ? { type: "date", date: value }
-                          : {
-                              type: "time",
-                              start: value.split("/")[0],
-                              end: value.split("/")[1],
-                            },
-                    }))}
-                    pollId={poll.id}
-                    timeZone={poll.timeZone}
-                    participants={participants}
-                  />
-                </div>
+                <PollDataProvider
+                  admin={poll.admin}
+                  options={poll.options.map(({ id, value }) => ({
+                    id,
+                    value:
+                      value.indexOf("/") === -1
+                        ? { type: "date", date: value }
+                        : {
+                            type: "time",
+                            start: value.split("/")[0],
+                            end: value.split("/")[1],
+                          },
+                  }))}
+                  pollId={poll.id}
+                  timeZone={poll.timeZone}
+                  participants={participants}
+                />
               ) : null}
               <Discussion />
             </motion.div>

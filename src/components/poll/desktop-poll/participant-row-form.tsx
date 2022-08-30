@@ -3,11 +3,7 @@ import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 
-import ArrowLeft from "@/components/icons/arrow-left.svg";
-import ArrowRight from "@/components/icons/arrow-right.svg";
-
 import { requiredString } from "../../../utils/form-validation";
-import { Button } from "../../button";
 import NameInput from "../../name-input";
 import { ParticipantForm, PollOption } from "../types";
 import { VoteSelector } from "../vote-selector";
@@ -33,8 +29,6 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
     sidebarWidth,
     numberOfColumns,
     goToNextPage,
-    goToPreviousPage,
-    maxScrollPosition,
     setScrollPosition,
   } = usePollContext();
 
@@ -43,7 +37,6 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
     control,
     formState: { errors, submitCount },
     reset,
-    setValue,
   } = useForm({
     defaultValues: {
       name: "",
@@ -80,7 +73,7 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
       className={clsx("flex h-14 shrink-0", className)}
     >
       <div
-        className="flex items-center pr-2 pl-3"
+        className="flex shrink-0 items-center pr-4 pl-3"
         style={{ width: sidebarWidth }}
       >
         <Controller
@@ -129,7 +122,7 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
                 return (
                   <div
                     key={index}
-                    className="flex shrink-0 items-center justify-center px-2"
+                    className="flex shrink-0 items-center justify-center pr-4"
                     style={{ width: columnWidth }}
                   >
                     <VoteSelector
@@ -163,30 +156,6 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
           );
         }}
       />
-      {maxScrollPosition > 0 ? (
-        <div className="flex items-center space-x-2 px-2 transition-all">
-          <Button
-            disabled={scrollPosition === 0}
-            className="text-xs"
-            rounded={true}
-            onClick={() => {
-              goToPreviousPage();
-            }}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            disabled={scrollPosition >= maxScrollPosition}
-            className="text-xs"
-            rounded={true}
-            onClick={() => {
-              goToNextPage();
-            }}
-          >
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </div>
-      ) : null}
     </form>
   );
 };

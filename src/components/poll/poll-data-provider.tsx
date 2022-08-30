@@ -246,76 +246,58 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 
   const Compononent = view === "grid" ? TableViewPoll : MobilePoll;
 
-  const [isExpanded, setExpanded] = React.useState(false);
-
   return (
     <PollDataContext.Provider value={contextValue}>
-      <div className="no-scrollbar mx-auto flex max-w-4xl justify-between space-x-4 overflow-x-auto px-4 pb-4">
-        <div className="flex space-x-4">
-          <ToolbarGroup>
-            <ToolbarButton
-              onClick={() => {
-                setPreferredView("grid");
-              }}
-              active={preferredView === "grid"}
-              icon={Table}
-            >
-              {t("grid")}
-            </ToolbarButton>
-
-            <ToolbarButton
-              onClick={() => {
-                setPreferredView("list");
-              }}
-              active={preferredView === "list"}
-              icon={List}
-            >
-              {t("list")}
-            </ToolbarButton>
-          </ToolbarGroup>
-          {view === "grid" ? (
+      <div>
+        <div className="no-scrollbar mx-auto flex max-w-4xl justify-between space-x-4 overflow-x-auto pb-4">
+          <div className="flex space-x-4">
             <ToolbarGroup>
               <ToolbarButton
                 onClick={() => {
-                  setExpanded(!isExpanded);
+                  setPreferredView("grid");
                 }}
-                icon={isExpanded ? ArrowsPointingIn : ArrowsPointingOut}
+                active={preferredView === "grid"}
+                icon={Table}
               >
-                {isExpanded ? t("collapse") : t("expand")}
+                {t("grid")}
+              </ToolbarButton>
+
+              <ToolbarButton
+                onClick={() => {
+                  setPreferredView("list");
+                }}
+                active={preferredView === "list"}
+                icon={List}
+              >
+                {t("list")}
               </ToolbarButton>
             </ToolbarGroup>
-          ) : null}
+          </div>
+          <div>
+            {timeZone ? (
+              <ToolbarGroup>
+                <div className="whitespace-nowrap pl-2 text-xs text-slate-500">
+                  {t("timeZone")}
+                </div>
+                <select
+                  className="h-8 w-64 appearance-none text-ellipsis border-0 p-0 pl-2 pr-8 text-sm focus:ring-0"
+                  value={targetTimeZone}
+                  onChange={(e) => {
+                    setTargetTimeZone(e.target.value);
+                  }}
+                >
+                  {timezoneOptions.map((option) => {
+                    return (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    );
+                  })}
+                </select>
+              </ToolbarGroup>
+            ) : null}
+          </div>
         </div>
-        <div>
-          {timeZone ? (
-            <ToolbarGroup>
-              <div className="whitespace-nowrap pl-2 text-xs text-slate-500">
-                {t("timeZone")}
-              </div>
-              <select
-                className="h-8 w-64 appearance-none text-ellipsis border-0 p-0 pl-2 pr-8 text-sm focus:ring-0"
-                value={targetTimeZone}
-                onChange={(e) => {
-                  setTargetTimeZone(e.target.value);
-                }}
-              >
-                {timezoneOptions.map((option) => {
-                  return (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  );
-                })}
-              </select>
-            </ToolbarGroup>
-          ) : null}
-        </div>
-      </div>
-      <div
-        className={clsx("sm:px-4", {
-          "mx-auto max-w-4xl": !isExpanded || view !== "grid",
-        })}
-      >
         <Compononent
           options={options.map((option, index) => {
             const score = participants.reduce((acc, curr) => {

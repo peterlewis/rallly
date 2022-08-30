@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { Trans, useTranslation } from "next-i18next";
+import { motion } from "framer-motion";
+import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { useMeasure } from "react-use";
 import smoothscroll from "smoothscroll-polyfill";
@@ -11,6 +11,7 @@ import { Button } from "../button";
 import ArrowLeft from "../icons/arrow-left.svg";
 import ArrowRight from "../icons/arrow-right.svg";
 import { usePoll } from "../poll-provider";
+import { SegmentedButton, SegmentedButtonGroup } from "../segmented-button";
 import ParticipantRow from "./desktop-poll/participant-row";
 import ParticipantRowForm from "./desktop-poll/participant-row-form";
 import { PollContext } from "./desktop-poll/poll-context";
@@ -22,11 +23,7 @@ if (typeof window !== "undefined") {
   smoothscroll.polyfill();
 }
 
-const MotionButton = motion(Button);
-
-const actionColumnWidth = 100;
-const columnWidth = 90;
-const minSidebarWidth = 160;
+const minSidebarWidth = 200;
 
 const TableViewPoll: React.VoidFunctionComponent<
   PollProps & { width: number }
@@ -47,17 +44,22 @@ const TableViewPoll: React.VoidFunctionComponent<
   const [editingParticipantId, setEditingParticipantId] =
     React.useState<string | null>(null);
 
+  const availableSpace = width - minSidebarWidth;
+
+  const columnWidth = Math.min(
+    Math.max(90, availableSpace / options.length),
+    120,
+  );
+
   const numberOfVisibleColumns = Math.min(
     options.length,
-    Math.floor((width - (minSidebarWidth + actionColumnWidth)) / columnWidth),
+    Math.floor((width - minSidebarWidth) / columnWidth),
   );
 
   const sidebarWidth = Math.min(
-    width - numberOfVisibleColumns * columnWidth - actionColumnWidth,
-    360,
+    300,
+    width - numberOfVisibleColumns * columnWidth,
   );
-
-  const availableSpace = numberOfVisibleColumns * columnWidth;
 
   const [activeOptionId, setActiveOptionId] =
     React.useState<string | null>(null);
@@ -86,6 +88,30 @@ const TableViewPoll: React.VoidFunctionComponent<
   };
 
   const participantListContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const renderPageControl = () => {
+    return (
+      <div className="flex items-center space-x-3">
+        <div className="text-sm text-gray-400">
+          {t("optionCount", { count: options.length })}
+        </div>
+        <SegmentedButtonGroup>
+          <SegmentedButton
+            onClick={goToPreviousPage}
+            disabled={scrollPosition === 0}
+          >
+            <ArrowLeft className="h-4" />
+          </SegmentedButton>
+          <SegmentedButton
+            onClick={goToNextPage}
+            disabled={scrollPosition >= maxScrollPosition}
+          >
+            <ArrowRight className="h-4" />
+          </SegmentedButton>
+        </SegmentedButtonGroup>
+      </div>
+    );
+  };
   return (
     <PollContext.Provider
       value={{
@@ -99,7 +125,6 @@ const TableViewPoll: React.VoidFunctionComponent<
         goToPreviousPage,
         numberOfColumns: numberOfVisibleColumns,
         availableSpace,
-        actionColumnWidth,
         maxScrollPosition,
       }}
     >
@@ -109,6 +134,9 @@ const TableViewPoll: React.VoidFunctionComponent<
           width,
         }}
       >
+        <div className="flex h-14 items-center justify-end space-x-3 rounded-t-lg border-b bg-gray-50 px-3">
+          {renderPageControl()}
+        </div>
         <div className="sticky top-12 z-20 flex rounded-t-lg bg-white/75 py-2 backdrop-blur-md">
           <div
             className="flex shrink-0 items-center py-2 pl-5 pr-2 font-medium"
@@ -117,47 +145,12 @@ const TableViewPoll: React.VoidFunctionComponent<
             <div className="flex h-full grow items-end">
               {t("participantCount", { count: participants.length })}
             </div>
-            <AnimatePresence initial={false}>
-              {scrollPosition > 0 ? (
-                <MotionButton
-                  transition={{ duration: 0.1 }}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  rounded={true}
-                  onClick={goToPreviousPage}
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </MotionButton>
-              ) : null}
-            </AnimatePresence>
           </div>
           <PollHeader options={options} />
-          <div className="flex items-center py-3 px-2">
-            {maxScrollPosition > 0 ? (
-              <AnimatePresence initial={false}>
-                {scrollPosition < maxScrollPosition ? (
-                  <MotionButton
-                    transition={{ duration: 0.1 }}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="text-xs"
-                    rounded={true}
-                    onClick={() => {
-                      goToNextPage();
-                    }}
-                  >
-                    <ArrowRight className="h-4 w-4" />
-                  </MotionButton>
-                ) : null}
-              </AnimatePresence>
-            ) : null}
-          </div>
         </div>
         {participants.length > 0 ? (
           <div
-            className="min-h-0 overflow-y-auto py-1"
+            className="min-h-0 overflow-y-auto"
             ref={participantListContainerRef}
           >
             {participants.map((participant, i) => {
@@ -190,57 +183,60 @@ const TableViewPoll: React.VoidFunctionComponent<
         {onEntry && shouldShowNewParticipantForm ? (
           <ParticipantRowForm
             options={options}
-            className="border-t bg-gray-50"
             onSubmit={async (data) => {
               await onEntry(data);
+              setShouldShowNewParticipantForm(false);
             }}
           />
         ) : null}
         {!poll.closed ? (
-          <div className="flex h-14 shrink-0 items-center rounded-b-lg border-t bg-gray-50 px-3">
-            {shouldShowNewParticipantForm || editingParticipantId ? (
-              <div className="flex items-center space-x-3">
-                <Button
-                  key="submit"
-                  form="participant-row-form"
-                  htmlType="submit"
-                  type="primary"
-                  icon={<Check />}
-                  loading={isBusy}
-                >
-                  {t("save")}
-                </Button>
-                <Button
-                  onClick={() => {
-                    if (editingParticipantId) {
-                      setEditingParticipantId(null);
-                    } else {
-                      setShouldShowNewParticipantForm(false);
-                    }
-                  }}
-                >
-                  {t("cancel")}
-                </Button>
-              </div>
-            ) : (
-              <div className="flex w-full items-center space-x-3">
-                <Button
-                  key="add-participant"
-                  onClick={() => {
-                    setShouldShowNewParticipantForm(true);
-                  }}
-                  icon={<Plus />}
-                >
-                  {t("addParticipant")}
-                </Button>
-                {userAlreadyVoted ? (
-                  <div className="flex items-center text-sm text-gray-400">
-                    <Check className="mr-1 h-5" />
-                    <div>{t("alreadyVoted")}</div>
-                  </div>
-                ) : null}
-              </div>
-            )}
+          <div className="mt-2 flex h-14 shrink-0 items-center rounded-b-lg border-t bg-gray-50 px-3">
+            <div className="flex grow justify-between space-x-4">
+              {shouldShowNewParticipantForm || editingParticipantId ? (
+                <div className="flex items-center space-x-3">
+                  <Button
+                    key="submit"
+                    form="participant-row-form"
+                    htmlType="submit"
+                    type="primary"
+                    icon={<Check />}
+                    loading={isBusy}
+                  >
+                    {t("save")}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (editingParticipantId) {
+                        setEditingParticipantId(null);
+                      } else {
+                        setShouldShowNewParticipantForm(false);
+                      }
+                    }}
+                  >
+                    {t("cancel")}
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-3">
+                  <Button
+                    key="add-participant"
+                    onClick={() => {
+                      setShouldShowNewParticipantForm(true);
+                    }}
+                    icon={<Plus />}
+                  >
+                    {t("addParticipant")}
+                  </Button>
+                  {userAlreadyVoted ? (
+                    <div className="flex items-center text-sm text-gray-400">
+                      <Check className="mr-1 h-5" />
+                      <div>{t("alreadyVoted")}</div>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+              {renderPageControl()}
+            </div>
           </div>
         ) : null}
       </div>

@@ -110,6 +110,8 @@
   "participant": "Participant",
   "participantCount_other": "{{count}} participants",
   "participantCount": "{{count}} participant",
+  "optionCount_other": "{{count}} options",
+  "optionCount": "{{count}} option",
   "pollCount_other": "{{count}} polls",
   "pollCount": "{{count}} poll",
   "pollHasBeenLocked": "This poll has been locked",

@@ -8,13 +8,20 @@ const ControlledScrollArea: React.VoidFunctionComponent<{
   children?: React.ReactNode;
   className?: string;
 }> = ({ className, children }) => {
-  const { availableSpace, scrollPosition } = usePollContext();
+  const { availableSpace, maxScrollPosition, scrollPosition } =
+    usePollContext();
 
   return (
     <div
-      className={clsx("min-w-0 overflow-hidden", className)}
+      className={clsx("relative box-border min-w-0 overflow-hidden", className)}
       style={{ width: availableSpace, maxWidth: availableSpace }}
     >
+      {scrollPosition > 0 ? (
+        <div className="absolute left-0 z-10 h-full w-8 bg-gradient-to-r from-white/90 to-white/0" />
+      ) : null}
+      {scrollPosition < maxScrollPosition ? (
+        <div className="absolute right-0 z-10 h-full w-8 bg-gradient-to-r from-white/0 to-white/50" />
+      ) : null}
       <AnimatePresence initial={false}>
         <motion.div
           className="flex h-full"
