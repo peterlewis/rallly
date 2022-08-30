@@ -256,6 +256,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                         <Button
                           icon={<PlusSm />}
                           onClick={() => {
+                            console.log(lastOption);
                             const end = dayjs(lastOption.end);
 
                             let newEnd = end.add(duration, "minutes");
@@ -265,7 +266,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                             }
                             onChange(
                               produce(options, (draft) => {
-                                draft.splice(optionsForDay.length + 1, 0, {
+                                draft.push({
                                   type: "time",
                                   start: end.format("YYYY-MM-DDTHH:mm:ss"),
                                   end: newEnd.format("YYYY-MM-DDTHH:mm:ss"),
