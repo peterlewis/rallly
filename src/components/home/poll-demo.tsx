@@ -2,7 +2,7 @@ import { useTranslation } from "next-i18next";
 import * as React from "react";
 
 import { useDayjs } from "../../utils/dayjs";
-import { ParticipantRowView } from "../poll/desktop-poll/participant-row";
+import { ParticipantRowView } from "../poll/grid-view-poll/participant-row";
 import { ScoreSummary } from "../poll/score-summary";
 
 const sidebarWidth = 180;
@@ -88,7 +88,6 @@ const PollDemo: React.VoidFunctionComponent = () => {
           color={participant.color}
           sidebarWidth={sidebarWidth}
           columnWidth={columnWidth}
-          participantId={`participant${i}`}
           name={participant.name}
           votes={options.map((_, i) => {
             return participant.votes.some((vote) => vote === i) ? "yes" : "no";

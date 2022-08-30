@@ -17,12 +17,12 @@ import { requiredString } from "../../utils/form-validation";
 import { Button } from "../button";
 import { styleMenuItem } from "../menu-styles";
 import NameInput from "../name-input";
-import GroupedOptions from "./mobile-poll/grouped-options";
+import GroupedOptions from "./list-view-poll/grouped-options";
 import { usePollData } from "./poll-data-provider";
 import { ParticipantForm, PollProps } from "./types";
 import UserAvatar from "./user-avatar";
 
-const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
+const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
   options,
   participants,
   onEntry,
@@ -254,4 +254,4 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
   );
 };
 
-export default MobilePoll;
+export default ListViewPoll;

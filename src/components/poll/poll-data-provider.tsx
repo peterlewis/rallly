@@ -4,8 +4,6 @@ import dayjs from "dayjs";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 
-import ArrowsPointingIn from "@/components/icons/arrows-pointing-in.svg";
-import ArrowsPointingOut from "@/components/icons/arrows-pointing-out.svg";
 import List from "@/components/icons/list.svg";
 import Table from "@/components/icons/table.svg";
 
@@ -16,8 +14,8 @@ import { useWideScreen } from "../../utils/use-wide-screen";
 import { useTimeZones } from "../time-zone-picker/time-zone-picker";
 import { useRequiredContext } from "../use-required-context";
 import { useUser } from "../user-provider";
-import MobilePoll from "./mobile-poll";
-import TableViewPoll from "./table-view-poll";
+import GridViewPoll from "./grid-view-poll";
+import ListViewPoll from "./list-view-poll";
 import { ParticipantInfo } from "./types";
 import { useDeleteParticipantModal } from "./use-delete-participant-modal";
 
@@ -244,7 +242,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 
   const view = isWideScreen ? preferredView : "list";
 
-  const Compononent = view === "grid" ? TableViewPoll : MobilePoll;
+  const Compononent = view === "grid" ? GridViewPoll : ListViewPoll;
 
   return (
     <PollDataContext.Provider value={contextValue}>
