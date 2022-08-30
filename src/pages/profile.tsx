@@ -93,14 +93,12 @@ const Page: NextPage = () => {
       <AppLayoutHeading
         title={t("profile")}
         description={t("profileDescription")}
-        className="mb-8"
+        className="mb-4 sm:mb-8"
       />
       <div className="space-y-4 sm:space-y-8">
         <div>
-          <div className="text-lg font-semibold sm:mb-4">
-            {t("yourDetails")}
-          </div>
-          <div className="divide-y rounded-lg border">
+          <h2 className="mb-0">{t("yourDetails")}</h2>
+          <div className="divide-y">
             <ChangeNameForm />
             <ChangeEmailForm />
           </div>

@@ -168,7 +168,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
             ]}
           />
         </div>
-        <div className="sm:min-h-[400px] lg:h-[calc(100vh-100px)] lg:max-h-[640px]">
+        <div className="sm:min-h-[400px] md:h-[calc(100vh-200px)] md:max-h-[640px]">
           <selectedView.Component
             title={title}
             options={watchOptions}
@@ -205,6 +205,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
             <TimezonePicker
               value={watchTimeZone ? "auto" : "fixed"}
               disabled={isAllDayEvent}
+              className="w-full sm:w-auto"
               onChange={(timezone) => {
                 setValue(
                   "timeZone",
@@ -214,12 +215,14 @@ const PollOptionsForm: React.VoidFunctionComponent<
             />
           </div>
           {watchOptions.length > 0 ? (
-            <div className="inline-flex h-9 items-center space-x-2 overflow-hidden rounded-md bg-primary-600/10 pl-2 text-sm text-primary-600">
-              <Clock className="h-5" />
-              <div>
-                {t("optionsCount", {
-                  count: watchOptions.length,
-                })}
+            <div className="inline-flex h-9 w-full items-center  overflow-hidden rounded-md bg-primary-600/10 pl-2 text-sm text-primary-600 sm:w-auto">
+              <div className="flex grow justify-center space-x-2">
+                <Clock className="h-5" />
+                <div>
+                  {t("optionsCount", {
+                    count: watchOptions.length,
+                  })}
+                </div>
               </div>
               <button
                 type="button"

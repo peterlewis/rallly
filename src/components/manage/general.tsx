@@ -13,7 +13,7 @@ export const General: React.VFC = () => {
   const { poll } = usePoll();
 
   const { t } = useTranslation("app");
-  const { register, handleSubmit, formState, reset } = useForm<{
+  const { register, handleSubmit, formState } = useForm<{
     title: string;
     location: string;
     description: string;
@@ -45,9 +45,8 @@ export const General: React.VFC = () => {
           },
         );
       })}
-      className="space-y-4"
     >
-      <div className="divide-y rounded-lg border">
+      <div className="divide-y">
         <FormField name={t("title")}>
           <TextInput
             placeholder={t("titlePlaceholder")}
@@ -72,7 +71,7 @@ export const General: React.VFC = () => {
           />
         </FormField>
       </div>
-      <div className="flex space-x-3">
+      <div className="flex justify-end space-x-3">
         <Button loading={formState.isSubmitting} htmlType="submit">
           {t("save")}
         </Button>

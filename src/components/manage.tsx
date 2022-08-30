@@ -14,7 +14,7 @@ const Section: React.VoidFunctionComponent<{
   title: string;
 }> = ({ title, className, children }) => {
   return (
-    <div className={clsx("py-6", className)}>
+    <div className={clsx("py-4", className)}>
       <h2>{title}</h2>
       {children}
     </div>
@@ -41,7 +41,7 @@ export const Manage: React.VFC = () => {
       <div>
         <AppLayoutHeading
           title={t("manage")}
-          description="Manage your poll details and settings"
+          description={t("manageDescription")}
         />
         <div className="divide-y">
           <Section title={t("details")}>

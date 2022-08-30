@@ -113,6 +113,7 @@
   "pollCount_other": "{{count}} polls",
   "pollCount": "{{count}} poll",
   "pollHasBeenLocked": "This poll has been locked",
+  "manageDescription": "Manage your poll details and settings",
   "pollHasBeenVerified": "Your poll has been verified",
   "pollOptions": "Poll options",
   "pollOwnerNotice": "Hey {{name}}, looks like you are the owner of this poll.",

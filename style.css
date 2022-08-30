@@ -20,8 +20,9 @@
   h3,
   h4,
   h5 {
-    @apply mb-4 font-sans font-semibold text-slate-700;
+    @apply mb-4 font-sans text-slate-700;
   }
+
   h1 {
     @apply text-2xl;
   }

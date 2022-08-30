@@ -236,10 +236,10 @@ const MobilePoll: React.VoidFunctionComponent<PollProps> = ({
                 transition: { duration: 0.2 },
               }}
             >
-              <div className="sm:rouned-b-lg flex border-t bg-gray-50 p-3">
+              <div className="flex border-t bg-gray-50 p-3 sm:rounded-b-xl">
                 <Button
                   icon={<Check />}
-                  className="w-full"
+                  className="w-full sm:w-auto"
                   htmlType="submit"
                   type="primary"
                   loading={formState.isSubmitting}

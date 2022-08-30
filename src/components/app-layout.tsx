@@ -34,7 +34,7 @@ const Footer: React.VoidFunctionComponent = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="mt-8 hidden h-16 items-center justify-center space-x-6 py-0 px-6 pt-3 pb-6 text-slate-400 md:flex">
+    <div className="hidden h-16 items-center justify-center space-x-6 py-0 px-6 pt-3 pb-6 text-slate-400 md:flex">
       <div>
         <a
           href="https://rallly.co"
@@ -137,12 +137,12 @@ export const AppLayoutHeading: React.VoidFunctionComponent<{
       )}
     >
       <div className="grow">
-        <div
-          className="mb-1 text-2xl font-semibold text-slate-700 md:text-left md:text-3xl"
+        <h1
+          className="mb-1 font-semibold text-slate-700 md:text-left md:text-3xl"
           data-testid="poll-title"
         >
           {title}
-        </div>
+        </h1>
         {description ? (
           <div className="text-slate-500/75 lg:text-lg">{description}</div>
         ) : null}
@@ -444,7 +444,7 @@ export const AppLayout: React.VFC<{
             </Head>
             <MobileNavigation title={title} breadcrumbs={breadcrumbs} />
             <DesktopNavigation title={title} breadcrumbs={breadcrumbs} />
-            <div className="mx-auto max-w-4xl p-4">{children}</div>
+            <div className="mx-auto max-w-4xl p-4 pb-8">{children}</div>
           </div>
           <Footer />
         </div>

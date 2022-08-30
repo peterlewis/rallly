@@ -155,7 +155,7 @@ const TableViewPoll: React.VoidFunctionComponent<
         </div>
         {participants.length > 0 ? (
           <div
-            className="min-h-0 overflow-y-auto bg-white py-1"
+            className="min-h-0 overflow-y-auto py-1"
             ref={participantListContainerRef}
           >
             {participants.map((participant, i) => {

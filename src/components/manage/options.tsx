@@ -104,13 +104,8 @@ export const Options: React.VFC = () => {
           }
         }}
       />
-      <div className="flex space-x-3 py-3 sm:px-0">
-        <Button
-          htmlType="submit"
-          loading={updatePoll.isLoading}
-          form={formId}
-          className="w-full sm:w-auto"
-        >
+      <div className="flex justify-end py-3">
+        <Button htmlType="submit" loading={updatePoll.isLoading} form={formId}>
           {t("save")}
         </Button>
       </div>
