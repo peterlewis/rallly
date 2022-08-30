@@ -11,6 +11,7 @@ import { getBrowserTimeZone } from "../../utils/date-time-utils";
 import { trpc } from "../../utils/trpc";
 import { PollOption } from "../../utils/trpc/types";
 import { useWideScreen } from "../../utils/use-wide-screen";
+import { RadioGroup } from "../radio";
 import { useTimeZones } from "../time-zone-picker/time-zone-picker";
 import { useRequiredContext } from "../use-required-context";
 import { useUser } from "../user-provider";
@@ -247,30 +248,22 @@ export const PollDataProvider: React.VoidFunctionComponent<{
   return (
     <PollDataContext.Provider value={contextValue}>
       <div>
-        <div className="no-scrollbar mx-auto flex max-w-4xl justify-between space-x-4 overflow-x-auto pb-4">
-          <div className="flex space-x-4">
-            <ToolbarGroup>
-              <ToolbarButton
-                onClick={() => {
-                  setPreferredView("grid");
-                }}
-                active={preferredView === "grid"}
-                icon={Table}
-              >
-                {t("grid")}
-              </ToolbarButton>
-
-              <ToolbarButton
-                onClick={() => {
-                  setPreferredView("list");
-                }}
-                active={preferredView === "list"}
-                icon={List}
-              >
-                {t("list")}
-              </ToolbarButton>
-            </ToolbarGroup>
-          </div>
+        <div className="break-container no-scrollbar mx-auto flex max-w-4xl space-x-4 overflow-x-auto px-4 pb-4 sm:justify-between">
+          {isWideScreen ? (
+            <RadioGroup
+              size="small"
+              value={view}
+              options={[
+                {
+                  label: t("grid"),
+                  value: "grid",
+                  icon: Table,
+                },
+                { label: t("list"), value: "list", icon: List },
+              ]}
+              onChange={setPreferredView}
+            />
+          ) : null}
           <div>
             {timeZone ? (
               <ToolbarGroup>

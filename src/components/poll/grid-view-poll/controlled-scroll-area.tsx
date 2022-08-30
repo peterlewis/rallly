@@ -17,7 +17,7 @@ const ControlledScrollArea: React.VoidFunctionComponent<{
       style={{ width: availableSpace, maxWidth: availableSpace }}
     >
       {scrollPosition > 0 ? (
-        <div className="absolute left-0 z-10 h-full w-8 bg-gradient-to-r from-white/90 to-white/0" />
+        <div className="absolute left-0 z-10 h-full w-2 bg-gradient-to-r from-white/90 to-white/0" />
       ) : null}
       {scrollPosition < maxScrollPosition ? (
         <div className="absolute right-0 z-10 h-full w-8 bg-gradient-to-r from-white/0 to-white/50" />

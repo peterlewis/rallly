@@ -10,6 +10,7 @@ import Plus from "@/components/icons/plus-sm.svg";
 import Search from "@/components/icons/search.svg";
 
 import { AppLayout, AppLayoutHeading } from "../components/app-layout";
+import { EmptyState } from "../components/empty-state";
 import FullPageLoader from "../components/full-page-loader";
 import { UserAvatarProvider } from "../components/poll/user-avatar";
 import { SummarizedParticipantBubbles } from "../components/summarized-participant-bubbles";
@@ -34,11 +35,8 @@ const Polls: React.VoidFunctionComponent = () => {
 
   if (data.length === 0) {
     return (
-      <div className="flex h-96 items-center justify-center text-slate-400">
-        <div className="space-y-4 text-center">
-          <Calendar className=" inline-block h-20" />
-          <div className="">{t("pollsEmpty")}</div>
-        </div>
+      <div className="h-96">
+        <EmptyState icon={Calendar} text={t("pollsEmpty")} />
       </div>
     );
   }

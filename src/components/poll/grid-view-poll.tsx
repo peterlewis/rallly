@@ -2,6 +2,7 @@ import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { useMeasure } from "react-use";
 import smoothscroll from "smoothscroll-polyfill";
+import { number } from "zod";
 
 import Check from "@/components/icons/check.svg";
 import Plus from "@/components/icons/plus-sm.svg";
@@ -93,20 +94,22 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
           <div className="text-sm text-gray-400">
             {t("optionCount", { count: options.length })}
           </div>
-          <SegmentedButtonGroup>
-            <SegmentedButton
-              onClick={goToPreviousPage}
-              disabled={scrollPosition === 0}
-            >
-              <ArrowLeft className="h-4" />
-            </SegmentedButton>
-            <SegmentedButton
-              onClick={goToNextPage}
-              disabled={scrollPosition >= maxScrollPosition}
-            >
-              <ArrowRight className="h-4" />
-            </SegmentedButton>
-          </SegmentedButtonGroup>
+          {numberOfVisibleColumns < options.length ? (
+            <SegmentedButtonGroup>
+              <SegmentedButton
+                onClick={goToPreviousPage}
+                disabled={scrollPosition === 0}
+              >
+                <ArrowLeft className="h-4" />
+              </SegmentedButton>
+              <SegmentedButton
+                onClick={goToNextPage}
+                disabled={scrollPosition >= maxScrollPosition}
+              >
+                <ArrowRight className="h-4" />
+              </SegmentedButton>
+            </SegmentedButtonGroup>
+          ) : null}
         </div>
       );
     };

@@ -7,6 +7,7 @@ import { useDayjs } from "../../../../utils/dayjs";
 import { Button } from "../../../button";
 import CompactButton from "../../../compact-button";
 import Dropdown, { DropdownItem } from "../../../dropdown";
+import { EmptyState } from "../../../empty-state";
 import { useHeadlessDatePicker } from "../../../headless-date-picker";
 import Calendar from "../../../icons/calendar.svg";
 import DotsHorizontal from "../../../icons/dots-horizontal.svg";
@@ -164,12 +165,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
           </div>
         </div>
         {options.length === 0 ? (
-          <div className="flex h-full items-center justify-center py-12">
-            <div className="text-center font-medium text-gray-400">
-              <Calendar className="mb-2 inline-block h-12 w-12" />
-              <div>{t("noDatesSelected")}</div>
-            </div>
-          </div>
+          <EmptyState icon={Calendar} text={t("noDatesSelected")} />
         ) : null}
         <div className="grow divide-y overflow-y-scroll px-4">
           {Object.keys(optionsByDay)
@@ -193,7 +189,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                         return (
                           <div key={option.date} className="flex space-x-4">
                             <div className="grow rounded-lg border border-dashed p-4 text-center text-sm text-gray-400">
-                              All-day
+                              {t("allDay")}
                             </div>
                             <div>
                               <CompactButton
@@ -278,7 +274,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                             );
                           }}
                         >
-                          Add time
+                          {t("addTimeOption")}
                         </Button>
                         <Dropdown
                           trigger={<CompactButton icon={DotsHorizontal} />}

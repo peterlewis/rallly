@@ -18,7 +18,7 @@ import { preventWidows } from "@/utils/prevent-widows";
 import { trpc } from "../utils/trpc";
 import { AppLayout, AppLayoutHeading } from "./app-layout";
 import { useLoginModal } from "./auth/login-modal";
-import { LinkText } from "./LinkText";
+import { LinkText } from "./link-text";
 import { useParticipants } from "./participants-provider";
 import NotificationsToggle from "./poll/notifications-toggle";
 import { PollDataProvider } from "./poll/poll-data-provider";

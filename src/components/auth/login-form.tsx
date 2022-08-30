@@ -10,7 +10,7 @@ import { RegisteredUserSession } from "../../utils/auth";
 import { requiredString, validEmail } from "../../utils/form-validation";
 import { trpc } from "../../utils/trpc";
 import { Button } from "../button";
-import { LinkText } from "../LinkText";
+import { LinkText } from "../link-text";
 import { TextInput } from "../text-input";
 
 const VerifyCode: React.VoidFunctionComponent<{
