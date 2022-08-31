@@ -166,7 +166,7 @@ const PollPage: NextPage = () => {
 
   return (
     <AppLayout
-      hideBreadcrumbs={true}
+      hideBreadcrumbs={!poll.admin}
       breadcrumbs={[
         { title: <>&larr; {t("groupMeetings")}</>, href: "/polls" },
       ]}
@@ -209,18 +209,6 @@ const PollPage: NextPage = () => {
                   ) : null}
                 </AnimatePresence>
               </>
-            ) : null}
-            {!poll.admin && poll.adminUrlId ? (
-              <div className="break-container mb-4 items-center justify-between rounded-lg px-4 md:flex md:space-x-4 md:border md:p-2 md:pl-4">
-                <div className="mb-4 font-medium md:mb-0">
-                  {t("pollOwnerNotice", {
-                    name: poll.user ? poll.user.name : t("guest"),
-                  })}
-                </div>
-                <a href={`/admin/${poll.adminUrlId}`} className="btn-default">
-                  {t("goToAdmin")} &rarr;
-                </a>
-              </div>
             ) : null}
             {poll.closed ? (
               <div className="break-container flex bg-sky-100 py-3 px-4 text-sky-700 md:mb-4 md:rounded-lg md:shadow-sm">

@@ -210,6 +210,9 @@ const PollOptionsForm: React.VoidFunctionComponent<
                 setValue(
                   "timeZone",
                   timezone === "auto" ? getBrowserTimeZone() : "",
+                  {
+                    shouldTouch: true,
+                  },
                 );
               }}
             />

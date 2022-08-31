@@ -55,7 +55,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
     );
 
     const sidebarWidth =
-      Math.min(300, width - numberOfVisibleColumns * columnWidth) - 16;
+      Math.min(300, width - numberOfVisibleColumns * columnWidth) - 40;
 
     const [activeOptionId, setActiveOptionId] =
       React.useState<string | null>(null);
@@ -122,7 +122,6 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
           goToNextPage,
           goToPreviousPage,
           numberOfColumns: numberOfVisibleColumns,
-          availableSpace,
           maxScrollPosition,
         }}
       >

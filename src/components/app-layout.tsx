@@ -388,7 +388,7 @@ const DesktopNavigation: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "sticky left-0 top-0 z-30 hidden h-14 w-full max-w-full justify-between space-x-4 border-b bg-white/75 px-4 backdrop-blur-md transition-colors md:flex md:items-center",
+        "sticky left-0 top-0 z-30 hidden h-12 w-full max-w-full justify-between space-x-4 border-b bg-white/90 px-4 backdrop-blur-md transition-colors md:flex md:items-center",
         {
           "border-b-gray-200": y > 0,
           "border-b-transparent": y === 0,
@@ -447,15 +447,15 @@ const Breadcrumbs: React.VoidFunctionComponent<BreadcrumbsProps> = ({
   breadcrumbs,
 }) => {
   return (
-    <div className="flex items-center space-x-1 whitespace-nowrap py-1 md:flex md:overflow-hidden md:rounded-lg md:bg-slate-500/10 md:px-3">
+    <div className="flex items-center space-x-1 whitespace-nowrap py-1 md:flex md:overflow-hidden md:rounded-md md:bg-slate-500/10 md:px-3">
       {breadcrumbs?.map((breadcrumb, i) => (
         <div className="flex shrink-0 items-center" key={i}>
           <Link href={breadcrumb.href}>
-            <a className="mr-1 inline-block text-gray-500 hover:text-gray-600 hover:no-underline">
+            <a className="mr-1 inline-block text-slate-500 hover:text-slate-600 hover:no-underline">
               {breadcrumb.title}
             </a>
           </Link>
-          <ChevronRight className="inline-block h-5 shrink-0 text-gray-400" />
+          <ChevronRight className="inline-block h-5 shrink-0 text-slate-500/50" />
         </div>
       ))}
       <div className="shrink font-medium md:truncate">{title}</div>

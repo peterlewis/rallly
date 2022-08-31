@@ -29,7 +29,7 @@ const GroupedOptions: React.VoidFunctionComponent<GroupedOptionsProps> = ({
           <div key={day}>
             <div
               className={clsx(
-                "sticky top-[109px] z-10 flex border-b bg-gray-50/80 py-2 px-4 text-sm font-semibold shadow-sm backdrop-blur-md sm:static",
+                "sticky top-[109px] z-10 flex border-b bg-gray-50/80 py-2 px-4 text-sm font-semibold shadow-sm backdrop-blur-md",
                 groupClassName,
               )}
             >

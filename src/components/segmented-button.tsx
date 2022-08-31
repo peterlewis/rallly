@@ -17,12 +17,10 @@ export const SegmentedButton: React.VoidFunctionComponent<{
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={clsx(
-        "bg-white px-4 first:rounded-l-md last:rounded-r-md active:bg-gray-100",
-        {
-          "bg-gray-100 text-gray-400": disabled,
-        },
-      )}
+      className={clsx("bg-white px-4 first:rounded-l-md last:rounded-r-md", {
+        "bg-gray-200/50 text-gray-400/75": disabled,
+        "shadow-sm hover:bg-gray-50 active:bg-slate-500/5": !disabled,
+      })}
     >
       {children}
     </button>

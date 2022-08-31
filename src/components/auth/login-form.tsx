@@ -361,7 +361,7 @@ export const LoginForm: React.VoidFunctionComponent<{
           {t("notRegistered")}
         </LinkText>
       </div>
-      <Disclosure as="div" className="mt-8 text-sm">
+      <Disclosure as="div" className="mt-4 text-sm">
         {({ open }) => (
           <>
             <Disclosure.Button className="group flex items-center font-semibold">
