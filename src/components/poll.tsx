@@ -167,9 +167,7 @@ const PollPage: NextPage = () => {
   return (
     <AppLayout
       hideBreadcrumbs={!poll.admin}
-      breadcrumbs={[
-        { title: <>&larr; {t("groupMeetings")}</>, href: "/polls" },
-      ]}
+      breadcrumbs={[{ title: <>&larr; {t("meetingPolls")}</>, href: "/polls" }]}
       title={poll.title}
     >
       <UserAvatarProvider seed={poll.id} names={names}>

@@ -109,10 +109,10 @@ const Page = () => {
   const { t } = useTranslation("app");
 
   return (
-    <AppLayout title={t("groupMeetings")}>
+    <AppLayout title={t("meetingPolls")}>
       <AppLayoutHeading
-        title={t("groupMeetings")}
-        description={t("groupMeetingsDescription")}
+        title={t("meetingPolls")}
+        description={t("meetingPollsDescription")}
         actions={
           <Link href="/new">
             <a className="btn-primary pr-4">

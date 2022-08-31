@@ -96,11 +96,11 @@ const NewProceeding: React.VoidFunctionComponent = () => {
     <AppLayout
       breadcrumbs={[
         {
-          title: <>&larr; {t("groupMeetings")}</>,
+          title: <>&larr; {t("meetingPolls")}</>,
           href: "/polls",
         },
       ]}
-      title={t("newPoll")}
+      title={t("createPollTitle")}
     >
       <NewPollContext.Provider value={{ state, dispatch }}>
         <AppLayoutHeading
@@ -153,7 +153,7 @@ const NewProceeding: React.VoidFunctionComponent = () => {
               />
               <Button
                 type="primary"
-                loading={createPoll.isLoading}
+                loading={createPoll.isLoading || createPoll.isSuccess}
                 htmlType="submit"
                 form={currentFormId}
               >
