@@ -35,7 +35,6 @@ import { useTouchBeacon } from "./poll/use-touch-beacon";
 import { UserAvatarProvider } from "./poll/user-avatar";
 import VoteIcon from "./poll/vote-icon";
 import { usePoll } from "./poll-provider";
-import Tooltip from "./tooltip";
 import { usePollMutations } from "./use-poll-mutations";
 import { useUser } from "./user-provider";
 
@@ -188,25 +187,23 @@ const ClipboardLink: React.VoidFunctionComponent<{
             "bg-slate-500/5": didCopy,
           })}
         />
-        <Tooltip content={t("copyLink")}>
-          <button
-            onClick={() => {
-              setDidCopy(true);
-              copyToClipboard(url);
-              setTimeout(() => {
-                setDidCopy(false);
-              }, 1000);
-            }}
-            type="button"
-            className="py-2 px-3 text-slate-500 hover:bg-gray-50 active:bg-slate-500/10"
-          >
-            {didCopy ? (
-              <ClipboardCheck className="h-5" />
-            ) : (
-              <ClipboardCopy className="h-5" />
-            )}
-          </button>
-        </Tooltip>
+        <button
+          onClick={() => {
+            setDidCopy(true);
+            copyToClipboard(url);
+            setTimeout(() => {
+              setDidCopy(false);
+            }, 1000);
+          }}
+          type="button"
+          className="py-2 px-3 text-slate-500 hover:bg-gray-50 active:bg-slate-500/10"
+        >
+          {didCopy ? (
+            <ClipboardCheck className="h-5" />
+          ) : (
+            <ClipboardCopy className="h-5" />
+          )}
+        </button>
       </div>
       <div className="text-slate-400">{description}</div>
     </div>
