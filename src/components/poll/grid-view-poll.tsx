@@ -88,7 +88,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
     const renderPageControl = () => {
       return (
         <div className="flex items-center">
-          <div className="px-3 text-sm font-medium text-gray-500">
+          <div className="px-3 text-sm font-medium text-slate-500">
             {t("optionCount", { count: options.length })}
           </div>
           {numberOfVisibleColumns < options.length ? (
@@ -131,7 +131,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
             width,
           }}
         >
-          <div className="flex h-14 items-center justify-end space-x-3 rounded-t-lg border-b bg-gray-50 px-3">
+          <div className="flex h-14 items-center justify-end space-x-3 rounded-t-lg border-b bg-slate-500/5 px-3">
             {renderPageControl()}
           </div>
           <div className="sticky top-12 z-20 flex rounded-t-lg bg-white/75 py-2 backdrop-blur-md">
@@ -189,7 +189,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
             />
           ) : null}
           {!poll.closed ? (
-            <div className="mt-2 flex h-14 shrink-0 items-center rounded-b-lg border-t bg-gray-50 px-3">
+            <div className="mt-2 flex h-14 shrink-0 items-center rounded-b-lg border-t bg-slate-500/5 px-3">
               <div className="flex grow justify-between space-x-4">
                 {shouldShowNewParticipantForm || editingParticipantId ? (
                   <div className="flex items-center space-x-3">

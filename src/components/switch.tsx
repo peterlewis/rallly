@@ -13,17 +13,20 @@ const Switch: React.VoidFunctionComponent<SwitchProps> = ({
   checked = false,
   onChange,
   srDescription,
+  disabled,
   ...rest
 }) => {
   return (
     <HeadlessSwitch
       checked={checked}
       onChange={onChange}
+      disabled={disabled}
       className={clsx(
         "relative inline-flex h-6 w-10 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75",
         {
-          "bg-gray-200": !checked,
+          "bg-slate-500/20": !checked,
           "bg-green-500": checked,
+          "opacity-50": disabled,
         },
       )}
       {...rest}

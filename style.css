@@ -20,14 +20,17 @@
   h3,
   h4,
   h5 {
-    @apply mb-4 font-sans text-slate-700;
+    @apply mb-4 font-sans;
   }
 
   h1 {
     @apply text-2xl;
   }
   h2 {
-    @apply text-xl;
+    @apply text-xl font-semibold;
+  }
+  h3 {
+    @apply font-semibold;
   }
   input {
     @apply outline-none;

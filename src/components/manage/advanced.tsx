@@ -2,6 +2,7 @@ import { useTranslation } from "next-i18next";
 import React from "react";
 import toast from "react-hot-toast";
 
+import Bell from "@/components/icons/bell.svg";
 import LockClosed from "@/components/icons/lock-closed.svg";
 import Save from "@/components/icons/save.svg";
 import Trash from "@/components/icons/trash.svg";
@@ -13,6 +14,7 @@ import { useCsvExporter } from "../poll/manage-poll/use-csv-exporter";
 import { usePoll } from "../poll-provider";
 import Switch from "../switch";
 import { usePollMutations } from "../use-poll-mutations";
+import { useUser } from "../user-provider";
 
 const AdvancedOption: React.VoidFunctionComponent<{
   title: React.ReactNode;
@@ -42,12 +44,39 @@ export const Advanced = () => {
   const { exportToCsv } = useCsvExporter();
   const modalContext = useModalContext();
 
+  const { user } = useUser();
   const { updatePoll } = usePollMutations();
 
   const [locked, setLocked] = React.useState(poll.closed);
+  const [notifications, setNotifications] = React.useState(poll.notifications);
 
   return (
     <div className="divide-y rounded-lg border p-0">
+      <AdvancedOption
+        icon={Bell}
+        title={t("notifications")}
+        description={t("notificationsDescription")}
+        action={
+          <Switch
+            disabled={!poll.user || user.id !== poll.user.id}
+            checked={notifications}
+            onChange={(newValue) => {
+              setNotifications(newValue);
+              toast.promise(
+                updatePoll.mutateAsync({
+                  urlId: poll.adminUrlId,
+                  notifications: newValue,
+                }),
+                {
+                  loading: t("saving"),
+                  success: t("saved"),
+                  error: t("saveFailed"),
+                },
+              );
+            }}
+          />
+        }
+      />
       <AdvancedOption
         icon={LockClosed}
         title={t("lockPoll")}
