@@ -142,15 +142,24 @@ const ClipboardLink: React.VoidFunctionComponent<{
 }> = ({ title, icon: Icon, url, description, titleClassName, className }) => {
   const { t } = useTranslation("app");
   const [state, copyToClipboard] = useCopyToClipboard();
+
   const [didCopy, setDidCopy] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   return (
     <div className={className}>
-      <div className={clsx("mb-2 flex text-sm text-slate-500", titleClassName)}>
+      <div
+        className={clsx(
+          "mb-2 flex items-center space-x-2 text-sm text-slate-500",
+          titleClassName,
+        )}
+      >
         <div className="flex">
           <Icon className="mr-2 h-5" />
           <span className="font-semibold">{title}</span>
         </div>
+        {state.error?.message ? (
+          <span className="text-red-500">{state.error.message}</span>
+        ) : null}
         <AnimatePresence>
           {didCopy ? (
             <motion.span
@@ -158,14 +167,19 @@ const ClipboardLink: React.VoidFunctionComponent<{
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="ml-2 text-slate-400"
+              className="text-xs text-slate-400"
             >
               {t("copied")}
             </motion.span>
           ) : null}
         </AnimatePresence>
       </div>
-      <div className="mb-2 flex divide-x overflow-hidden rounded-md border bg-white">
+      <div
+        onClick={() => {
+          inputRef.current?.select();
+        }}
+        className="mb-2 flex divide-x overflow-hidden rounded-md border bg-white"
+      >
         <input
           ref={inputRef}
           readOnly={true}
@@ -177,7 +191,6 @@ const ClipboardLink: React.VoidFunctionComponent<{
         <Tooltip content={t("copyLink")}>
           <button
             onClick={() => {
-              inputRef.current?.select();
               setDidCopy(true);
               copyToClipboard(url);
               setTimeout(() => {
