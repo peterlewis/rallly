@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import isBetween from "dayjs/plugin/isBetween";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import localeData from "dayjs/plugin/localeData";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -106,6 +107,7 @@ dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 dayjs.extend(localeData);
 dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
 dayjs.extend(isBetween);
 dayjs.extend(minMax);
 dayjs.extend(utc);
