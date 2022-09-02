@@ -247,8 +247,8 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 
   return (
     <PollDataContext.Provider value={contextValue}>
-      <div>
-        <div className="break-container no-scrollbar mx-auto flex max-w-4xl space-x-4 overflow-x-auto px-4 pb-4 sm:justify-between">
+      <div className="py-2">
+        <div className="break-container no-scrollbar flex space-x-4 overflow-x-auto px-4 pb-4 sm:justify-between">
           {isWideScreen ? (
             <RadioGroup
               size="small"
@@ -289,72 +289,74 @@ export const PollDataProvider: React.VoidFunctionComponent<{
             ) : null}
           </div>
         </div>
-        <Compononent
-          options={options.map((option, index) => {
-            const score = participants.reduce((acc, curr) => {
-              const vote = curr.votes.find(
-                (vote) => vote.optionId === option.id,
-              );
-              if (vote?.type === "yes") {
-                acc += 1;
-              }
-              return acc;
-            }, 0);
+        <div className="-mx-6">
+          <Compononent
+            options={options.map((option, index) => {
+              const score = participants.reduce((acc, curr) => {
+                const vote = curr.votes.find(
+                  (vote) => vote.optionId === option.id,
+                );
+                if (vote?.type === "yes") {
+                  acc += 1;
+                }
+                return acc;
+              }, 0);
 
-            if (option.value.type === "time") {
-              const { start, end } = option.value;
-              let startTime = dayjs(start);
-              let endTime = dayjs(end);
-              if (timeZone) {
-                startTime = startTime.tz(timeZone).tz(targetTimeZone);
-                endTime = endTime.tz(timeZone).tz(targetTimeZone);
+              if (option.value.type === "time") {
+                const { start, end } = option.value;
+                let startTime = dayjs(start);
+                let endTime = dayjs(end);
+                if (timeZone) {
+                  startTime = startTime.tz(timeZone).tz(targetTimeZone);
+                  endTime = endTime.tz(timeZone).tz(targetTimeZone);
+                }
+                return {
+                  type: "time",
+                  index,
+                  start: startTime.format("YYYY-MM-DDTHH:mm"),
+                  end: endTime.format("YYYY-MM-DDTHH:mm"),
+                  score,
+                };
               }
+
               return {
-                type: "time",
+                type: "date",
                 index,
-                start: startTime.format("YYYY-MM-DDTHH:mm"),
-                end: endTime.format("YYYY-MM-DDTHH:mm"),
+                date: option.value.date,
                 score,
               };
-            }
-
-            return {
-              type: "date",
-              index,
-              date: option.value.date,
-              score,
-            };
-          })}
-          participants={pollParticipants}
-          onEntry={async (participant) => {
-            return await addParticipant.mutateAsync({
-              pollId,
-              name: participant.name,
-              votes: options.map(({ id }, i) => {
-                return {
-                  optionId: id,
-                  type: participant.votes[i] ?? "no",
-                };
-              }),
-            });
-          }}
-          onDeleteEntry={deleteParticipant}
-          onUpdateEntry={async (participantId, participant) => {
-            await updateParticipant.mutateAsync({
-              participantId,
-              pollId,
-              votes: options.map(({ id }, i) => {
-                return {
-                  optionId: id,
-                  type: participant.votes[i] ?? "no",
-                };
-              }),
-              name: participant.name,
-            });
-          }}
-          isBusy={addParticipant.isLoading || updateParticipant.isLoading}
-          userAlreadyVoted={userAlreadyVoted}
-        />
+            })}
+            participants={pollParticipants}
+            onEntry={async (participant) => {
+              return await addParticipant.mutateAsync({
+                pollId,
+                name: participant.name,
+                votes: options.map(({ id }, i) => {
+                  return {
+                    optionId: id,
+                    type: participant.votes[i] ?? "no",
+                  };
+                }),
+              });
+            }}
+            onDeleteEntry={deleteParticipant}
+            onUpdateEntry={async (participantId, participant) => {
+              await updateParticipant.mutateAsync({
+                participantId,
+                pollId,
+                votes: options.map(({ id }, i) => {
+                  return {
+                    optionId: id,
+                    type: participant.votes[i] ?? "no",
+                  };
+                }),
+                name: participant.name,
+              });
+            }}
+            isBusy={addParticipant.isLoading || updateParticipant.isLoading}
+            userAlreadyVoted={userAlreadyVoted}
+          />
+        </div>
       </div>
     </PollDataContext.Provider>
   );

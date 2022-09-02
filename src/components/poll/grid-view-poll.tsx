@@ -22,7 +22,7 @@ if (typeof window !== "undefined") {
   smoothscroll.polyfill();
 }
 
-const minSidebarWidth = 200;
+const minSidebarWidth = 220;
 
 const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
   ({
@@ -45,7 +45,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
     const availableSpace = width - minSidebarWidth;
 
     const columnWidth = Math.min(
-      Math.max(90, availableSpace / options.length),
+      Math.max(100, availableSpace / options.length),
       120,
     );
 
@@ -126,12 +126,12 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
         }}
       >
         <div
-          className="relative mx-auto flex flex-col rounded-lg border bg-white shadow-sm"
+          className="relative mx-auto flex flex-col border-y bg-white"
           style={{
             width,
           }}
         >
-          <div className="flex h-14 items-center justify-end space-x-3 rounded-t-lg border-b bg-slate-500/5 px-3">
+          <div className="flex h-14 items-center justify-end space-x-3 border-b bg-slate-500/5 px-3">
             {renderPageControl()}
           </div>
           <div className="sticky top-12 z-20 flex rounded-t-lg bg-white/75 py-2 backdrop-blur-md">

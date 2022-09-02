@@ -10,19 +10,16 @@ import React from "react";
 import toast from "react-hot-toast";
 import { useCopyToClipboard } from "react-use";
 
-import { Button } from "@/components/button";
 import Discussion from "@/components/discussion";
-import ChevronDown from "@/components/icons/chevron-down.svg";
 import ClipboardCheck from "@/components/icons/clipboard-check.svg";
 import ClipboardCopy from "@/components/icons/clipboard-copy.svg";
 import Cog from "@/components/icons/cog.svg";
-import InformationCircle from "@/components/icons/information-circle.svg";
+import Exclamation from "@/components/icons/exclamation.svg";
 import Key from "@/components/icons/key.svg";
 import LockClosed from "@/components/icons/lock-closed.svg";
 import UserGroup from "@/components/icons/user-group.svg";
 import { preventWidows } from "@/utils/prevent-widows";
 
-import { trpc } from "../utils/trpc";
 import { AppLayout, AppLayoutHeading } from "./app-layout";
 import { useLoginModal } from "./auth/login-modal";
 import { LinkText } from "./link-text";
@@ -58,87 +55,13 @@ const Legend = () => {
   );
 };
 
-const UnclaimedPollAlert = () => {
-  const { t } = useTranslation("app");
-  const { poll } = usePoll();
-  const { user } = useUser();
-  const { openLoginModal } = useLoginModal();
-  const context = trpc.useContext();
-  const claimPoll = trpc.useMutation("polls.claim", {
-    onSuccess: (res) => {
-      context.setQueryData(
-        ["polls.get", { urlId: poll.adminUrlId, admin: true }],
-        res,
-      );
-    },
-  });
-
-  if (poll.user) {
-    return null;
-  }
-
-  if (user.isGuest) {
-    return (
-      <div className="break-container flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-lg">
-        <div className="mr-2">
-          <InformationCircle className="h-6" />
-        </div>
-        <div>
-          <Trans
-            t={t}
-            i18nKey="guestPollNotice"
-            components={{
-              a: (
-                <LinkText
-                  onClick={(e) => {
-                    e.preventDefault();
-                    openLoginModal();
-                  }}
-                  className="text-blue-800/75 underline hover:text-blue-800 hover:underline"
-                  href="/login"
-                />
-              ),
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="items-center justify-between space-y-4 rounded-lg bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:flex sm:space-y-0 sm:space-x-4">
-      <div className="flex">
-        <div className="mr-2">
-          <InformationCircle className="h-6" />
-        </div>
-        <div>
-          <Trans t={t} i18nKey="unclaimedNoticeTitle" />
-        </div>
-      </div>
-      <div>
-        <button
-          className="rounded-md bg-blue-700/5 py-2 px-4 font-medium leading-tight transition-colors hover:bg-blue-700/10 active:bg-blue-700/20"
-          onClick={() => {
-            claimPoll.mutateAsync({
-              adminUrlId: poll.adminUrlId,
-            });
-          }}
-        >
-          {t("unclaimedNoticeAction")}
-        </button>
-      </div>
-    </div>
-  );
-};
-
 const ClipboardLink: React.VoidFunctionComponent<{
   className?: string;
   url: string;
   description: React.ReactNode;
   title: string;
   icon: React.ComponentType<{ className?: string }>;
-  titleClassName?: string;
-}> = ({ title, icon: Icon, url, description, titleClassName, className }) => {
+}> = ({ title, icon: Icon, url, description, className }) => {
   const { t } = useTranslation("app");
   const [state, copyToClipboard] = useCopyToClipboard();
 
@@ -146,14 +69,9 @@ const ClipboardLink: React.VoidFunctionComponent<{
   const inputRef = React.useRef<HTMLInputElement>(null);
   return (
     <div className={className}>
-      <div
-        className={clsx(
-          "mb-2 flex items-center space-x-2 text-sm text-slate-500",
-          titleClassName,
-        )}
-      >
+      <div className={clsx("mb-2 flex items-center space-x-2 text-sm ")}>
         <div className="flex">
-          <Icon className="mr-2 h-5" />
+          <Icon className="mr-2 h-5 text-primary-500" />
           <span className="font-semibold">{title}</span>
         </div>
         {state.error?.message ? (
@@ -183,9 +101,12 @@ const ClipboardLink: React.VoidFunctionComponent<{
           ref={inputRef}
           readOnly={true}
           value={url}
-          className={clsx("grow py-2 pl-2 text-slate-700 transition-opacity", {
-            "bg-slate-500/5": didCopy,
-          })}
+          className={clsx(
+            "grow py-2 pl-2 text-sm text-slate-700 transition-opacity sm:text-base",
+            {
+              "bg-slate-500/5": didCopy,
+            },
+          )}
         />
         <button
           onClick={() => {
@@ -205,7 +126,7 @@ const ClipboardLink: React.VoidFunctionComponent<{
           )}
         </button>
       </div>
-      <div className="text-slate-400">{description}</div>
+      <div className="text-sm text-slate-400">{description}</div>
     </div>
   );
 };
@@ -213,30 +134,47 @@ const ClipboardLink: React.VoidFunctionComponent<{
 const AdminPanel = () => {
   const { poll } = usePoll();
   const { t } = useTranslation("app");
-  const [open, setOpen] = React.useState(true);
+  const { openLoginModal } = useLoginModal();
+  const { user } = useUser();
   return (
-    <div className="break-container overflow-hidden rounded-md border border-dashed p-4">
-      <div className="flex justify-between font-medium">
-        <div className="flex text-lg">{t("administrationPanel")}</div>
+    <div className="mobile:break-container overflow-hidden border bg-white/50 p-6 shadow-sm sm:rounded-md">
+      <div className="justify justify-between space-y-4 font-bold sm:flex sm:space-y-0">
+        <div className="flex text-sm sm:text-lg">
+          {t("administrationPanel")}
+        </div>
         <div className="flex space-x-2">
           <NotificationsToggle />
           <Link href={`/admin/${poll.adminUrlId}/manage`}>
-            <a className="btn-default">
-              <Cog className="mr-2 h-5" />
-              {t("manage")}
-            </a>
+            <a className="btn-default">{t("manage")} &rarr;</a>
           </Link>
-          <Button onClick={() => setOpen(!open)}>
-            <ChevronDown
-              className={clsx("h-5 transition-transform", {
-                "-rotate-180": open,
-              })}
-            />
-          </Button>
         </div>
       </div>
-      {open ? (
-        <div className="grid grid-cols-1 gap-4 pt-4 md:grid-cols-2">
+      <div className="space-y-4 pt-4">
+        {!poll.user && user.isGuest ? (
+          <div className="flex rounded-md bg-amber-500/5 p-2">
+            <Exclamation className="mr-2 h-5 text-amber-500" />
+            <div className="text-sm text-amber-700/75">
+              <Trans
+                t={t}
+                i18nKey="guestPollWarning"
+                components={{
+                  a: (
+                    <LinkText
+                      href="/login"
+                      className="text-amber-700/75 underline hover:text-amber-700 active:text-amber-700/50"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openLoginModal();
+                      }}
+                    />
+                  ),
+                  b: <strong />,
+                }}
+              />
+            </div>
+          </div>
+        ) : null}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <ClipboardLink
             title={t("adminLink")}
             icon={Key}
@@ -245,13 +183,12 @@ const AdminPanel = () => {
           />
           <ClipboardLink
             icon={UserGroup}
-            titleClassName="text-primary-500"
             title={t("participantLink")}
             url={`${window.location.origin}/p/${poll.participantUrlId}`}
             description={t("participantLinkDescription")}
           />
         </div>
-      ) : null}
+      </div>
     </div>
   );
 };
@@ -290,10 +227,6 @@ const PollPage: NextPage = () => {
     [participants],
   );
 
-  const [isSharingVisible, setSharingVisible] = React.useState(
-    !!router.query.sharing,
-  );
-
   return (
     <AppLayout
       hideBreadcrumbs={!poll.admin}
@@ -317,7 +250,11 @@ const PollPage: NextPage = () => {
                 <div>{t("pollHasBeenLocked")}</div>
               </div>
             ) : null}
-            <motion.div layout="position" initial={false} className="space-y-4">
+            <motion.div
+              layout="position"
+              initial={false}
+              className="space-y-4 rounded-md border bg-white/50 p-6 shadow-sm"
+            >
               <div className="space-y-4 rounded-lg">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}

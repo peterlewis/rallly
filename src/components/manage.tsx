@@ -38,12 +38,12 @@ export const Manage: React.VFC = () => {
         },
       ]}
     >
-      <div>
+      <div className="rounded-md border bg-white/50 p-6">
         <AppLayoutHeading
           title={t("manage")}
           description={t("manageDescription")}
         />
-        <div className="divide-y">
+        <div className="">
           <Section title={t("details")}>
             <General />
           </Section>

@@ -90,7 +90,10 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
                 placeholder={t("yourName")}
                 {...field}
                 onKeyDown={(e) => {
-                  if (e.code === "Tab" && scrollPosition > 0) {
+                  if (
+                    (e.code === "Tab" || e.code === "Enter") &&
+                    scrollPosition > 0
+                  ) {
                     e.preventDefault();
                     setScrollPosition(0);
                     setTimeout(() => {

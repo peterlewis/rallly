@@ -388,9 +388,9 @@ const DesktopNavigation: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "sticky left-0 top-0 z-30 hidden h-12 w-full max-w-full justify-between space-x-4 border-b bg-white/90 px-4 backdrop-blur-md transition-colors md:flex md:items-center",
+        "sticky left-0 top-0 z-30 hidden h-12 w-full max-w-full justify-between space-x-4 border-b px-4 transition-colors md:flex md:items-center",
         {
-          "border-b-gray-200": y > 0,
+          "border-b-gray-200 bg-gray-50": y > 0,
           "border-b-transparent": y === 0,
         },
       )}
