@@ -90,7 +90,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
     const renderPageControl = () => {
       return (
         <div className="flex items-center">
-          <div className="px-3 text-sm font-medium text-slate-500">
+          <div className="px-6 text-sm font-medium text-slate-500">
             {t("optionCount", { count: options.length })}
           </div>
           {numberOfVisibleColumns < options.length ? (
@@ -134,7 +134,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
             width,
           }}
         >
-          <div className="flex h-14 items-center justify-end space-x-3 border-b bg-slate-500/5 px-3">
+          <div className="flex h-14 items-center justify-end space-x-3 border-b bg-slate-500/5 px-6">
             {renderPageControl()}
           </div>
           <Sticky
@@ -143,14 +143,14 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
               clsx(
                 "z-20 flex rounded-t-lg border-b bg-white/75 py-2 backdrop-blur-md",
                 {
-                  "border-b-gray-100 shadow-sm": isPinned,
+                  "border-gray-200/75": isPinned,
                   "border-b-transparent": !isPinned,
                 },
               )
             }
           >
             <div
-              className="flex shrink-0 items-center py-2 pl-5 pr-2 font-medium"
+              className="flex shrink-0 items-center py-2 pl-8 pr-2 font-medium"
               style={{ width: sidebarWidth }}
             >
               <div className="flex h-full grow items-end">
@@ -203,7 +203,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
             />
           ) : null}
           {!poll.closed ? (
-            <div className="mt-2 flex h-14 shrink-0 items-center rounded-b-lg border-t bg-slate-500/5 px-3">
+            <div className="mt-2 flex h-14 shrink-0 items-center rounded-b-lg border-t bg-slate-500/5 px-6">
               <div className="flex grow justify-between space-x-4">
                 {shouldShowNewParticipantForm || editingParticipantId ? (
                   <div className="flex items-center space-x-3">

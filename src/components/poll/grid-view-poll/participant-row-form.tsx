@@ -73,7 +73,7 @@ const ParticipantRowForm: React.ForwardRefRenderFunction<
       className={clsx("flex h-14 shrink-0", className)}
     >
       <div
-        className="flex shrink-0 items-center px-2 pl-3"
+        className="flex shrink-0 items-center px-2 pl-6"
         style={{ width: sidebarWidth }}
       >
         <Controller
