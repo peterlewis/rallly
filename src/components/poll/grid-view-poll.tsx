@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { useMeasure } from "react-use";
@@ -11,6 +12,7 @@ import ArrowLeft from "../icons/arrow-left.svg";
 import ArrowRight from "../icons/arrow-right.svg";
 import { usePoll } from "../poll-provider";
 import { SegmentedButton, SegmentedButtonGroup } from "../segmented-button";
+import { Sticky } from "../sticky";
 import ParticipantRow from "./grid-view-poll/participant-row";
 import ParticipantRowForm from "./grid-view-poll/participant-row-form";
 import { PollContext } from "./grid-view-poll/poll-context";
@@ -110,6 +112,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
         </div>
       );
     };
+
     return (
       <PollContext.Provider
         value={{
@@ -134,7 +137,18 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
           <div className="flex h-14 items-center justify-end space-x-3 border-b bg-slate-500/5 px-3">
             {renderPageControl()}
           </div>
-          <div className="sticky top-12 z-20 flex rounded-t-lg bg-white/75 py-2 backdrop-blur-md">
+          <Sticky
+            top={48}
+            className={(isPinned) =>
+              clsx(
+                "z-20 flex rounded-t-lg border-b bg-white/75 py-2 backdrop-blur-md",
+                {
+                  "border-b-gray-100 shadow-sm": isPinned,
+                  "border-b-transparent": !isPinned,
+                },
+              )
+            }
+          >
             <div
               className="flex shrink-0 items-center py-2 pl-5 pr-2 font-medium"
               style={{ width: sidebarWidth }}
@@ -144,7 +158,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
               </div>
             </div>
             <PollHeader options={options} />
-          </div>
+          </Sticky>
           {participants.length > 0 ? (
             <div
               className="min-h-0 overflow-y-auto"

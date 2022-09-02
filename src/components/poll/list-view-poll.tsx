@@ -61,7 +61,7 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
   return (
     <FormProvider {...form}>
       <form
-        className="mobile:zero-padding border-y bg-white sm:rounded-lg sm:border sm:shadow-sm"
+        className="mobile:zero-padding border-y bg-white"
         ref={formRef}
         onSubmit={handleSubmit(async (data) => {
           if (selectedParticipant) {
@@ -78,7 +78,7 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
           }
         })}
       >
-        <div className="sticky top-12 z-30 flex flex-col space-y-2 border-b bg-gray-50 p-3 sm:rounded-t-lg">
+        <div className="sticky top-12 z-30 flex flex-col space-y-2 border-b bg-gray-50 p-3">
           <div className="flex space-x-3">
             {!isEditing ? (
               <Listbox
