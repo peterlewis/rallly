@@ -78,7 +78,7 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
           }
         })}
       >
-        <div className="sticky top-12 z-30 flex flex-col space-y-2 border-b bg-gray-50 p-3">
+        <div className="sticky top-12 z-30 flex flex-col space-y-2 border-b bg-gray-50 px-6 py-3">
           <div className="flex space-x-3">
             {!isEditing ? (
               <Listbox

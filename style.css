@@ -127,7 +127,11 @@
   }
 
   .card {
-    @apply border-y bg-white p-4 shadow-sm md:rounded-lg md:border;
+    @apply mobile:edge-4 bg-white/50 p-4 sm:shadow-sm md:rounded-md md:border md:p-6;
+  }
+
+  .card-mobile {
+    @apply -mx-2 rounded-md border bg-white p-4 shadow-sm sm:mx-0 md:p-6;
   }
 }
 

@@ -140,13 +140,10 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
           <Sticky
             top={48}
             className={(isPinned) =>
-              clsx(
-                "z-20 flex rounded-t-lg border-b bg-white/75 py-2 backdrop-blur-md",
-                {
-                  "border-gray-200/75": isPinned,
-                  "border-b-transparent": !isPinned,
-                },
-              )
+              clsx("z-20 flex border-b bg-white/75 py-2 backdrop-blur-md", {
+                "border-gray-200/75": isPinned,
+                "border-b-transparent": !isPinned,
+              })
             }
           >
             <div
@@ -203,7 +200,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
             />
           ) : null}
           {!poll.closed ? (
-            <div className="mt-2 flex h-14 shrink-0 items-center rounded-b-lg border-t bg-slate-500/5 px-6">
+            <div className="mt-2 flex h-14 shrink-0 items-center border-t bg-slate-500/5 px-6">
               <div className="flex grow justify-between space-x-4">
                 {shouldShowNewParticipantForm || editingParticipantId ? (
                   <div className="flex items-center space-x-3">

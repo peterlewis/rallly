@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { groupBy } from "lodash";
 import * as React from "react";
 
+import { Sticky } from "../../sticky";
 import { PollOption } from "../types";
 import PollOptions from "./poll-options";
 
@@ -27,14 +28,15 @@ const GroupedOptions: React.VoidFunctionComponent<GroupedOptionsProps> = ({
       {Object.entries(grouped).map(([day, options]) => {
         return (
           <div key={day}>
-            <div
+            <Sticky
+              top={109}
               className={clsx(
-                "sticky top-[109px] z-10 flex border-b bg-gray-50/80 py-2 px-4 text-sm font-semibold shadow-sm backdrop-blur-md",
+                "z-10 flex border-b bg-gray-50/80 py-2 px-6 text-sm font-semibold backdrop-blur-md",
                 groupClassName,
               )}
             >
               {day}
-            </div>
+            </Sticky>
             <PollOptions
               options={options}
               editable={editable}

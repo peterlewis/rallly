@@ -82,7 +82,7 @@ const Discussion: React.VoidFunctionComponent = () => {
 
   return (
     <div>
-      <div className="mobile:break-container border-b bg-white py-2 mobile:px-4">
+      <div className="mobile:break-container border-b py-2 mobile:px-4">
         <div className="font-medium">{t("comments")}</div>
       </div>
       <div className="space-y-3 py-3">
@@ -105,7 +105,7 @@ const Discussion: React.VoidFunctionComponent = () => {
                   animate={{ scale: 1, y: 0 }}
                   exit={{ scale: 0.8 }}
                   data-testid="comment"
-                  className="w-fit rounded-lg border bg-white px-3 py-2 shadow-sm"
+                  className="w-fit rounded-md border bg-white px-3 py-2 shadow-sm"
                 >
                   <div className="flex items-center space-x-2">
                     <UserAvatar

@@ -247,7 +247,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 
   return (
     <PollDataContext.Provider value={contextValue}>
-      <div className="py-2">
+      <div>
         <div className="break-container no-scrollbar flex space-x-4 overflow-x-auto px-4 pb-4 sm:justify-between">
           {isWideScreen ? (
             <RadioGroup

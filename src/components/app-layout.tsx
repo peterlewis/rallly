@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import * as React from "react";
-import { useScroll, useWindowScroll } from "react-use";
+import { useScroll } from "react-use";
 
 import Adjustments from "@/components/icons/adjustments.svg";
 import Cash from "@/components/icons/cash.svg";

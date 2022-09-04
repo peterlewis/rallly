@@ -200,7 +200,7 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
 
   return (
     <div
-      className={clsx("space-y-4 overflow-hidden p-4", {
+      className={clsx("space-y-4 overflow-hidden px-6 py-4", {
         "hover:bg-slate-300/10 active:bg-slate-400/10": editable,
       })}
       data-testid="poll-option"

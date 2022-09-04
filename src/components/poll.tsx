@@ -80,10 +80,10 @@ const ClipboardLink: React.VoidFunctionComponent<{
         <AnimatePresence>
           {didCopy ? (
             <motion.span
-              transition={{ duration: 0.1 }}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: 10, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.2 }}
               className="text-xs text-slate-400"
             >
               {t("copied")}
@@ -137,8 +137,8 @@ const AdminPanel = () => {
   const { openLoginModal } = useLoginModal();
   const { user } = useUser();
   return (
-    <div className="mobile:break-container overflow-hidden border bg-white/50 p-6 shadow-sm sm:rounded-md">
-      <div className="justify justify-between space-y-4 font-bold sm:flex sm:space-y-0">
+    <div className="card-mobile">
+      <div className="justify flex justify-between font-bold">
         <div className="flex text-sm sm:text-lg">
           {t("administrationPanel")}
         </div>
@@ -238,10 +238,9 @@ const PollPage: NextPage = () => {
           <title>{poll.title}</title>
           <meta name="robots" content="noindex,nofollow" />
         </Head>
-        <div className="max-w-full space-y-4">
+        <div className="max-w-full sm:space-y-4">
           <LayoutGroup>
             {poll.admin ? <AdminPanel /> : null}
-            {/* <UnclaimedPollAlert /> */}
             {poll.closed ? (
               <div className="break-container flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-lg">
                 <div className="mr-2 rounded-md">
@@ -253,7 +252,7 @@ const PollPage: NextPage = () => {
             <motion.div
               layout="position"
               initial={false}
-              className="space-y-4 rounded-md border bg-white/50 p-6 shadow-sm"
+              className="card space-y-4"
             >
               <div className="space-y-4 rounded-lg">
                 <AppLayoutHeading
