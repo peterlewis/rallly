@@ -289,7 +289,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
             ) : null}
           </div>
         </div>
-        <div className="-mx-6">
+        <div className="sm:-mx-4 md:-mx-6">
           <Compononent
             options={options.map((option, index) => {
               const score = participants.reduce((acc, curr) => {

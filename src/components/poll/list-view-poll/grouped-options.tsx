@@ -31,7 +31,7 @@ const GroupedOptions: React.VoidFunctionComponent<GroupedOptionsProps> = ({
             <Sticky
               top={109}
               className={clsx(
-                "z-10 flex border-b bg-gray-50/80 py-2 px-6 text-sm font-semibold backdrop-blur-md",
+                "z-10 flex border-b bg-gray-50/80 py-2 px-4 text-sm font-semibold backdrop-blur-md sm:px-6",
                 groupClassName,
               )}
             >

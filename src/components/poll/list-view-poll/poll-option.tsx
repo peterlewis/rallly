@@ -1,6 +1,6 @@
 import { VoteType } from "@prisma/client";
 import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 
@@ -36,12 +36,10 @@ const CollapsibleContainer: React.VoidFunctionComponent<{
         <motion.div
           variants={{
             collapsed: {
-              width: 0,
               opacity: 0,
             },
             expanded: {
               opacity: 1,
-              width: 58,
             },
           }}
           initial="collapsed"
@@ -200,7 +198,7 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
 
   return (
     <div
-      className={clsx("space-y-4 overflow-hidden px-6 py-4", {
+      className={clsx("space-y-4 overflow-hidden px-4 py-4 sm:px-6", {
         "hover:bg-slate-300/10 active:bg-slate-400/10": editable,
       })}
       data-testid="poll-option"
@@ -209,51 +207,67 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
       }}
     >
       <div className="flex select-none">
-        <div className="flex grow space-x-8">
-          <div>{children}</div>
-          <div className="flex grow items-center justify-end">
-            <button
-              type="button"
-              onTouchStart={(e) => e.stopPropagation()}
-              className="flex justify-end rounded-lg p-2 active:bg-slate-500/10"
-              onClick={(e) => {
-                e.stopPropagation();
-                setExpanded((value) => !value);
-              }}
-            >
-              <ScoreSummary yesScore={yesScore} />
-              <ChevronDown
-                className={clsx("h-5 text-slate-400 transition-transform", {
-                  "-rotate-180": expanded,
-                })}
-              />
-            </button>
-          </div>
-        </div>
-        <CollapsibleContainer
-          expanded={showVotes}
-          className="relative flex justify-center"
-        >
-          {editable ? (
-            <div className="flex h-full w-14 items-center justify-center">
-              <VoteSelector
-                className="w-9"
-                ref={selectorRef}
-                value={vote}
-                onChange={onChange}
-              />
-            </div>
-          ) : (
-            <AnimatePresence initial={false}>
-              <PopInOut
-                key={vote}
-                className="absolute inset-0 flex h-full items-center justify-center"
+        <LayoutGroup>
+          <AnimatePresence initial={false}>
+            {showVotes ? (
+              <motion.div
+                layout={true}
+                variants={{
+                  collapsed: {
+                    x: -20,
+                    opacity: 0,
+                    width: 0,
+                  },
+                  expanded: {
+                    x: 0,
+                    opacity: 1,
+                    width: "auto",
+                  },
+                }}
+                initial="collapsed"
+                animate="expanded"
+                exit="collapsed"
               >
-                <VoteIcon type={vote} />
-              </PopInOut>
-            </AnimatePresence>
-          )}
-        </CollapsibleContainer>
+                {editable ? (
+                  <VoteSelector
+                    className="mr-4"
+                    ref={selectorRef}
+                    value={vote}
+                    onChange={onChange}
+                  />
+                ) : (
+                  <PopInOut
+                    key={vote}
+                    className="absolute inset-0 flex h-full items-center justify-center"
+                  >
+                    <VoteIcon type={vote} />
+                  </PopInOut>
+                )}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+          <motion.div layout="position" className="flex grow space-x-8">
+            <div>{children}</div>
+            <div className="flex grow items-center justify-end">
+              <button
+                type="button"
+                onTouchStart={(e) => e.stopPropagation()}
+                className="flex justify-end rounded-lg p-2 active:bg-slate-500/10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExpanded((value) => !value);
+                }}
+              >
+                <ScoreSummary yesScore={yesScore} />
+                <ChevronDown
+                  className={clsx("h-5 text-slate-400 transition-transform", {
+                    "-rotate-180": expanded,
+                  })}
+                />
+              </button>
+            </div>
+          </motion.div>
+        </LayoutGroup>
       </div>
       {!expanded && participants.length > 0 ? (
         <SummarizedParticipantList

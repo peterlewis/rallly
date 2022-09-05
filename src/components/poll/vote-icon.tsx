@@ -12,47 +12,56 @@ const VoteIcon: React.VoidFunctionComponent<{
   size?: "sm" | "md";
   className?: string;
 }> = ({ type, className, size = "md" }) => {
-  switch (type) {
-    case "yes":
-      return (
-        <CheckCircle
-          className={clsx("text-green-400", className, {
-            "h-5": size === "md",
-            "h-3": size === "sm",
-          })}
-        />
-      );
+  const renderIcon = () => {
+    switch (type) {
+      case "yes":
+        return (
+          <CheckCircle
+            className={clsx("text-green-400", className, {
+              "h-5": size === "md",
+              "h-3": size === "sm",
+            })}
+          />
+        );
 
-    case "ifNeedBe":
-      return (
-        <IfNeedBe
-          className={clsx("text-amber-300", className, {
-            "h-5": size === "md",
-            "h-3": size === "sm",
-          })}
-        />
-      );
+      case "ifNeedBe":
+        return (
+          <IfNeedBe
+            className={clsx("text-amber-300", className, {
+              "h-5": size === "md",
+              "h-3": size === "sm",
+            })}
+          />
+        );
 
-    case "no":
-      return (
-        <X
-          className={clsx("text-slate-300", className, {
-            "h-5": size === "md",
-            "h-3": size === "sm",
-          })}
-        />
-      );
+      case "no":
+        return (
+          <X
+            className={clsx("text-slate-300", className, {
+              "h-5": size === "md",
+              "h-3": size === "sm",
+            })}
+          />
+        );
 
-    default:
-      return (
-        <QuestionMark
-          className={clsx("text-slate-300", className, {
-            "h-5": size === "md",
-            "h-3": size === "sm",
-          })}
-        />
-      );
-  }
+      default:
+        return (
+          <QuestionMark
+            className={clsx("text-slate-300", className, {
+              "h-5": size === "md",
+              "h-3": size === "sm",
+            })}
+          />
+        );
+    }
+  };
+
+  return (
+    <span className="relative inline-block">
+      <span className="absolute left-1/2 top-1/2 -z-10 h-3 w-3 -translate-y-1/2 -translate-x-1/2 rounded-full bg-white" />
+      {renderIcon()}
+    </span>
+  );
 };
 
 export default VoteIcon;

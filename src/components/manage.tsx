@@ -38,7 +38,7 @@ export const Manage: React.VFC = () => {
         },
       ]}
     >
-      <div className="rounded-md border bg-white/50 p-6">
+      <div className="card">
         <AppLayoutHeading
           title={t("manage")}
           description={t("manageDescription")}

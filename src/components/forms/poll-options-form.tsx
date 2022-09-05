@@ -232,7 +232,7 @@ const PollOptionsForm: React.VoidFunctionComponent<
                 onClick={() => {
                   setValue("options", []);
                 }}
-                className="h-full border-l border-primary-600/10 px-2 text-primary-500 hover:bg-primary-500/5 active:bg-primary-500/10"
+                className="ml-2 h-full border-l border-primary-600/10 px-2 text-primary-500 hover:bg-primary-500/5 active:bg-primary-500/10"
               >
                 <X className="h-4" />
               </button>

@@ -105,7 +105,12 @@ export const Options: React.VFC = () => {
         }}
       />
       <div className="flex justify-end py-3">
-        <Button htmlType="submit" loading={updatePoll.isLoading} form={formId}>
+        <Button
+          htmlType="submit"
+          type="primary"
+          loading={updatePoll.isLoading}
+          form={formId}
+        >
           {t("save")}
         </Button>
       </div>

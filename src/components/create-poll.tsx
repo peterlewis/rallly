@@ -103,71 +103,78 @@ const NewProceeding: React.VoidFunctionComponent = () => {
       title={t("createPollTitle")}
     >
       <NewPollContext.Provider value={{ state, dispatch }}>
-        <AppLayoutHeading
-          title={t("createPollTitle")}
-          description={t("stepSummary", { current: state.step + 1, total: 2 })}
-          className="mb-8"
-        />
-        <div className="space-y-4">
-          {(() => {
-            switch (state.step) {
-              case 0:
-                return (
-                  <PollDetailsStep
-                    formId={currentFormId}
-                    defaultValues={state.details}
-                    onSubmit={(payload) => {
-                      dispatch({ type: "updateDetails", payload });
-                    }}
+        <motion.div layout={true} className="card">
+          <motion.div layout={"position"}>
+            <AppLayoutHeading
+              title={t("createPollTitle")}
+              description={t("stepSummary", {
+                current: state.step + 1,
+                total: 2,
+              })}
+              className="mb-8"
+            />
+            <div className="space-y-4">
+              {(() => {
+                switch (state.step) {
+                  case 0:
+                    return (
+                      <PollDetailsStep
+                        formId={currentFormId}
+                        defaultValues={state.details}
+                        onSubmit={(payload) => {
+                          dispatch({ type: "updateDetails", payload });
+                        }}
+                      />
+                    );
+                  case 1:
+                    return (
+                      <PollOptionsForm
+                        formId={currentFormId}
+                        defaultValues={state.options}
+                        onSubmit={async (payload) => {
+                          const newState = { ...state, options: payload };
+                          await createPoll.mutateAsync({
+                            title: newState.details.title,
+                            location: newState.details.location,
+                            description: newState.details.description,
+                            timeZone: newState.options.timeZone,
+                            options: newState.options.options.map((option) =>
+                              option.type === "date"
+                                ? option.date
+                                : `${option.start}/${option.end}`,
+                            ),
+                          });
+                        }}
+                      />
+                    );
+                }
+              })()}
+              <motion.div layout="position" className="mt-4 flex items-center">
+                <div className="flex space-x-3">
+                  <Button
+                    disabled={isFirstStep}
+                    icon={<ChevronLeft />}
+                    onClick={() => dispatch({ type: "back" })}
                   />
-                );
-              case 1:
-                return (
-                  <PollOptionsForm
-                    formId={currentFormId}
-                    defaultValues={state.options}
-                    onSubmit={async (payload) => {
-                      const newState = { ...state, options: payload };
-                      await createPoll.mutateAsync({
-                        title: newState.details.title,
-                        location: newState.details.location,
-                        description: newState.details.description,
-                        timeZone: newState.options.timeZone,
-                        options: newState.options.options.map((option) =>
-                          option.type === "date"
-                            ? option.date
-                            : `${option.start}/${option.end}`,
-                        ),
-                      });
-                    }}
-                  />
-                );
-            }
-          })()}
-          <motion.div layout="position" className="mt-4 flex items-center">
-            <div className="flex space-x-3">
-              <Button
-                disabled={isFirstStep}
-                icon={<ChevronLeft />}
-                onClick={() => dispatch({ type: "back" })}
-              />
-              <Button
-                type="primary"
-                loading={createPoll.isLoading || createPoll.isSuccess}
-                htmlType="submit"
-                form={currentFormId}
-              >
-                <div>
-                  {state.step < 1 ? (
-                    <>{t("continue")} &rarr;</>
-                  ) : (
-                    t("createPoll")
-                  )}
+                  <Button
+                    type="primary"
+                    loading={createPoll.isLoading || createPoll.isSuccess}
+                    htmlType="submit"
+                    form={currentFormId}
+                  >
+                    <div>
+                      {state.step < 1 ? (
+                        <>{t("continue")} &rarr;</>
+                      ) : (
+                        t("createPoll")
+                      )}
+                    </div>
+                  </Button>
                 </div>
-              </Button>
+              </motion.div>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       </NewPollContext.Provider>
     </AppLayout>
   );

@@ -26,6 +26,9 @@ const TimeZonePolicyOption: React.VoidFunctionComponent<{
       className={clsx(
         "flex max-w-sm cursor-default select-none items-start space-x-4 px-4 py-3 transition-all hover:bg-slate-300/10 active:bg-slate-500/10",
         className,
+        {
+          "bg-slate-300/10": active,
+        },
       )}
     >
       <div className="grow">

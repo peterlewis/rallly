@@ -118,7 +118,7 @@
   "optionCount": "{{count}} option",
   "pollCount_other": "{{count}} polls",
   "pollCount": "{{count}} poll",
-  "pollHasBeenLocked": "This poll has been locked",
+  "pollHasBeenLocked": "This poll has been locked by the administrator (voting is disabled)",
   "manageDescription": "Manage your poll details and settings",
   "pollHasBeenVerified": "Your poll has been verified",
   "pollOptions": "Poll options",

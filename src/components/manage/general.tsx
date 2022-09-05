@@ -72,7 +72,11 @@ export const General: React.VFC = () => {
         </FormField>
       </div>
       <div className="flex justify-end space-x-3">
-        <Button loading={formState.isSubmitting} htmlType="submit">
+        <Button
+          type="primary"
+          loading={formState.isSubmitting}
+          htmlType="submit"
+        >
           {t("save")}
         </Button>
       </div>

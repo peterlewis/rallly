@@ -6,6 +6,7 @@ import React from "react";
 
 import Calendar from "@/components/icons/calendar.svg";
 import Chat from "@/components/icons/chat.svg";
+import LockClosed from "@/components/icons/lock-closed.svg";
 import Plus from "@/components/icons/plus-sm.svg";
 import Search from "@/components/icons/search.svg";
 
@@ -56,7 +57,7 @@ const Polls: React.VoidFunctionComponent = () => {
           className="w-full sm:w-64"
         />
       </div>
-      <div className="space-y-4">
+      <div className="divide-y">
         {polls.map((poll) => {
           const participantNames = poll.participants.map(({ name }) => name);
           return (
@@ -65,12 +66,12 @@ const Polls: React.VoidFunctionComponent = () => {
               exit={{ opacity: 0 }}
               layout="position"
               key={poll.id}
-              className="flex overflow-hidden rounded-lg border bg-white p-4 shadow-sm"
+              className="edge-6 flex overflow-hidden p-6"
             >
               <div className="grow">
                 <div className="flex justify-between space-x-2">
                   <Link href={`/admin/${poll.adminUrlId}`}>
-                    <a className="font-semibold text-slate-700 hover:text-slate-700 hover:underline active:text-slate-700/75">
+                    <a className="text-lg font-semibold text-slate-700 hover:text-slate-700 hover:underline active:text-slate-700/75">
                       {poll.title}
                     </a>
                   </Link>
@@ -78,22 +79,32 @@ const Polls: React.VoidFunctionComponent = () => {
                 <div className="mb-4 text-sm text-slate-400">
                   {dayjs(poll.createdAt).format("LLL")}
                 </div>
-                <div className="flex space-x-4">
-                  <UserAvatarProvider names={participantNames} seed={poll.id}>
-                    <SummarizedParticipantBubbles
-                      participants={participantNames}
-                    />
-                  </UserAvatarProvider>
-                  <Tooltip
-                    content={t("commentCount", { count: poll._count.comments })}
-                  >
-                    <div className="flex items-center text-sm text-slate-500">
-                      <Chat className="mr-1 h-4" />
-                      <div>{poll._count.comments}</div>
-                    </div>
-                  </Tooltip>
+                <div className="flex space-x-2">
+                  {participantNames.length > 0 ? (
+                    <UserAvatarProvider names={participantNames} seed={poll.id}>
+                      <div className="flex h-7 items-center rounded-full bg-slate-100 px-1">
+                        <SummarizedParticipantBubbles
+                          participants={participantNames}
+                        />
+                      </div>
+                    </UserAvatarProvider>
+                  ) : null}
+                  {poll._count.comments > 0 ? (
+                    <Tooltip
+                      content={t("commentCount", {
+                        count: poll._count.comments,
+                      })}
+                    >
+                      <div className="flex h-7 items-center rounded-full bg-slate-100 px-3 text-sm text-slate-400">
+                        <Chat className="mr-1 h-4" />
+                        <div>{poll._count.comments}</div>
+                      </div>
+                    </Tooltip>
+                  ) : null}
                   {poll.closed ? (
-                    <div className="text-blue-500">{t("locked")}</div>
+                    <div className="inline-flex h-7 items-center rounded-full bg-blue-300/20 px-3 text-sm text-blue-500">
+                      <LockClosed className="mr-2 h-4" /> {t("locked")}
+                    </div>
                   ) : null}
                 </div>
               </div>
@@ -110,20 +121,22 @@ const Page = () => {
 
   return (
     <AppLayout title={t("meetingPolls")}>
-      <AppLayoutHeading
-        title={t("meetingPolls")}
-        description={t("meetingPollsDescription")}
-        actions={
-          <Link href="/new">
-            <a className="btn-primary pr-4">
-              <Plus className="-ml-1 mr-1 h-5" />
-              {t("newPoll")}
-            </a>
-          </Link>
-        }
-        className="mb-8"
-      />
-      <Polls />
+      <div className="card">
+        <AppLayoutHeading
+          title={t("meetingPolls")}
+          description={t("meetingPollsDescription")}
+          actions={
+            <Link href="/new">
+              <a className="btn-primary pr-4">
+                <Plus className="-ml-1 mr-1 h-5" />
+                {t("newPoll")}
+              </a>
+            </Link>
+          }
+          className="mb-8"
+        />
+        <Polls />
+      </div>
     </AppLayout>
   );
 };

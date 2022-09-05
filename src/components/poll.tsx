@@ -13,7 +13,6 @@ import { useCopyToClipboard } from "react-use";
 import Discussion from "@/components/discussion";
 import ClipboardCheck from "@/components/icons/clipboard-check.svg";
 import ClipboardCopy from "@/components/icons/clipboard-copy.svg";
-import Cog from "@/components/icons/cog.svg";
 import Exclamation from "@/components/icons/exclamation.svg";
 import Key from "@/components/icons/key.svg";
 import LockClosed from "@/components/icons/lock-closed.svg";
@@ -69,8 +68,8 @@ const ClipboardLink: React.VoidFunctionComponent<{
   const inputRef = React.useRef<HTMLInputElement>(null);
   return (
     <div className={className}>
-      <div className={clsx("mb-2 flex items-center space-x-2 text-sm ")}>
-        <div className="flex">
+      <div className={clsx("mb-2 flex items-center space-x-2")}>
+        <div className="flex items-center">
           <Icon className="mr-2 h-5 text-primary-500" />
           <span className="font-semibold">{title}</span>
         </div>
@@ -117,7 +116,10 @@ const ClipboardLink: React.VoidFunctionComponent<{
             }, 1000);
           }}
           type="button"
-          className="py-2 px-3 text-slate-500 hover:bg-gray-50 active:bg-slate-500/10"
+          className={clsx("py-2 px-3 hover:bg-gray-50 active:bg-slate-500/10", {
+            "text-green-500": didCopy,
+            "text-slate-500": !didCopy,
+          })}
         >
           {didCopy ? (
             <ClipboardCheck className="h-5" />
@@ -137,7 +139,7 @@ const AdminPanel = () => {
   const { openLoginModal } = useLoginModal();
   const { user } = useUser();
   return (
-    <div className="card-mobile">
+    <div className="card border-b">
       <div className="justify flex justify-between font-bold">
         <div className="flex text-sm sm:text-lg">
           {t("administrationPanel")}
@@ -240,15 +242,15 @@ const PollPage: NextPage = () => {
         </Head>
         <div className="max-w-full sm:space-y-4">
           <LayoutGroup>
-            {poll.admin ? <AdminPanel /> : null}
             {poll.closed ? (
-              <div className="break-container flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-lg">
+              <div className="mobile:edge-4 flex bg-blue-300/10 px-4  py-3 text-blue-800/75 sm:rounded-md">
                 <div className="mr-2 rounded-md">
                   <LockClosed className="w-6" />
                 </div>
                 <div>{t("pollHasBeenLocked")}</div>
               </div>
             ) : null}
+            {poll.admin ? <AdminPanel /> : null}
             <motion.div
               layout="position"
               initial={false}

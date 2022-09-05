@@ -90,25 +90,27 @@ const Page: NextPage = () => {
 
   return (
     <AppLayout title={t("profile")}>
-      <AppLayoutHeading
-        title={t("profile")}
-        description={t("profileDescription")}
-        className="mb-4 sm:mb-8"
-      />
-      <div className="space-y-4 sm:space-y-8">
-        <div>
-          <h2 className="mb-0">{t("yourDetails")}</h2>
-          <div className="divide-y">
-            <ChangeNameForm />
-            <ChangeEmailForm />
-          </div>
-        </div>
-        <div>
-          <div className="mb-4 text-lg font-semibold">{t("yourPolls")}</div>
+      <div className="card">
+        <AppLayoutHeading
+          title={t("profile")}
+          description={t("profileDescription")}
+          className="mb-4 sm:mb-8"
+        />
+        <div className="space-y-4 sm:space-y-8">
           <div>
-            <Link href="/polls">
-              <a>{t("goToPolls")}</a>
-            </Link>
+            <h2 className="mb-0">{t("yourDetails")}</h2>
+            <div className="divide-y">
+              <ChangeNameForm />
+              <ChangeEmailForm />
+            </div>
+          </div>
+          <div>
+            <div className="mb-4 text-lg font-semibold">{t("yourPolls")}</div>
+            <div>
+              <Link href="/polls">
+                <a>{t("goToPolls")}</a>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
