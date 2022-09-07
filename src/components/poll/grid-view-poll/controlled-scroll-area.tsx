@@ -8,7 +8,7 @@ const ControlledScrollArea: React.VoidFunctionComponent<{
   children?: React.ReactNode;
   className?: string;
 }> = ({ className, children }) => {
-  const { maxScrollPosition, scrollPosition, goToNextPage } = usePollContext();
+  const { scrollPosition } = usePollContext();
 
   return (
     <div
@@ -17,21 +17,13 @@ const ControlledScrollArea: React.VoidFunctionComponent<{
         className,
       )}
     >
-      {scrollPosition > 0 ? (
-        <div className="absolute left-0 z-10 h-full w-2 bg-gradient-to-r from-white/90 to-white/0" />
-      ) : null}
-      {scrollPosition < maxScrollPosition ? (
-        <div
-          onClick={goToNextPage}
-          className="absolute right-0 z-10 h-full w-8 bg-gradient-to-r from-white/0 to-white/90"
-        />
-      ) : null}
       <AnimatePresence initial={false}>
         <motion.div
           className="flex h-full"
           transition={{
             type: "spring",
-            mass: 0.1,
+            mass: 0.5,
+            stiffness: 100,
           }}
           initial={{ x: 0 }}
           animate={{ x: scrollPosition * -1 }}

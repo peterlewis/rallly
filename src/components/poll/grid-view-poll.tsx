@@ -1,23 +1,15 @@
 import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
+import { useForm } from "react-hook-form";
 import { useMeasure } from "react-use";
 import smoothscroll from "smoothscroll-polyfill";
 
-import Check from "@/components/icons/check.svg";
-import Plus from "@/components/icons/plus-sm.svg";
-
-import { Button } from "../button";
-import ArrowLeft from "../icons/arrow-left.svg";
-import ArrowRight from "../icons/arrow-right.svg";
 import { usePoll } from "../poll-provider";
-import { SegmentedButton, SegmentedButtonGroup } from "../segmented-button";
-import { Sticky } from "../sticky";
 import ParticipantRow from "./grid-view-poll/participant-row";
-import ParticipantRowForm from "./grid-view-poll/participant-row-form";
 import { PollContext } from "./grid-view-poll/poll-context";
 import PollHeader from "./grid-view-poll/poll-header";
-import { PollProps } from "./types";
+import { ParticipantForm, PollProps } from "./types";
 
 // TODO (Luke Vella) [2022-07-15]: Not sure if the smoothscroll polyfill is still needed.
 if (typeof window !== "undefined") {
@@ -36,19 +28,16 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
     isBusy,
     userAlreadyVoted,
     width,
+    activeParticipant,
+    onChangeActiveParticipant,
   }) => {
     const { t } = useTranslation("app");
-
-    const { poll } = usePoll();
-
-    const [editingParticipantId, setEditingParticipantId] =
-      React.useState<string | null>(null);
 
     const availableSpace = width - minSidebarWidth;
 
     const columnWidth = Math.min(
-      Math.max(100, availableSpace / options.length),
-      120,
+      Math.max(90, availableSpace / options.length),
+      100,
     );
 
     const numberOfVisibleColumns = Math.min(
@@ -67,9 +56,6 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
     const maxScrollPosition =
       columnWidth * options.length - columnWidth * numberOfVisibleColumns;
 
-    const [shouldShowNewParticipantForm, setShouldShowNewParticipantForm] =
-      React.useState(!userAlreadyVoted);
-
     const goToNextPage = () => {
       setScrollPosition(
         Math.min(
@@ -85,33 +71,9 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
       );
     };
 
-    const participantListContainerRef = React.useRef<HTMLDivElement>(null);
+    const isEditing = !!activeParticipant;
 
-    const renderPageControl = () => {
-      return (
-        <div className="flex items-center">
-          <div className="px-6 text-sm font-medium text-slate-500">
-            {t("optionCount", { count: options.length })}
-          </div>
-          {numberOfVisibleColumns < options.length ? (
-            <SegmentedButtonGroup>
-              <SegmentedButton
-                onClick={goToPreviousPage}
-                disabled={scrollPosition === 0}
-              >
-                <ArrowLeft className="h-4" />
-              </SegmentedButton>
-              <SegmentedButton
-                onClick={goToNextPage}
-                disabled={scrollPosition >= maxScrollPosition}
-              >
-                <ArrowRight className="h-4" />
-              </SegmentedButton>
-            </SegmentedButtonGroup>
-          ) : null}
-        </div>
-      );
-    };
+    const participantListContainerRef = React.useRef<HTMLDivElement>(null);
 
     return (
       <PollContext.Provider
@@ -126,39 +88,33 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
           goToPreviousPage,
           numberOfColumns: numberOfVisibleColumns,
           maxScrollPosition,
+          isEditing,
+          activeParticipantId: activeParticipant?.id ?? null,
         }}
       >
         <div
-          className="relative mx-auto flex flex-col border-y bg-white"
+          className="relative mx-auto flex flex-col"
           style={{
             width,
           }}
         >
-          <div className="flex h-14 items-center justify-end space-x-3 border-b bg-slate-500/5 px-6">
-            {renderPageControl()}
-          </div>
-          <Sticky
-            top={48}
-            className={(isPinned) =>
-              clsx("z-20 flex border-b bg-white/75 py-2 backdrop-blur-md", {
-                "border-gray-200/75": isPinned,
-                "border-b-transparent": !isPinned,
-              })
-            }
-          >
-            <div
-              className="flex shrink-0 items-center py-2 pl-8 pr-2 font-medium"
-              style={{ width: sidebarWidth }}
-            >
-              <div className="flex h-full grow items-end">
-                {t("participantCount", { count: participants.length })}
-              </div>
-            </div>
-            <PollHeader options={options} />
-          </Sticky>
+          <PollHeader
+            participantCount={participants.length}
+            options={options}
+            onSubmit={async (data) => {
+              if (!activeParticipant) {
+                await onEntry?.(data);
+              } else {
+                await onUpdateEntry?.(activeParticipant.id, data);
+              }
+            }}
+            onCancel={() => {
+              onChangeActiveParticipant(null);
+            }}
+          />
           {participants.length > 0 ? (
             <div
-              className="min-h-0 overflow-y-auto"
+              className="min-h-0 overflow-y-auto pb-2"
               ref={participantListContainerRef}
             >
               {participants.map((participant, i) => {
@@ -166,16 +122,14 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
                   <ParticipantRow
                     key={i}
                     options={options}
+                    active={activeParticipant?.id === participant.id}
                     name={participant.name}
                     votes={participant.votes}
-                    editMode={editingParticipantId === participant.id}
+                    editMode={activeParticipant?.id === participant.id}
                     onChangeEditMode={(isEditing) => {
-                      setEditingParticipantId(
+                      onChangeActiveParticipant(
                         isEditing ? participant.id : null,
                       );
-                      if (isEditing) {
-                        setShouldShowNewParticipantForm(false);
-                      }
                     }}
                     isYou={participant.you}
                     isEditable={participant.editable}
@@ -188,65 +142,6 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
                   />
                 );
               })}
-            </div>
-          ) : null}
-          {onEntry && shouldShowNewParticipantForm ? (
-            <ParticipantRowForm
-              options={options}
-              onSubmit={async (data) => {
-                await onEntry(data);
-                setShouldShowNewParticipantForm(false);
-              }}
-            />
-          ) : null}
-          {!poll.closed ? (
-            <div className="mt-2 flex h-14 shrink-0 items-center border-t bg-slate-500/5 px-6">
-              <div className="flex grow justify-between space-x-4">
-                {shouldShowNewParticipantForm || editingParticipantId ? (
-                  <div className="flex items-center space-x-3">
-                    <Button
-                      key="submit"
-                      form="participant-row-form"
-                      htmlType="submit"
-                      type="primary"
-                      icon={<Check />}
-                      loading={isBusy}
-                    >
-                      {t("save")}
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        if (editingParticipantId) {
-                          setEditingParticipantId(null);
-                        } else {
-                          setShouldShowNewParticipantForm(false);
-                        }
-                      }}
-                    >
-                      {t("cancel")}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-3">
-                    <Button
-                      key="add-participant"
-                      onClick={() => {
-                        setShouldShowNewParticipantForm(true);
-                      }}
-                      icon={<Plus />}
-                    >
-                      {t("addParticipant")}
-                    </Button>
-                    {userAlreadyVoted ? (
-                      <div className="flex items-center text-sm text-gray-400">
-                        <Check className="mr-1 h-5" />
-                        <div>{t("alreadyVoted")}</div>
-                      </div>
-                    ) : null}
-                  </div>
-                )}
-                {renderPageControl()}
-              </div>
             </div>
           ) : null}
         </div>

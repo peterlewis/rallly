@@ -5,13 +5,13 @@ import { Controller, useForm } from "react-hook-form";
 
 import { requiredString } from "../../../utils/form-validation";
 import NameInput from "../../name-input";
-import { ParticipantForm, PollOption } from "../types";
+import { ParticipantForm, PollViewOption } from "../types";
 import { VoteSelector } from "../vote-selector";
 import ControlledScrollArea from "./controlled-scroll-area";
 import { usePollContext } from "./poll-context";
 
 export interface ParticipantRowFormProps {
-  options: PollOption[];
+  options: PollViewOption[];
   defaultValues?: Partial<ParticipantForm>;
   onSubmit: (data: ParticipantForm) => Promise<void>;
   className?: string;

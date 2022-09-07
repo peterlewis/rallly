@@ -14,13 +14,24 @@ export interface VoteSelectorProps {
   className?: string;
 }
 
-const orderedVoteTypes: VoteType[] = ["yes", "ifNeedBe", "no"];
+export const useVoteSelector = (value?: VoteType) => {
+  return React.useMemo(
+    () => ({
+      toggle: () => {
+        if (!value) {
+          return orderedVoteTypes[0];
+        }
 
-const getNext = (value: VoteType) => {
-  return orderedVoteTypes[
-    (orderedVoteTypes.indexOf(value) + 1) % orderedVoteTypes.length
-  ];
+        return orderedVoteTypes[
+          (orderedVoteTypes.indexOf(value) + 1) % orderedVoteTypes.length
+        ];
+      },
+    }),
+    [value],
+  );
 };
+
+const orderedVoteTypes: VoteType[] = ["yes", "ifNeedBe", "no"];
 
 export const VoteSelector = React.forwardRef<
   HTMLButtonElement,
@@ -29,41 +40,30 @@ export const VoteSelector = React.forwardRef<
   { value, onChange, onFocus, onBlur, onKeyDown, className },
   ref,
 ) {
+  const { toggle } = useVoteSelector(value);
+
   return (
     <button
+      role="button"
       data-testid="vote-selector"
       type="button"
       onFocus={onFocus}
       onBlur={onBlur}
       onKeyDown={onKeyDown}
       className={clsx(
-        "group relative inline-flex h-7 w-7 items-center justify-center overflow-hidden rounded-md border bg-white transition-all active:bg-gray-100",
+        "group relative inline-flex h-7 w-7 items-center justify-center overflow-hidden rounded-md border bg-white focus-visible:border-primary-500 focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:ring-offset-0 active:bg-gray-100",
         className,
         {
-          "focus:ring-2 focus:ring-offset-1": !!value,
-          "border-green-400/10 bg-green-400/10 ring-green-400": value === "yes",
-          "border-amber-400/10 bg-amber-400/10 ring-amber-400":
-            value === "ifNeedBe",
-          "border-slate-400/10 bg-slate-400/10 ring-slate-400": value === "no",
+          "border-green-400/50": value === "yes",
+          "border-amber-400/50": value === "ifNeedBe",
         },
       )}
       onClick={() => {
-        onChange?.(value ? getNext(value) : orderedVoteTypes[0]);
+        onChange?.(toggle());
       }}
       ref={ref}
     >
-      <AnimatePresence initial={false}>
-        <motion.span
-          className="absolute z-10 flex items-center justify-center"
-          transition={{ duration: 0.2 }}
-          initial={{ opacity: 0, y: -45 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 45 }}
-          key={value}
-        >
-          {value ? <VoteIcon type={value} /> : null}
-        </motion.span>
-      </AnimatePresence>
+      <VoteIcon type={value} />
     </button>
   );
 });

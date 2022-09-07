@@ -6,16 +6,15 @@ import CompactButton from "@/components/compact-button";
 import Pencil from "@/components/icons/pencil-alt.svg";
 import Trash from "@/components/icons/trash.svg";
 
-import { ParticipantForm, PollOption } from "../types";
+import { ParticipantForm, PollViewOption } from "../types";
 import UserAvatar from "../user-avatar";
 import VoteIcon from "../vote-icon";
 import ControlledScrollArea from "./controlled-scroll-area";
-import ParticipantRowForm from "./participant-row-form";
 import { usePollContext } from "./poll-context";
 
 export interface ParticipantRowProps {
   name: string;
-  options: PollOption[];
+  options: PollViewOption[];
   votes: Array<VoteType | undefined>;
   editMode: boolean;
   onChangeEditMode: (value: boolean) => void;
@@ -23,11 +22,12 @@ export interface ParticipantRowProps {
   onDelete: () => Promise<void>;
   isYou?: boolean;
   isEditable?: boolean;
+  className?: string;
+  active?: boolean;
 }
 
 export const ParticipantRowView: React.VoidFunctionComponent<{
   name: string;
-  isEditable?: boolean;
   color?: string;
   votes: Array<VoteType | undefined>;
   onEdit?: () => void;
@@ -35,48 +35,57 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
   columnWidth: number;
   sidebarWidth: number;
   isYou?: boolean;
+  className?: string;
+  active?: boolean;
 }> = ({
   name,
-  isEditable,
   votes,
   onEdit,
   onDelete,
   sidebarWidth,
   columnWidth,
+  active,
   isYou,
   color,
+  className,
 }) => {
   return (
-    <div data-testid="participant-row" className="group flex h-14">
+    <div
+      data-testid="participant-row"
+      className={clsx("group flex h-14 py-1", className)}
+    >
       <div
-        className="flex shrink-0 items-center pl-8 pr-2"
+        className="shrink-0 pr-1"
         style={{ width: sidebarWidth }}
+        onClick={onEdit}
       >
-        <UserAvatar
-          className="mr-2"
-          name={name}
-          showName={true}
-          isYou={isYou}
-          color={color}
-        />
-        {isEditable ? (
-          <div className="hidden shrink-0 items-center space-x-2 overflow-hidden group-hover:flex">
-            <CompactButton icon={Pencil} onClick={onEdit} />
-            <CompactButton icon={Trash} onClick={onDelete} />
-          </div>
-        ) : null}
+        <button
+          role="button"
+          className={clsx("flex h-12 w-full items-center rounded-r-md pl-4", {
+            "bg-slate-500/5": active,
+            "hover:bg-slate-500/5 active:bg-slate-500/10": !active,
+          })}
+        >
+          <UserAvatar
+            className="mr-2"
+            name={name}
+            showName={true}
+            isYou={isYou}
+            color={color}
+          />
+        </button>
       </div>
       <ControlledScrollArea>
         {votes.map((vote, i) => {
           return (
             <div
               key={i}
-              className="relative flex shrink-0 items-center justify-center px-2 transition-colors"
+              className="relative flex shrink-0 items-center justify-center px-1 transition-colors"
               style={{ width: columnWidth }}
             >
               <div
                 className={clsx(
-                  "flex h-10 w-full items-center justify-center rounded-md",
+                  "flex h-12 w-full items-center justify-center rounded-md",
                   {
                     "bg-green-50": vote === "yes",
                     "bg-amber-50": vote === "ifNeedBe",
@@ -103,26 +112,11 @@ const ParticipantRow: React.VoidFunctionComponent<ParticipantRowProps> = ({
   onChange,
   onDelete,
   isYou,
+  active,
   isEditable,
+  className,
 }) => {
   const { columnWidth, sidebarWidth } = usePollContext();
-
-  if (editMode) {
-    return (
-      <ParticipantRowForm
-        options={options}
-        defaultValues={{
-          name: name,
-          votes,
-        }}
-        onSubmit={async (participant) => {
-          await onChange(participant);
-          onChangeEditMode?.(false);
-        }}
-        onCancel={() => onChangeEditMode?.(false)}
-      />
-    );
-  }
 
   return (
     <ParticipantRowView
@@ -130,8 +124,9 @@ const ParticipantRow: React.VoidFunctionComponent<ParticipantRowProps> = ({
       columnWidth={columnWidth}
       name={name}
       votes={votes}
-      isEditable={isEditable}
       isYou={isYou}
+      className={className}
+      active={active}
       onEdit={() => {
         onChangeEditMode?.(true);
       }}

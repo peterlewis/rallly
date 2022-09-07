@@ -12,7 +12,10 @@ export const PollContext = React.createContext<{
   numberOfColumns: number;
   goToNextPage: () => void;
   goToPreviousPage: () => void;
+  isEditing: boolean;
+  activeParticipantId: string | null;
 }>({
+  activeParticipantId: null,
   activeOptionId: null,
   setActiveOptionId: noop,
   scrollPosition: 0,
@@ -23,6 +26,7 @@ export const PollContext = React.createContext<{
   numberOfColumns: 0,
   goToNextPage: noop,
   goToPreviousPage: noop,
+  isEditing: false,
 });
 
 export const usePollContext = () => React.useContext(PollContext);

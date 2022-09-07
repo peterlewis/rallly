@@ -129,6 +129,7 @@
   "previousMonth": "Previous month",
   "profile": "Profile",
   "profileLogin": "Profile - Login",
+  "setName": "Set name",
   "profileUser": "Profile - {{username}}",
   "register": "Register",
   "requiredNameError": "Name is required",

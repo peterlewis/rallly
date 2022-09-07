@@ -3,6 +3,7 @@ import clsx from "clsx";
 import dayjs from "dayjs";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
+import { FormProvider, useForm } from "react-hook-form";
 
 import List from "@/components/icons/list.svg";
 import Table from "@/components/icons/table.svg";
@@ -17,7 +18,7 @@ import { useRequiredContext } from "../use-required-context";
 import { useUser } from "../user-provider";
 import GridViewPoll from "./grid-view-poll";
 import ListViewPoll from "./list-view-poll";
-import { ParticipantInfo } from "./types";
+import { ParticipantForm, ParticipantInfo, PollViewOption } from "./types";
 import { useDeleteParticipantModal } from "./use-delete-participant-modal";
 
 interface PollDataContextValue {
@@ -31,6 +32,7 @@ interface PollDataContextValue {
     type: VoteType,
     optionIndex: number,
   ) => ParticipantInfo[];
+  activeParticipant: ParticipantInfo | null;
 }
 
 const PollDataContext = React.createContext<PollDataContextValue | null>(null);
@@ -66,7 +68,7 @@ const ToolbarButton = React.forwardRef<
       {...forwardProps}
     >
       {Icon ? <Icon className="h-4" /> : null}
-      {children ? <span className="text-sm">{children}</span> : null}
+      {children ? <span>{children}</span> : null}
     </button>
   );
 });
@@ -97,6 +99,9 @@ export const PollDataProvider: React.VoidFunctionComponent<{
   options: PollOption[];
   participants: Array<Participant & { votes: Vote[] }>;
 }> = ({ options, participants, timeZone, pollId, admin }) => {
+  const [activeParticipant, setActiveParticipant] =
+    React.useState<ParticipantInfo | null>(null);
+
   const { user } = useUser();
 
   const { t } = useTranslation("app");
@@ -223,12 +228,14 @@ export const PollDataProvider: React.VoidFunctionComponent<{
   const contextValue = React.useMemo<PollDataContextValue>(
     () => ({
       participants,
+      activeParticipant,
       getParticipantInfoById,
       getParticipantVoteForOptionAtIndex,
       getParticipantsWhoVoted,
     }),
     [
       participants,
+      activeParticipant,
       getParticipantInfoById,
       getParticipantVoteForOptionAtIndex,
       getParticipantsWhoVoted,
@@ -245,119 +252,150 @@ export const PollDataProvider: React.VoidFunctionComponent<{
 
   const Compononent = view === "grid" ? GridViewPoll : ListViewPoll;
 
+  const pollOptions: PollViewOption[] = React.useMemo(
+    () =>
+      options.map((option, index) => {
+        const score = participants.reduce((acc, curr) => {
+          const vote = curr.votes.find((vote) => vote.optionId === option.id);
+          if (vote?.type === "yes") {
+            acc += 1;
+          }
+          return acc;
+        }, 0);
+
+        if (option.value.type === "time") {
+          const { start, end } = option.value;
+          let startTime = dayjs(start);
+          let endTime = dayjs(end);
+          if (timeZone) {
+            startTime = startTime.tz(timeZone).tz(targetTimeZone);
+            endTime = endTime.tz(timeZone).tz(targetTimeZone);
+          }
+          return {
+            type: "time",
+            index,
+            start: startTime.format("YYYY-MM-DDTHH:mm"),
+            end: endTime.format("YYYY-MM-DDTHH:mm"),
+            score,
+          };
+        }
+
+        return {
+          type: "date",
+          index,
+          date: option.value.date,
+          score,
+        };
+      }),
+    [options, participants, targetTimeZone, timeZone],
+  );
+
+  const formMethods = useForm<ParticipantForm>({
+    defaultValues: { name: "", votes: [] },
+  });
+
   return (
-    <PollDataContext.Provider value={contextValue}>
-      <div>
-        <div className="break-container no-scrollbar flex space-x-4 overflow-x-auto px-4 pb-4 sm:justify-between">
-          {isWideScreen ? (
-            <RadioGroup
-              size="small"
-              value={view}
-              options={[
-                {
-                  label: t("grid"),
-                  value: "grid",
-                  icon: Table,
-                },
-                { label: t("list"), value: "list", icon: List },
-              ]}
-              onChange={setPreferredView}
-            />
-          ) : null}
-          <div>
-            {timeZone ? (
-              <ToolbarGroup>
-                <div className="whitespace-nowrap pl-2 text-xs text-slate-500">
-                  {t("timeZone")}
-                </div>
-                <select
-                  className="h-8 w-64 appearance-none text-ellipsis border-0 p-0 pl-2 pr-8 text-sm focus:ring-0"
-                  value={targetTimeZone}
-                  onChange={(e) => {
-                    setTargetTimeZone(e.target.value);
-                  }}
-                >
-                  {timezoneOptions.map((option) => {
-                    return (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    );
-                  })}
-                </select>
-              </ToolbarGroup>
+    <FormProvider {...formMethods}>
+      <PollDataContext.Provider value={contextValue}>
+        <div>
+          <div className="break-container no-scrollbar flex space-x-4 overflow-x-auto px-4 pb-4 sm:justify-between">
+            {isWideScreen ? (
+              <RadioGroup
+                value={view}
+                options={[
+                  {
+                    label: t("grid"),
+                    value: "grid",
+                    icon: Table,
+                  },
+                  { label: t("list"), value: "list", icon: List },
+                ]}
+                onChange={setPreferredView}
+              />
             ) : null}
+            <div>
+              {timeZone ? (
+                <ToolbarGroup>
+                  <div className="whitespace-nowrap pl-2 text-slate-500">
+                    {t("timeZone")}
+                  </div>
+                  <select
+                    className="h-9 w-80 appearance-none text-ellipsis border-0 p-0 pl-2 pr-8 focus:ring-0"
+                    value={targetTimeZone}
+                    onChange={(e) => {
+                      setTargetTimeZone(e.target.value);
+                    }}
+                  >
+                    {timezoneOptions.map((option) => {
+                      return (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </ToolbarGroup>
+              ) : null}
+            </div>
           </div>
-        </div>
-        <div className="sm:-mx-4 md:-mx-6">
-          <Compononent
-            options={options.map((option, index) => {
-              const score = participants.reduce((acc, curr) => {
-                const vote = curr.votes.find(
-                  (vote) => vote.optionId === option.id,
-                );
-                if (vote?.type === "yes") {
-                  acc += 1;
-                }
-                return acc;
-              }, 0);
-
-              if (option.value.type === "time") {
-                const { start, end } = option.value;
-                let startTime = dayjs(start);
-                let endTime = dayjs(end);
-                if (timeZone) {
-                  startTime = startTime.tz(timeZone).tz(targetTimeZone);
-                  endTime = endTime.tz(timeZone).tz(targetTimeZone);
-                }
-                return {
-                  type: "time",
-                  index,
-                  start: startTime.format("YYYY-MM-DDTHH:mm"),
-                  end: endTime.format("YYYY-MM-DDTHH:mm"),
-                  score,
-                };
-              }
-
-              return {
-                type: "date",
-                index,
-                date: option.value.date,
-                score,
-              };
+          <form
+            onSubmit={formMethods.handleSubmit((data) => {
+              // do something
             })}
-            participants={pollParticipants}
-            onEntry={async (participant) => {
-              return await addParticipant.mutateAsync({
-                pollId,
-                name: participant.name,
-                votes: options.map(({ id }, i) => {
-                  return {
-                    optionId: id,
-                    type: participant.votes[i] ?? "no",
-                  };
-                }),
-              });
-            }}
-            onDeleteEntry={deleteParticipant}
-            onUpdateEntry={async (participantId, participant) => {
-              await updateParticipant.mutateAsync({
-                participantId,
-                pollId,
-                votes: options.map(({ id }, i) => {
-                  return {
-                    optionId: id,
-                    type: participant.votes[i] ?? "no",
-                  };
-                }),
-                name: participant.name,
-              });
-            }}
-            isBusy={addParticipant.isLoading || updateParticipant.isLoading}
-            userAlreadyVoted={userAlreadyVoted}
-          />
+            className="card p-0"
+          >
+            <Compononent
+              options={pollOptions}
+              participants={pollParticipants}
+              onEntry={async (participant) => {
+                return await addParticipant.mutateAsync({
+                  pollId,
+                  name: participant.name,
+                  votes: options.map(({ id }, i) => {
+                    return {
+                      optionId: id,
+                      type: participant.votes[i] ?? "no",
+                    };
+                  }),
+                });
+              }}
+              activeParticipant={activeParticipant}
+              onChangeActiveParticipant={(participantId) => {
+                if (participantId) {
+                  const participant = getParticipantInfoById(participantId);
+                  if (participant) {
+                    formMethods.reset({
+                      name: participant.name,
+                      votes: participant.votes,
+                    });
+                    setActiveParticipant(participant);
+                  }
+
+                  return;
+                }
+
+                setActiveParticipant(null);
+              }}
+              onDeleteEntry={deleteParticipant}
+              onUpdateEntry={async (participantId, participant) => {
+                await updateParticipant.mutateAsync({
+                  participantId,
+                  pollId,
+                  votes: options.map(({ id }, i) => {
+                    return {
+                      optionId: id,
+                      type: participant.votes[i] ?? "no",
+                    };
+                  }),
+                  name: participant.name,
+                });
+              }}
+              isBusy={addParticipant.isLoading || updateParticipant.isLoading}
+              userAlreadyVoted={userAlreadyVoted}
+            />
+          </form>
         </div>
-      </div>
-    </PollDataContext.Provider>
+      </PollDataContext.Provider>
+    </FormProvider>
   );
 };

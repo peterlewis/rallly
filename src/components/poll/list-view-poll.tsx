@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useFormContext } from "react-hook-form";
 
 import Check from "@/components/icons/check.svg";
 import ChevronDown from "@/components/icons/chevron-down.svg";
@@ -18,7 +18,6 @@ import { Button } from "../button";
 import { styleMenuItem } from "../menu-styles";
 import NameInput from "../name-input";
 import GroupedOptions from "./list-view-poll/grouped-options";
-import { usePollData } from "./poll-data-provider";
 import { ParticipantForm, PollProps } from "./types";
 import UserAvatar from "./user-avatar";
 
@@ -29,26 +28,16 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
   onUpdateEntry,
   onDeleteEntry,
   userAlreadyVoted,
+  onChangeActiveParticipant,
+  activeParticipant,
 }) => {
   const pollContext = usePoll();
 
-  const { getParticipantInfoById } = usePollData();
   const { poll } = pollContext;
 
-  const form = useForm<ParticipantForm>({
-    defaultValues: {
-      name: "",
-      votes: [],
-    },
-  });
+  const form = useFormContext<ParticipantForm>();
 
   const { reset, handleSubmit, control, formState } = form;
-  const [selectedParticipantId, setSelectedParticipantId] =
-    React.useState<string | undefined>();
-
-  const selectedParticipant = selectedParticipantId
-    ? getParticipantInfoById(selectedParticipantId)
-    : undefined;
 
   const [isEditing, setIsEditing] = React.useState(
     !userAlreadyVoted && !poll.closed,
@@ -64,8 +53,8 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
         className="mobile:zero-padding border-y bg-white"
         ref={formRef}
         onSubmit={handleSubmit(async (data) => {
-          if (selectedParticipant) {
-            await onUpdateEntry?.(selectedParticipant.id, data);
+          if (activeParticipant) {
+            await onUpdateEntry?.(activeParticipant.id, data);
             setIsEditing(false);
           } else {
             if (!onEntry) {
@@ -73,7 +62,7 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
               return;
             }
             const newParticipant = await onEntry(data);
-            setSelectedParticipantId(newParticipant.id);
+            onChangeActiveParticipant(newParticipant.id);
             setIsEditing(false);
           }
         })}
@@ -82,9 +71,9 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
           <div className="flex space-x-3">
             {!isEditing ? (
               <Listbox
-                value={selectedParticipantId}
+                value={activeParticipant?.id}
                 onChange={(participantId) => {
-                  setSelectedParticipantId(participantId);
+                  onChangeActiveParticipant(participantId ?? null);
                 }}
                 disabled={isEditing}
               >
@@ -96,10 +85,10 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
                     data-testid="participant-selector"
                   >
                     <div className="min-w-0 grow text-left">
-                      {selectedParticipant ? (
+                      {activeParticipant ? (
                         <div className="flex items-center space-x-2">
                           <UserAvatar
-                            name={selectedParticipant.name}
+                            name={activeParticipant.name}
                             showName={true}
                           />
                         </div>
@@ -162,7 +151,7 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
               >
                 {t("cancel")}
               </Button>
-            ) : selectedParticipant ? (
+            ) : activeParticipant ? (
               <div className="flex space-x-3">
                 <Button
                   icon={<Pencil />}
@@ -170,8 +159,8 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
                   onClick={() => {
                     setIsEditing(true);
                     reset({
-                      name: selectedParticipant.name,
-                      votes: selectedParticipant.votes,
+                      name: activeParticipant.name,
+                      votes: activeParticipant.votes,
                     });
                   }}
                 >
@@ -183,8 +172,8 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
                   data-testid="delete-participant-button"
                   type="danger"
                   onClick={() => {
-                    if (selectedParticipant) {
-                      onDeleteEntry?.(selectedParticipant.id);
+                    if (activeParticipant) {
+                      onDeleteEntry?.(activeParticipant.id);
                     }
                   }}
                 />
@@ -207,7 +196,7 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
           </div>
         </div>
         <GroupedOptions
-          selectedParticipantId={selectedParticipantId}
+          selectedParticipantId={activeParticipant?.id}
           options={options}
           editable={isEditing}
           groupClassName="top-[61px]"

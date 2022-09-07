@@ -11,6 +11,7 @@ export interface TextInputProps
   > {
   error?: boolean;
   icon?: React.ComponentType<{ className?: string }>;
+  suffix?: React.ReactNode;
   size?: "lg" | "md";
 }
 
@@ -23,6 +24,7 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
       icon: Icon,
       onFocus,
       onBlur,
+      suffix,
       ...forwardProps
     },
     ref,
@@ -43,14 +45,6 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
           className,
         )}
       >
-        {Icon && (
-          <Icon
-            className={clsx("mr-1 h-5 shrink-0", {
-              "text-gray-500": focused,
-              "text-gray-400": !focused,
-            })}
-          />
-        )}
         <input
           ref={ref}
           type="text"
@@ -71,6 +65,15 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
           }}
           {...forwardProps}
         />
+        {Icon && (
+          <Icon
+            className={clsx("mr-1 h-5 shrink-0", {
+              "text-gray-500": focused,
+              "text-gray-400": !focused,
+            })}
+          />
+        )}
+        {suffix}
       </span>
     );
   },

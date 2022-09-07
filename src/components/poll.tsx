@@ -251,12 +251,8 @@ const PollPage: NextPage = () => {
               </div>
             ) : null}
             {poll.admin ? <AdminPanel /> : null}
-            <motion.div
-              layout="position"
-              initial={false}
-              className="card space-y-4"
-            >
-              <div className="space-y-4 rounded-lg">
+            <motion.div layout="position" initial={false} className="space-y-4">
+              <div className="card space-y-4 rounded-lg">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
                   description={<PollSubheader />}

@@ -11,7 +11,7 @@ import { ScoreSummary } from "../score-summary";
 import { ParticipantInfo } from "../types";
 import UserAvatar from "../user-avatar";
 import VoteIcon from "../vote-icon";
-import { VoteSelector } from "../vote-selector";
+import { useVoteSelector, VoteSelector } from "../vote-selector";
 
 export interface PollOptionProps {
   children?: React.ReactNode;
@@ -24,35 +24,6 @@ export interface PollOptionProps {
   optionIndex: number;
   expanded?: boolean;
 }
-
-const CollapsibleContainer: React.VoidFunctionComponent<{
-  expanded?: boolean;
-  children?: React.ReactNode;
-  className?: string;
-}> = ({ className, children, expanded }) => {
-  return (
-    <AnimatePresence initial={false}>
-      {expanded ? (
-        <motion.div
-          variants={{
-            collapsed: {
-              opacity: 0,
-            },
-            expanded: {
-              opacity: 1,
-            },
-          }}
-          initial="collapsed"
-          animate="expanded"
-          exit="collapsed"
-          className={className}
-        >
-          {children}
-        </motion.div>
-      ) : null}
-    </AnimatePresence>
-  );
-};
 
 const PopInOut: React.VoidFunctionComponent<{
   children?: React.ReactNode;
@@ -190,6 +161,7 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
   const [expanded, setExpanded] = React.useState(expandedFromProps);
   const selectorRef = React.useRef<HTMLButtonElement>(null);
 
+  const { toggle } = useVoteSelector(vote);
   React.useEffect(() => {
     if (expandedFromProps !== undefined) {
       setExpanded(expandedFromProps);
@@ -202,9 +174,7 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
         "hover:bg-slate-300/10 active:bg-slate-400/10": editable,
       })}
       data-testid="poll-option"
-      onClick={() => {
-        selectorRef.current?.click();
-      }}
+      onClick={() => onChange(toggle())}
     >
       <div className="flex select-none">
         <LayoutGroup>
@@ -233,7 +203,6 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
                     className="mr-4"
                     ref={selectorRef}
                     value={vote}
-                    onChange={onChange}
                   />
                 ) : (
                   <PopInOut

@@ -5,7 +5,7 @@ export interface ParticipantForm {
   votes: Array<VoteType | undefined>;
 }
 
-export type PollOption =
+export type PollViewOption =
   | {
       type: "date";
       date: string;
@@ -29,7 +29,9 @@ export interface ParticipantInfo {
 }
 
 export interface PollProps {
-  options: PollOption[];
+  options: PollViewOption[];
+  activeParticipant: ParticipantInfo | null;
+  onChangeActiveParticipant: (participantId: string | null) => void;
   userAlreadyVoted?: boolean;
   participants: ParticipantInfo[];
   onEntry?: (entry: ParticipantForm) => Promise<{ id: string }>;
