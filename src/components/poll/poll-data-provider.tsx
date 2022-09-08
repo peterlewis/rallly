@@ -13,6 +13,7 @@ import { trpc } from "../../utils/trpc";
 import { PollOption } from "../../utils/trpc/types";
 import { useWideScreen } from "../../utils/use-wide-screen";
 import { Button } from "../button";
+import { useModalContext } from "../modal/modal-provider";
 import { RadioGroup } from "../radio";
 import { useTimeZones } from "../time-zone-picker/time-zone-picker";
 import { useRequiredContext } from "../use-required-context";
@@ -294,6 +295,8 @@ export const PollDataProvider: React.VoidFunctionComponent<{
   const formMethods = useForm<ParticipantForm>({
     defaultValues: { name: "", votes: [] },
   });
+
+  const modalContext = useModalContext();
 
   return (
     <FormProvider {...formMethods}>

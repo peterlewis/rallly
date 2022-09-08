@@ -4,6 +4,7 @@ import * as React from "react";
 
 import CheckCircle from "@/components/icons/check-circle.svg";
 import IfNeedBe from "@/components/icons/if-need-be.svg";
+import QuestionMark from "@/components/icons/question-mark.svg";
 import X from "@/components/icons/x-circle.svg";
 
 const VoteIcon: React.VoidFunctionComponent<{
@@ -44,7 +45,14 @@ const VoteIcon: React.VoidFunctionComponent<{
         );
 
       default:
-        return null;
+        return (
+          <QuestionMark
+            className={clsx("text-slate-300", className, {
+              "h-5": size === "md",
+              "h-3": size === "sm",
+            })}
+          />
+        );
     }
   };
 

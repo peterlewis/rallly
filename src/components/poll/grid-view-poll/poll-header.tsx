@@ -12,6 +12,7 @@ import { useDayjs } from "../../../utils/dayjs";
 import { useFormValidation } from "../../../utils/form-validation";
 import { Button } from "../../button";
 import CompactButton from "../../compact-button";
+import { ScrollSyncPane } from "../../scroll-sync";
 import { SegmentedButton, SegmentedButtonGroup } from "../../segmented-button";
 import { Sticky } from "../../sticky";
 import { TextInput } from "../../text-input";
@@ -52,7 +53,7 @@ const PollOption: React.VFC<{
   const voteSelectorRef = React.useRef<HTMLButtonElement>(null);
   return (
     <div
-      className="shrink-0 select-none snap-start py-2 px-1 text-center "
+      className="shrink-0 select-none snap-start py-2 pr-2 text-center "
       style={{ width }}
     >
       <div
@@ -70,6 +71,7 @@ const PollOption: React.VFC<{
                 "border-amber-300 bg-amber-400/5 active:bg-amber-400/10":
                   value === "ifNeedBe",
                 "bg-slate-50": value === "no",
+                "hover:bg-slate-500/5": !value,
               }
             : "border-transparent",
         )}
@@ -158,12 +160,10 @@ const PollHeader: React.VoidFunctionComponent<{
                     return;
                   }
 
-                  scrollableElement.scrollTo({
-                    left:
-                      Math.floor(scrollableElement.scrollLeft / columnWidth) *
-                        columnWidth -
-                      columnWidth,
-                  });
+                  scrollableElement.scrollLeft =
+                    Math.round(scrollableElement.scrollLeft / columnWidth) *
+                      columnWidth -
+                    columnWidth;
                 }}
               />
               <CompactButton
@@ -173,15 +173,13 @@ const PollHeader: React.VoidFunctionComponent<{
                   if (!scrollableElement) {
                     return;
                   }
+                  const newLeft =
+                    Math.round(scrollableElement.scrollLeft / columnWidth) *
+                      columnWidth +
+                    columnWidth;
 
-                  requestAnimationFrame(() => {
-                    scrollableElement.scrollTo({
-                      left:
-                        Math.floor(scrollableElement.scrollLeft / columnWidth) *
-                          columnWidth +
-                        columnWidth,
-                    });
-                  });
+                  console.log(scrollableElement.scrollLeft, newLeft);
+                  scrollableElement.scrollLeft = newLeft;
                 }}
               />
             </div>
@@ -189,7 +187,7 @@ const PollHeader: React.VoidFunctionComponent<{
         )}
         <div className="relative flex">
           <div
-            className="absolute h-full shrink-0 pt-4 pb-3 pl-5 pr-4 font-medium"
+            className="absolute h-full shrink-0 py-3 px-4 font-medium"
             style={{ width: sidebarWidth }}
           >
             <div className="mb-2">Select your availability</div>
@@ -201,36 +199,30 @@ const PollHeader: React.VoidFunctionComponent<{
             control={control}
             name="votes"
             render={({ field }) => (
-              <ScrollSyncNode>
-                <div
-                  ref={scrollAreaRef}
-                  className={clsx("no-scrollbar flex overflow-y-auto")}
-                  style={{
-                    marginLeft: sidebarWidth,
-                  }}
-                >
-                  {options.map((option, index) => (
-                    <PollOption
-                      key={index}
-                      option={option}
-                      width={columnWidth}
-                      editing={isEditing}
-                      value={field.value[index]}
-                      onChange={(vote) => {
-                        const newValue = [...field.value];
-                        newValue[index] = vote;
-                        field.onChange(newValue);
-                      }}
-                    />
-                  ))}
-                </div>
-              </ScrollSyncNode>
+              <ScrollSyncPane
+                ref={scrollAreaRef}
+                className={clsx("no-scrollbar flex overflow-y-auto")}
+                style={{
+                  marginLeft: sidebarWidth,
+                }}
+              >
+                {options.map((option, index) => (
+                  <PollOption
+                    key={index}
+                    option={option}
+                    width={columnWidth}
+                    editing={isEditing}
+                    value={field.value[index]}
+                    onChange={(vote) => {
+                      const newValue = [...field.value];
+                      newValue[index] = vote;
+                      field.onChange(newValue);
+                    }}
+                  />
+                ))}
+              </ScrollSyncPane>
             )}
           />
-        </div>
-        <div className="-m flex h-14 max-w-4xl items-center justify-end space-x-3 px-2">
-          <Button>{t("cancel")}</Button>
-          <Button type="primary">{t("continue")}</Button>
         </div>
       </div>
     </Sticky>

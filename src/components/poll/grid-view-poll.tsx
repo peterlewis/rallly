@@ -1,24 +1,14 @@
-import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
-import { useForm } from "react-hook-form";
 import { useMeasure } from "react-use";
-import { ScrollSync, ScrollSyncNode } from "scroll-sync-react";
-import smoothscroll from "smoothscroll-polyfill";
 
 import { Button } from "../button";
-import { usePoll } from "../poll-provider";
-import ControlledScrollArea from "./grid-view-poll/controlled-scroll-area";
+import { ScrollSync, ScrollSyncPane } from "../scroll-sync";
 import ParticipantRow from "./grid-view-poll/participant-row";
 import { PollContext } from "./grid-view-poll/poll-context";
 import PollHeader from "./grid-view-poll/poll-header";
-import { ParticipantForm, PollProps } from "./types";
-
-// TODO (Luke Vella) [2022-07-15]: Not sure if the smoothscroll polyfill is still needed.
-if (typeof window !== "undefined") {
-  smoothscroll.polyfill();
-}
+import { PollProps } from "./types";
 
 const minSidebarWidth = 220;
 
@@ -49,8 +39,10 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
       Math.floor((width - minSidebarWidth) / columnWidth),
     );
 
-    const sidebarWidth =
-      Math.min(300, width - numberOfVisibleColumns * columnWidth) - 4;
+    const sidebarWidth = Math.min(
+      300,
+      width - numberOfVisibleColumns * columnWidth,
+    );
 
     const [activeOptionId, setActiveOptionId] =
       React.useState<string | null>(null);
@@ -111,46 +103,43 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
             />
             <AnimatePresence initial={false}>
               {!hideResults && participants.length > 0 ? (
-                <ScrollSyncNode>
-                  <motion.div
-                    transition={{ ease: "easeOut", duration: 0.2 }}
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="no-scrollbar overflow-x-auto overflow-y-hidden pb-2"
-                    style={{ marginLeft: sidebarWidth }}
-                  >
-                    {participants.map((participant, i) => {
-                      return (
-                        <ParticipantRow
-                          key={i}
-                          options={options}
-                          active={activeParticipant?.id === participant.id}
-                          name={participant.name}
-                          votes={participant.votes}
-                          editMode={activeParticipant?.id === participant.id}
-                          onChangeEditMode={(isEditing) => {
-                            onChangeActiveParticipant(
-                              isEditing ? participant.id : null,
-                            );
-                          }}
-                          isYou={participant.you}
-                          isEditable={participant.editable}
-                          onChange={async (update) => {
-                            await onUpdateEntry?.(participant.id, update);
-                          }}
-                          onDelete={async () => {
-                            await onDeleteEntry?.(participant.id);
-                          }}
-                        />
-                      );
-                    })}
-                  </motion.div>
-                </ScrollSyncNode>
+                <ScrollSyncPane
+                  className="no-scrollbar overflow-x-auto overflow-y-hidden pb-2"
+                  style={{ marginLeft: sidebarWidth }}
+                >
+                  {participants.map((participant, i) => {
+                    return (
+                      <ParticipantRow
+                        key={i}
+                        options={options}
+                        active={activeParticipant?.id === participant.id}
+                        name={participant.name}
+                        votes={participant.votes}
+                        editMode={activeParticipant?.id === participant.id}
+                        onChangeEditMode={(isEditing) => {
+                          onChangeActiveParticipant(
+                            isEditing ? participant.id : null,
+                          );
+                        }}
+                        isYou={participant.you}
+                        isEditable={participant.editable}
+                        onChange={async (update) => {
+                          await onUpdateEntry?.(participant.id, update);
+                        }}
+                        onDelete={async () => {
+                          await onDeleteEntry?.(participant.id);
+                        }}
+                      />
+                    );
+                  })}
+                </ScrollSyncPane>
               ) : null}
             </AnimatePresence>
           </div>
         </ScrollSync>
+        <div className="flex h-14 items-center justify-end space-x-3 px-2">
+          <Button type="primary">{t("continue")}</Button>
+        </div>
       </PollContext.Provider>
     );
   };

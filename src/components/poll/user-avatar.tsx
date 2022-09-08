@@ -86,7 +86,7 @@ const UserAvatarInner: React.VoidFunctionComponent<UserAvaterProps> = ({
   return (
     <span
       className={clsx(
-        "inline-block h-5 w-5 shrink-0 rounded-full text-center text-white",
+        "inline-block shrink-0 rounded-full text-center text-white",
         color,
         {
           "h-5 w-5 text-xs leading-5": size === "default",

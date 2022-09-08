@@ -39,7 +39,7 @@ export const RadioGroup = <T extends string>({
                 "bg-white text-primary-500 shadow-sm ": option.value === value,
                 "hover:bg-slate-500/5 active:bg-slate-500/10":
                   option.value !== value,
-                "h-9 rounded-lg px-4": size === "default",
+                "h-9 rounded-md px-3": size === "default",
                 "h-8 rounded-md px-3 text-sm": size === "small",
               },
             )}

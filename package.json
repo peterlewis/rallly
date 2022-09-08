@@ -52,7 +52,6 @@
     "react-query": "^3.34.12",
     "react-use": "^17.3.2",
     "scroll-sync-react": "^1.2.0",
-    "smoothscroll-polyfill": "^0.4.4",
     "spacetime": "^7.1.4",
     "superjson": "^1.9.1",
     "tailwind-scrollbar": "^2.0.1",
