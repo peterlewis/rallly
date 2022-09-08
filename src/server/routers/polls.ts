@@ -3,8 +3,6 @@ import { z } from "zod";
 
 import { prisma } from "~/prisma/db";
 
-import { absoluteUrl } from "../../utils/absolute-url";
-import { sendEmailTemplate } from "../../utils/api-utils";
 import { nanoid } from "../../utils/nanoid";
 import { GetPollApiResponse } from "../../utils/trpc/types";
 import { createRouter } from "../createRouter";
@@ -88,7 +86,7 @@ export const polls = createRouter()
     resolve: async ({ ctx, input }): Promise<{ urlId: string }> => {
       const adminUrlId = await nanoid();
 
-      const poll = await prisma.poll.create({
+      await prisma.poll.create({
         data: {
           id: await nanoid(),
           title: input.title,
@@ -109,28 +107,6 @@ export const polls = createRouter()
           },
         },
       });
-
-      const homePageUrl = absoluteUrl();
-      const pollUrl = `${homePageUrl}/admin/${adminUrlId}`;
-
-      try {
-        if (!ctx.user.isGuest) {
-          await sendEmailTemplate({
-            templateName: "new-poll-verified",
-            to: ctx.user.email,
-            subject: `Rallly: ${poll.title}`,
-            templateVars: {
-              title: poll.title,
-              name: ctx.user.name,
-              pollUrl,
-              homePageUrl,
-              supportEmail: process.env.SUPPORT_EMAIL,
-            },
-          });
-        }
-      } catch (e) {
-        console.error(e);
-      }
 
       return { urlId: adminUrlId };
     },
