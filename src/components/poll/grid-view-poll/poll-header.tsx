@@ -1,18 +1,17 @@
 import { VoteType } from "@prisma/client";
 import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
-import { Controller, useForm, useFormContext } from "react-hook-form";
-import { string } from "zod";
+import { Controller, useFormContext } from "react-hook-form";
+import { ScrollSyncNode } from "scroll-sync-react";
 
-import ArrowLeft from "@/components/icons/arrow-left.svg";
-import ArrowRight from "@/components/icons/arrow-right.svg";
+import ArrowLeft from "@/components/icons/chevron-left.svg";
+import ArrowRight from "@/components/icons/chevron-right.svg";
 
 import { useDayjs } from "../../../utils/dayjs";
 import { useFormValidation } from "../../../utils/form-validation";
 import { Button } from "../../button";
-import NameInput from "../../name-input";
+import CompactButton from "../../compact-button";
 import { SegmentedButton, SegmentedButtonGroup } from "../../segmented-button";
 import { Sticky } from "../../sticky";
 import { TextInput } from "../../text-input";
@@ -20,7 +19,6 @@ import { ScoreSummary } from "../score-summary";
 import { ParticipantForm, PollViewOption } from "../types";
 import UserAvatar from "../user-avatar";
 import { VoteSelector } from "../vote-selector";
-import ControlledScrollArea from "./controlled-scroll-area";
 import { usePollContext } from "./poll-context";
 
 const TimeRange: React.VoidFunctionComponent<{
@@ -53,14 +51,17 @@ const PollOption: React.VFC<{
   const date = dayjs(option.type === "date" ? option.date : option.start);
   const voteSelectorRef = React.useRef<HTMLButtonElement>(null);
   return (
-    <div className="shrink-0 py-2 px-1 text-center " style={{ width }}>
+    <div
+      className="shrink-0 select-none snap-start py-2 px-1 text-center "
+      style={{ width }}
+    >
       <div
         role={editing ? "button" : undefined}
         onClick={() => {
           voteSelectorRef.current?.click();
         }}
         className={clsx(
-          "space-y-3 rounded-md border bg-white py-4",
+          "space-y-3 rounded-md border py-4",
           editing
             ? {
                 "shadow-sm active:bg-slate-500/10 active:shadow-none": true,
@@ -68,7 +69,7 @@ const PollOption: React.VFC<{
                   value === "yes",
                 "border-amber-300 bg-amber-400/5 active:bg-amber-400/10":
                   value === "ifNeedBe",
-                "bg-slate-500/5": value === "no",
+                "bg-slate-50": value === "no",
               }
             : "border-transparent",
         )}
@@ -131,135 +132,107 @@ const PollHeader: React.VoidFunctionComponent<{
   const { control, reset, handleSubmit, formState } =
     useFormContext<ParticipantForm>();
 
-  const checkboxRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
-  const renderPageControl = () => {
-    return (
-      <div className="flex items-center">
-        <div className="flex px-6 text-sm font-medium text-slate-500">
-          {t("optionCount", { count: options.length })}
-        </div>
-        {numberOfColumns < options.length ? (
-          <SegmentedButtonGroup>
-            <SegmentedButton
-              onClick={goToPreviousPage}
-              disabled={scrollPosition === 0}
-            >
-              <ArrowLeft className="h-4" />
-            </SegmentedButton>
-            <SegmentedButton
-              onClick={goToNextPage}
-              disabled={scrollPosition >= maxScrollPosition}
-            >
-              <ArrowRight className="h-4" />
-            </SegmentedButton>
-          </SegmentedButtonGroup>
-        ) : null}
-      </div>
-    );
-  };
+  const scrollAreaRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <Sticky
       top={48}
       className={(isPinned) =>
-        clsx("z-20 rounded-t-md border-b bg-white/75 backdrop-blur-md", {
+        clsx("group z-20 rounded-t-md border-b bg-white/75 backdrop-blur-md", {
           "border-transparent": !isPinned,
         })
       }
     >
-      <form onSubmit={handleSubmit((data) => onSubmit?.(data))}>
-        <div className="flex h-14 items-center justify-end space-x-3 rounded-t-md border-b bg-slate-500/5 px-3">
-          {isEditing ? (
-            <div className="flex space-x-3">
-              <div className="space-x-3">
-                <Button onClick={onCancel}>{t("cancel")}</Button>
-                <Button htmlType="submit" type="primary">
-                  {t("save")}
-                </Button>
-              </div>
+      <div>
+        {numberOfColumns < options.length && (
+          <div className="flex items-center justify-end space-x-3 px-3 pb-2 pt-4">
+            <div className="font-medium text-slate-500">
+              {t("optionCount", { count: options.length })}
             </div>
-          ) : null}
-        </div>
-        <div className="flex">
+            <div className="ml-4 space-x-2">
+              <CompactButton
+                icon={ArrowLeft}
+                onClick={() => {
+                  const scrollableElement = scrollAreaRef.current;
+                  if (!scrollableElement) {
+                    return;
+                  }
+
+                  scrollableElement.scrollTo({
+                    left:
+                      Math.floor(scrollableElement.scrollLeft / columnWidth) *
+                        columnWidth -
+                      columnWidth,
+                  });
+                }}
+              />
+              <CompactButton
+                icon={ArrowRight}
+                onClick={() => {
+                  const scrollableElement = scrollAreaRef.current;
+                  if (!scrollableElement) {
+                    return;
+                  }
+
+                  requestAnimationFrame(() => {
+                    scrollableElement.scrollTo({
+                      left:
+                        Math.floor(scrollableElement.scrollLeft / columnWidth) *
+                          columnWidth +
+                        columnWidth,
+                    });
+                  });
+                }}
+              />
+            </div>
+          </div>
+        )}
+        <div className="relative flex">
           <div
-            className="shrink-0 pt-4 pb-3 pl-5 pr-4 font-medium"
+            className="absolute h-full shrink-0 pt-4 pb-3 pl-5 pr-4 font-medium"
             style={{ width: sidebarWidth }}
           >
-            {isEditing ? (
-              <div>
-                <div className="mb-2">Enter your name</div>
-                <div className="space-y-4">
-                  <Controller
-                    name="name"
-                    rules={{
-                      validate: requiredString(t("name")),
-                    }}
-                    render={({ field }) => (
-                      <div className="w-full">
-                        <TextInput
-                          className={clsx("w-full", {
-                            "input-error":
-                              formState.errors.name &&
-                              formState.submitCount > 0,
-                          })}
-                          autoFocus={true}
-                          placeholder={t("yourName")}
-                          {...field}
-                          onKeyDown={(e) => {
-                            if (
-                              (e.code === "Tab" || e.code === "Enter") &&
-                              scrollPosition > 0
-                            ) {
-                              e.preventDefault();
-                              // setScrollPosition(0);
-                              // setTimeout(() => {
-                              //   checkboxRefs.current[0]?.focus();
-                              // }, 100);
-                            }
-                          }}
-                          onKeyPress={(e) => {
-                            if (e.code === "Enter") {
-                              e.preventDefault();
-                              // checkboxRefs.current[0]?.focus();
-                            }
-                          }}
-                        />
-                      </div>
-                    )}
-                    control={control}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="flex h-full items-end pb-3">
-                {t("participantCount", { count: participantCount })}
-              </div>
-            )}
+            <div className="mb-2">Select your availability</div>
+            <div>
+              <UserAvatar name={t("you")} showName />
+            </div>
           </div>
           <Controller
             control={control}
             name="votes"
             render={({ field }) => (
-              <ControlledScrollArea>
-                {options.map((option, index) => (
-                  <PollOption
-                    key={index}
-                    option={option}
-                    width={columnWidth}
-                    editing={isEditing}
-                    value={field.value[index]}
-                    onChange={(vote) => {
-                      const newValue = [...field.value];
-                      newValue[index] = vote;
-                      field.onChange(newValue);
-                    }}
-                  />
-                ))}
-              </ControlledScrollArea>
+              <ScrollSyncNode>
+                <div
+                  ref={scrollAreaRef}
+                  className={clsx("no-scrollbar flex overflow-y-auto")}
+                  style={{
+                    marginLeft: sidebarWidth,
+                  }}
+                >
+                  {options.map((option, index) => (
+                    <PollOption
+                      key={index}
+                      option={option}
+                      width={columnWidth}
+                      editing={isEditing}
+                      value={field.value[index]}
+                      onChange={(vote) => {
+                        const newValue = [...field.value];
+                        newValue[index] = vote;
+                        field.onChange(newValue);
+                      }}
+                    />
+                  ))}
+                </div>
+              </ScrollSyncNode>
             )}
           />
         </div>
-      </form>
+        <div className="-m flex h-14 max-w-4xl items-center justify-end space-x-3 px-2">
+          <Button>{t("cancel")}</Button>
+          <Button type="primary">{t("continue")}</Button>
+        </div>
+      </div>
     </Sticky>
   );
 };

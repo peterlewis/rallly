@@ -1,5 +1,4 @@
 import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
 
 import { usePollContext } from "./poll-context";
@@ -8,29 +7,27 @@ const ControlledScrollArea: React.VoidFunctionComponent<{
   children?: React.ReactNode;
   className?: string;
 }> = ({ className, children }) => {
-  const { scrollPosition } = usePollContext();
+  const { scrollPosition, sidebarWidth, setScrollPosition } = usePollContext();
+
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  if (ref.current) {
+    ref.current.scrollLeft = scrollPosition;
+  }
 
   return (
     <div
+      ref={ref}
       className={clsx(
-        "relative box-border min-w-0 select-none overflow-hidden",
+        "no-scrollbar box-border min-w-0 select-none overflow-y-auto",
         className,
       )}
+      style={{ marginLeft: sidebarWidth }}
+      onScroll={(e) => {
+        setScrollPosition(e.currentTarget.scrollLeft);
+      }}
     >
-      <AnimatePresence initial={false}>
-        <motion.div
-          className="flex h-full"
-          transition={{
-            type: "spring",
-            mass: 0.5,
-            stiffness: 100,
-          }}
-          initial={{ x: 0 }}
-          animate={{ x: scrollPosition * -1 }}
-        >
-          {children}
-        </motion.div>
-      </AnimatePresence>
+      <div className="h-full">{children}</div>
     </div>
   );
 };

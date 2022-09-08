@@ -1,11 +1,15 @@
 import clsx from "clsx";
+import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { useMeasure } from "react-use";
+import { ScrollSync, ScrollSyncNode } from "scroll-sync-react";
 import smoothscroll from "smoothscroll-polyfill";
 
+import { Button } from "../button";
 import { usePoll } from "../poll-provider";
+import ControlledScrollArea from "./grid-view-poll/controlled-scroll-area";
 import ParticipantRow from "./grid-view-poll/participant-row";
 import { PollContext } from "./grid-view-poll/poll-context";
 import PollHeader from "./grid-view-poll/poll-header";
@@ -46,7 +50,7 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
     );
 
     const sidebarWidth =
-      Math.min(300, width - numberOfVisibleColumns * columnWidth) - 40;
+      Math.min(300, width - numberOfVisibleColumns * columnWidth) - 4;
 
     const [activeOptionId, setActiveOptionId] =
       React.useState<string | null>(null);
@@ -71,9 +75,9 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
       );
     };
 
-    const isEditing = !!activeParticipant;
+    const [hideResults, setHideResults] = React.useState(false);
 
-    const participantListContainerRef = React.useRef<HTMLDivElement>(null);
+    const isEditing = true;
 
     return (
       <PollContext.Provider
@@ -92,59 +96,61 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
           activeParticipantId: activeParticipant?.id ?? null,
         }}
       >
-        <div
-          className="relative mx-auto flex flex-col"
-          style={{
-            width,
-          }}
-        >
-          <PollHeader
-            participantCount={participants.length}
-            options={options}
-            onSubmit={async (data) => {
-              if (!activeParticipant) {
-                await onEntry?.(data);
-              } else {
-                await onUpdateEntry?.(activeParticipant.id, data);
-              }
+        <ScrollSync>
+          <div
+            style={{
+              width,
             }}
-            onCancel={() => {
-              onChangeActiveParticipant(null);
-            }}
-          />
-          {participants.length > 0 ? (
-            <div
-              className="min-h-0 overflow-y-auto pb-2"
-              ref={participantListContainerRef}
-            >
-              {participants.map((participant, i) => {
-                return (
-                  <ParticipantRow
-                    key={i}
-                    options={options}
-                    active={activeParticipant?.id === participant.id}
-                    name={participant.name}
-                    votes={participant.votes}
-                    editMode={activeParticipant?.id === participant.id}
-                    onChangeEditMode={(isEditing) => {
-                      onChangeActiveParticipant(
-                        isEditing ? participant.id : null,
+          >
+            <PollHeader
+              participantCount={participants.length}
+              options={options}
+              onCancel={() => {
+                onChangeActiveParticipant(null);
+              }}
+            />
+            <AnimatePresence initial={false}>
+              {!hideResults && participants.length > 0 ? (
+                <ScrollSyncNode>
+                  <motion.div
+                    transition={{ ease: "easeOut", duration: 0.2 }}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="no-scrollbar overflow-x-auto overflow-y-hidden pb-2"
+                    style={{ marginLeft: sidebarWidth }}
+                  >
+                    {participants.map((participant, i) => {
+                      return (
+                        <ParticipantRow
+                          key={i}
+                          options={options}
+                          active={activeParticipant?.id === participant.id}
+                          name={participant.name}
+                          votes={participant.votes}
+                          editMode={activeParticipant?.id === participant.id}
+                          onChangeEditMode={(isEditing) => {
+                            onChangeActiveParticipant(
+                              isEditing ? participant.id : null,
+                            );
+                          }}
+                          isYou={participant.you}
+                          isEditable={participant.editable}
+                          onChange={async (update) => {
+                            await onUpdateEntry?.(participant.id, update);
+                          }}
+                          onDelete={async () => {
+                            await onDeleteEntry?.(participant.id);
+                          }}
+                        />
                       );
-                    }}
-                    isYou={participant.you}
-                    isEditable={participant.editable}
-                    onChange={async (update) => {
-                      await onUpdateEntry?.(participant.id, update);
-                    }}
-                    onDelete={async () => {
-                      await onDeleteEntry?.(participant.id);
-                    }}
-                  />
-                );
-              })}
-            </div>
-          ) : null}
-        </div>
+                    })}
+                  </motion.div>
+                </ScrollSyncNode>
+              ) : null}
+            </AnimatePresence>
+          </div>
+        </ScrollSync>
       </PollContext.Provider>
     );
   };

@@ -51,9 +51,11 @@
     "react-linkify": "^1.0.0-alpha",
     "react-query": "^3.34.12",
     "react-use": "^17.3.2",
+    "scroll-sync-react": "^1.2.0",
     "smoothscroll-polyfill": "^0.4.4",
     "spacetime": "^7.1.4",
     "superjson": "^1.9.1",
+    "tailwind-scrollbar": "^2.0.1",
     "timezone-soft": "^1.3.1",
     "typescript": "^4.5.2",
     "zod": "^3.16.0"

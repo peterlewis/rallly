@@ -9,7 +9,7 @@ const Badge: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "inline-flex h-5 cursor-default items-center rounded-md px-1 text-xs lg:text-sm",
+        "inline-flex h-5 items-center rounded-md px-1 text-xs lg:text-sm",
         {
           "bg-slate-500/10 text-slate-500/50": color === "gray",
           "bg-amber-100 text-amber-500": color === "amber",

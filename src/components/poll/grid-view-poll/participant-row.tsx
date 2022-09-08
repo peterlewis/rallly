@@ -55,8 +55,8 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
       className={clsx("group flex h-14 py-1", className)}
     >
       <div
-        className="shrink-0 pr-1"
-        style={{ width: sidebarWidth }}
+        className="absolute shrink-0 pr-1"
+        style={{ width: sidebarWidth, marginLeft: sidebarWidth * -1 }}
         onClick={onEdit}
       >
         <button
@@ -75,7 +75,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
           />
         </button>
       </div>
-      <ControlledScrollArea>
+      <div className="flex">
         {votes.map((vote, i) => {
           return (
             <div
@@ -98,7 +98,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
             </div>
           );
         })}
-      </ControlledScrollArea>
+      </div>
     </div>
   );
 };

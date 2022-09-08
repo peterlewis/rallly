@@ -17,7 +17,7 @@ export interface ButtonProps
   loading?: boolean;
   icon?: React.ReactElement;
   htmlType?: React.ButtonHTMLAttributes<HTMLButtonElement>["type"];
-  type?: "default" | "primary" | "danger" | "link" | "ghost";
+  type?: "default" | "primary" | "danger" | "link" | "ghost" | "success";
   form?: string;
   rounded?: boolean;
   title?: string;
@@ -41,6 +41,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) {
     return (
       <button
+        role="button"
         ref={ref}
         type={htmlType}
         className={clsx(
@@ -48,6 +49,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             "btn-default": type === "default",
             "btn-primary": type === "primary",
             "btn-danger": type === "danger",
+            "btn border-green-600 bg-green-500 text-white focus-visible:ring-green-500 hover:bg-green-600":
+              type === "success",
             "btn-link": type === "link",
             "h-9 rounded-lg bg-blue-700/5 px-4 font-medium ": type === "ghost",
             "btn-disabled": disabled,
