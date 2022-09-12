@@ -20,12 +20,12 @@ import { useRequiredContext } from "../use-required-context";
 import { useUser } from "../user-provider";
 import GridViewPoll from "./grid-view-poll";
 import ListViewPoll from "./list-view-poll";
-import { ParticipantForm, ParticipantInfo, PollViewOption } from "./types";
+import { ParticipantForm, PollViewOption, PollViewParticipant } from "./types";
 import { useDeleteParticipantModal } from "./use-delete-participant-modal";
 
 interface PollDataContextValue {
   participants: Participant[];
-  getParticipantInfoById: (id: string) => ParticipantInfo | undefined;
+  getParticipantInfoById: (id: string) => PollViewParticipant | undefined;
   getParticipantVoteForOptionAtIndex: (
     id: string,
     index: number,
@@ -33,8 +33,8 @@ interface PollDataContextValue {
   getParticipantsWhoVoted: (
     type: VoteType,
     optionIndex: number,
-  ) => ParticipantInfo[];
-  activeParticipant: ParticipantInfo | null;
+  ) => PollViewParticipant[];
+  activeParticipant: PollViewParticipant | null;
 }
 
 const PollDataContext = React.createContext<PollDataContextValue | null>(null);
@@ -102,7 +102,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
   participants: Array<Participant & { votes: Vote[] }>;
 }> = ({ options, participants, timeZone, pollId, admin }) => {
   const [activeParticipant, setActiveParticipant] =
-    React.useState<ParticipantInfo | null>(null);
+    React.useState<PollViewParticipant | null>(null);
 
   const { user } = useUser();
 
@@ -132,7 +132,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
   );
 
   const participantById = React.useMemo(() => {
-    const map = new Map<string, ParticipantInfo>();
+    const map = new Map<string, PollViewParticipant>();
     pollParticipants.forEach((participant) => {
       map.set(participant.id, participant);
     });
@@ -159,15 +159,15 @@ export const PollDataProvider: React.VoidFunctionComponent<{
   );
 
   const participantsByVoteType: Array<{
-    yes: ParticipantInfo[];
-    no: ParticipantInfo[];
-    ifNeedBe: ParticipantInfo[];
+    yes: PollViewParticipant[];
+    no: PollViewParticipant[];
+    ifNeedBe: PollViewParticipant[];
   }> = React.useMemo(() => {
     return options.map((_, index) => {
       return pollParticipants.reduce<{
-        yes: ParticipantInfo[];
-        no: ParticipantInfo[];
-        ifNeedBe: ParticipantInfo[];
+        yes: PollViewParticipant[];
+        no: PollViewParticipant[];
+        ifNeedBe: PollViewParticipant[];
       }>(
         (acc, participant) => {
           const voteType = participant.votes[index];
@@ -295,8 +295,6 @@ export const PollDataProvider: React.VoidFunctionComponent<{
   const formMethods = useForm<ParticipantForm>({
     defaultValues: { name: "", votes: [] },
   });
-
-  const modalContext = useModalContext();
 
   return (
     <FormProvider {...formMethods}>

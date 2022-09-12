@@ -55,25 +55,17 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
       className={clsx("group flex h-14 py-1", className)}
     >
       <div
-        className="absolute shrink-0 pr-1"
+        className="absolute flex h-14 shrink-0 items-center pr-1 pl-4"
         style={{ width: sidebarWidth, marginLeft: sidebarWidth * -1 }}
         onClick={onEdit}
       >
-        <button
-          role="button"
-          className={clsx("flex h-12 w-full items-center rounded-r-md pl-4", {
-            "bg-slate-500/5": active,
-            "hover:bg-slate-500/5 active:bg-slate-500/10": !active,
-          })}
-        >
-          <UserAvatar
-            className="mr-2"
-            name={name}
-            showName={true}
-            isYou={isYou}
-            color={color}
-          />
-        </button>
+        <UserAvatar
+          className="mr-2"
+          name={name}
+          showName={true}
+          isYou={isYou}
+          color={color}
+        />
       </div>
       <div className="flex">
         {votes.map((vote, i) => {
@@ -85,11 +77,11 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
             >
               <div
                 className={clsx(
-                  "flex h-12 w-full items-center justify-center rounded-md",
+                  "flex h-12 w-full items-center justify-center rounded-md border",
                   {
-                    "bg-green-50": vote === "yes",
-                    "bg-amber-50": vote === "ifNeedBe",
-                    "bg-slate-50": vote === "no",
+                    "border-green-600/10 bg-green-100/75": vote === "yes",
+                    "border-amber-600/10 bg-amber-100/75": vote === "ifNeedBe",
+                    "border-slate-300/40 bg-slate-300/5": vote === "no",
                   },
                 )}
               >

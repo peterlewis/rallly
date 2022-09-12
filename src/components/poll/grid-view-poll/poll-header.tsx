@@ -3,19 +3,15 @@ import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { ScrollSyncNode } from "scroll-sync-react";
 
 import ArrowLeft from "@/components/icons/chevron-left.svg";
 import ArrowRight from "@/components/icons/chevron-right.svg";
 
 import { useDayjs } from "../../../utils/dayjs";
 import { useFormValidation } from "../../../utils/form-validation";
-import { Button } from "../../button";
 import CompactButton from "../../compact-button";
-import { ScrollSyncPane } from "../../scroll-sync";
-import { SegmentedButton, SegmentedButtonGroup } from "../../segmented-button";
+import { ScrollSyncPane, useScrollSync } from "../../scroll-sync";
 import { Sticky } from "../../sticky";
-import { TextInput } from "../../text-input";
 import { ScoreSummary } from "../score-summary";
 import { ParticipantForm, PollViewOption } from "../types";
 import UserAvatar from "../user-avatar";
@@ -41,7 +37,7 @@ const TimeRange: React.VoidFunctionComponent<{
   );
 };
 
-const PollOption: React.VFC<{
+export const PollOption: React.VFC<{
   width: number;
   option: PollViewOption;
   value?: VoteType;
@@ -136,6 +132,7 @@ const PollHeader: React.VoidFunctionComponent<{
 
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
 
+  const { setScroll } = useScrollSync();
   return (
     <Sticky
       top={48}
@@ -160,10 +157,11 @@ const PollHeader: React.VoidFunctionComponent<{
                     return;
                   }
 
-                  scrollableElement.scrollLeft =
+                  setScroll(
                     Math.round(scrollableElement.scrollLeft / columnWidth) *
                       columnWidth -
-                    columnWidth;
+                      columnWidth,
+                  );
                 }}
               />
               <CompactButton
@@ -173,13 +171,12 @@ const PollHeader: React.VoidFunctionComponent<{
                   if (!scrollableElement) {
                     return;
                   }
-                  const newLeft =
+
+                  setScroll(
                     Math.round(scrollableElement.scrollLeft / columnWidth) *
                       columnWidth +
-                    columnWidth;
-
-                  console.log(scrollableElement.scrollLeft, newLeft);
-                  scrollableElement.scrollLeft = newLeft;
+                      columnWidth,
+                  );
                 }}
               />
             </div>

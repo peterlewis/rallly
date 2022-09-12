@@ -89,7 +89,7 @@ const UserAvatarInner: React.VoidFunctionComponent<UserAvaterProps> = ({
         "inline-block shrink-0 rounded-full text-center text-white",
         color,
         {
-          "h-5 w-5 text-xs leading-5": size === "default",
+          "h-6 w-6 text-xs leading-6": size === "default",
           "h-10 w-10 leading-10": size === "large",
         },
         className,

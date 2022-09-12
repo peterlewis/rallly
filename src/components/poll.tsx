@@ -40,15 +40,15 @@ const Legend = () => {
     <div className="flex h-8 items-center space-x-3">
       <span className="inline-flex items-center space-x-1">
         <VoteIcon type="yes" />
-        <span className="text-xs text-slate-500">{t("yes")}</span>
+        <span className="text-sm text-slate-500">{t("yes")}</span>
       </span>
       <span className="inline-flex items-center space-x-1">
         <VoteIcon type="ifNeedBe" />
-        <span className="text-xs text-slate-500">{t("ifNeedBe")}</span>
+        <span className="text-sm text-slate-500">{t("ifNeedBe")}</span>
       </span>
       <span className="inline-flex items-center space-x-1">
         <VoteIcon type="no" />
-        <span className="text-xs text-slate-500">{t("no")}</span>
+        <span className="text-sm text-slate-500">{t("no")}</span>
       </span>
     </div>
   );

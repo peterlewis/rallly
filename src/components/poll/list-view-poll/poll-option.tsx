@@ -8,7 +8,7 @@ import ChevronDown from "@/components/icons/chevron-down.svg";
 
 import { usePollData } from "../poll-data-provider";
 import { ScoreSummary } from "../score-summary";
-import { ParticipantInfo } from "../types";
+import { PollViewParticipant } from "../types";
 import UserAvatar from "../user-avatar";
 import VoteIcon from "../vote-icon";
 import { useVoteSelector, VoteSelector } from "../vote-selector";
@@ -19,7 +19,7 @@ export interface PollOptionProps {
   editable?: boolean;
   vote?: VoteType;
   onChange: (vote: VoteType) => void;
-  participants: ParticipantInfo[];
+  participants: PollViewParticipant[];
   selectedParticipantId?: string;
   optionIndex: number;
   expanded?: boolean;

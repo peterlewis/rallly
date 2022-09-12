@@ -8,7 +8,7 @@ import { ScrollSync, ScrollSyncPane } from "../scroll-sync";
 import ParticipantRow from "./grid-view-poll/participant-row";
 import { PollContext } from "./grid-view-poll/poll-context";
 import PollHeader from "./grid-view-poll/poll-header";
-import { PollProps } from "./types";
+import { PollProps, PollViewOption, PollViewParticipant } from "./types";
 
 const minSidebarWidth = 220;
 
@@ -103,36 +103,38 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps & { width: number }> =
             />
             <AnimatePresence initial={false}>
               {!hideResults && participants.length > 0 ? (
-                <ScrollSyncPane
-                  className="no-scrollbar overflow-x-auto overflow-y-hidden pb-2"
-                  style={{ marginLeft: sidebarWidth }}
-                >
-                  {participants.map((participant, i) => {
-                    return (
-                      <ParticipantRow
-                        key={i}
-                        options={options}
-                        active={activeParticipant?.id === participant.id}
-                        name={participant.name}
-                        votes={participant.votes}
-                        editMode={activeParticipant?.id === participant.id}
-                        onChangeEditMode={(isEditing) => {
-                          onChangeActiveParticipant(
-                            isEditing ? participant.id : null,
-                          );
-                        }}
-                        isYou={participant.you}
-                        isEditable={participant.editable}
-                        onChange={async (update) => {
-                          await onUpdateEntry?.(participant.id, update);
-                        }}
-                        onDelete={async () => {
-                          await onDeleteEntry?.(participant.id);
-                        }}
-                      />
-                    );
-                  })}
-                </ScrollSyncPane>
+                <div className="mt-2 border-y bg-slate-400/5 py-2">
+                  <ScrollSyncPane
+                    className="no-scrollbar overflow-x-auto overflow-y-hidden"
+                    style={{ marginLeft: sidebarWidth }}
+                  >
+                    {participants.map((participant, i) => {
+                      return (
+                        <ParticipantRow
+                          key={i}
+                          options={options}
+                          active={activeParticipant?.id === participant.id}
+                          name={participant.name}
+                          votes={participant.votes}
+                          editMode={activeParticipant?.id === participant.id}
+                          onChangeEditMode={(isEditing) => {
+                            onChangeActiveParticipant(
+                              isEditing ? participant.id : null,
+                            );
+                          }}
+                          isYou={participant.you}
+                          isEditable={participant.editable}
+                          onChange={async (update) => {
+                            await onUpdateEntry?.(participant.id, update);
+                          }}
+                          onDelete={async () => {
+                            await onDeleteEntry?.(participant.id);
+                          }}
+                        />
+                      );
+                    })}
+                  </ScrollSyncPane>
+                </div>
               ) : null}
             </AnimatePresence>
           </div>

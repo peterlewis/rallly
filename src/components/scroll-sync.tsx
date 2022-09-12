@@ -5,6 +5,7 @@ import { useRequiredContext } from "./use-required-context";
 const ScrollSyncContext =
   React.createContext<{
     onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
+    setScroll: (left: number) => void;
     registerPane: (ref: React.RefObject<HTMLDivElement>) => void;
     unregisterPane: (ref: React.RefObject<HTMLDivElement>) => void;
   } | null>(null);
@@ -23,11 +24,17 @@ export const ScrollSync: React.VoidFunctionComponent<{
         unregisterPane: (ref) => {
           refs.current.delete(ref);
         },
+        setScroll: (left) => {
+          refs.current.forEach((ref) => {
+            if (ref.current) {
+              ref.current.scrollLeft = left;
+            }
+          });
+        },
         onScroll: (e) => {
           refs.current.forEach((ref) => {
             if (ref.current && e.target !== ref.current) {
               ref.current.scrollLeft = e.currentTarget.scrollLeft;
-              ref.current.scrollTop = e.currentTarget.scrollTop;
             }
           });
         },
@@ -39,10 +46,8 @@ export const ScrollSync: React.VoidFunctionComponent<{
 };
 
 export const useScrollSync = () => {
-  const { onScroll, registerPane, unregisterPane } = useRequiredContext(
-    ScrollSyncContext,
-    "ScrollSync",
-  );
+  const { onScroll, registerPane, unregisterPane, setScroll } =
+    useRequiredContext(ScrollSyncContext, "ScrollSync");
 
   const ref = React.useRef<HTMLDivElement | null>(null);
 
@@ -53,7 +58,7 @@ export const useScrollSync = () => {
     };
   }, [registerPane, unregisterPane]);
 
-  return { ref, onScroll };
+  return { ref, onScroll, unregisterPane, setScroll };
 };
 
 export const ScrollSyncPane = React.forwardRef<
