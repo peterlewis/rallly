@@ -3,11 +3,12 @@ import clsx from "clsx";
 import dayjs from "dayjs";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import List from "@/components/icons/list.svg";
 import Table from "@/components/icons/table.svg";
 
+import register from "../../pages/register";
 import { getBrowserTimeZone } from "../../utils/date-time-utils";
 import { trpc } from "../../utils/trpc";
 import { PollOption } from "../../utils/trpc/types";
@@ -15,12 +16,18 @@ import { useWideScreen } from "../../utils/use-wide-screen";
 import { Button } from "../button";
 import { useModalContext } from "../modal/modal-provider";
 import { RadioGroup } from "../radio";
+import { TextInput } from "../text-input";
 import { useTimeZones } from "../time-zone-picker/time-zone-picker";
 import { useRequiredContext } from "../use-required-context";
 import { useUser } from "../user-provider";
 import GridViewPoll from "./grid-view-poll";
 import ListViewPoll from "./list-view-poll";
-import { ParticipantForm, PollViewOption, PollViewParticipant } from "./types";
+import {
+  ParticipantForm,
+  PollValue,
+  PollViewOption,
+  PollViewParticipant,
+} from "./types";
 import { useDeleteParticipantModal } from "./use-delete-participant-modal";
 
 interface PollDataContextValue {
@@ -274,6 +281,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
             endTime = endTime.tz(timeZone).tz(targetTimeZone);
           }
           return {
+            id: option.id,
             type: "time",
             index,
             start: startTime.format("YYYY-MM-DDTHH:mm"),
@@ -283,6 +291,7 @@ export const PollDataProvider: React.VoidFunctionComponent<{
         }
 
         return {
+          id: option.id,
           type: "date",
           index,
           date: option.value.date,
@@ -292,112 +301,129 @@ export const PollDataProvider: React.VoidFunctionComponent<{
     [options, participants, targetTimeZone, timeZone],
   );
 
-  const formMethods = useForm<ParticipantForm>({
-    defaultValues: { name: "", votes: [] },
+  const { handleSubmit, control } = useForm<{
+    name: string;
+    votes: PollValue;
+  }>({
+    defaultValues: { votes: {} },
   });
 
   return (
-    <FormProvider {...formMethods}>
-      <PollDataContext.Provider value={contextValue}>
-        <div>
-          <div className="break-container no-scrollbar flex space-x-4 overflow-x-auto px-4 pb-4 sm:justify-between">
-            {isWideScreen ? (
-              <RadioGroup
-                value={view}
-                options={[
-                  {
-                    label: t("grid"),
-                    value: "grid",
-                    icon: Table,
-                  },
-                  { label: t("list"), value: "list", icon: List },
-                ]}
-                onChange={setPreferredView}
-              />
-            ) : null}
-            <div>
-              {timeZone ? (
-                <ToolbarGroup>
-                  <div className="whitespace-nowrap pl-2 text-slate-500">
-                    {t("timeZone")}
-                  </div>
-                  <select
-                    className="h-9 w-80 appearance-none text-ellipsis border-0 p-0 pl-2 pr-8 focus:ring-0"
-                    value={targetTimeZone}
-                    onChange={(e) => {
-                      setTargetTimeZone(e.target.value);
-                    }}
-                  >
-                    {timezoneOptions.map((option) => {
-                      return (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </ToolbarGroup>
-              ) : null}
-            </div>
-          </div>
-          <form
-            onSubmit={formMethods.handleSubmit((data) => {
-              // do something
-            })}
-            className="card p-0"
-          >
-            <Compononent
-              options={pollOptions}
-              participants={pollParticipants}
-              onEntry={async (participant) => {
-                return await addParticipant.mutateAsync({
-                  pollId,
-                  name: participant.name,
-                  votes: options.map(({ id }, i) => {
-                    return {
-                      optionId: id,
-                      type: participant.votes[i] ?? "no",
-                    };
-                  }),
-                });
-              }}
-              activeParticipant={activeParticipant}
-              onChangeActiveParticipant={(participantId) => {
-                if (participantId) {
-                  const participant = getParticipantInfoById(participantId);
-                  if (participant) {
-                    formMethods.reset({
-                      name: participant.name,
-                      votes: participant.votes,
-                    });
-                    setActiveParticipant(participant);
-                  }
-
-                  return;
-                }
-
-                setActiveParticipant(null);
-              }}
-              onDeleteEntry={deleteParticipant}
-              onUpdateEntry={async (participantId, participant) => {
-                await updateParticipant.mutateAsync({
-                  participantId,
-                  pollId,
-                  votes: options.map(({ id }, i) => {
-                    return {
-                      optionId: id,
-                      type: participant.votes[i] ?? "no",
-                    };
-                  }),
-                  name: participant.name,
-                });
-              }}
-              isBusy={addParticipant.isLoading || updateParticipant.isLoading}
-              userAlreadyVoted={userAlreadyVoted}
+    <PollDataContext.Provider value={contextValue}>
+      <div>
+        <div className="break-container no-scrollbar flex space-x-4 overflow-x-auto px-4 pb-4 sm:justify-between">
+          {isWideScreen ? (
+            <RadioGroup
+              value={view}
+              options={[
+                {
+                  label: t("grid"),
+                  value: "grid",
+                  icon: Table,
+                },
+                { label: t("list"), value: "list", icon: List },
+              ]}
+              onChange={setPreferredView}
             />
-          </form>
+          ) : null}
+          <div>
+            {timeZone ? (
+              <ToolbarGroup>
+                <div className="whitespace-nowrap pl-2 text-slate-500">
+                  {t("timeZone")}
+                </div>
+                <select
+                  className="h-9 w-80 appearance-none text-ellipsis border-0 p-0 pl-2 pr-8 focus:ring-0"
+                  value={targetTimeZone}
+                  onChange={(e) => {
+                    setTargetTimeZone(e.target.value);
+                  }}
+                >
+                  {timezoneOptions.map((option) => {
+                    return (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    );
+                  })}
+                </select>
+              </ToolbarGroup>
+            ) : null}
+          </div>
         </div>
-      </PollDataContext.Provider>
-    </FormProvider>
+        <form
+          onSubmit={handleSubmit((data) => {
+            // do something
+            console.log(data);
+          })}
+          className="card p-0"
+        >
+          <Controller
+            name="votes"
+            control={control}
+            render={({ field }) => (
+              <Compononent
+                value={field.value}
+                onChange={field.onChange}
+                options={pollOptions}
+                participants={pollParticipants}
+                // onEntry={async (participant) => {
+                //   return await addParticipant.mutateAsync({
+                //     pollId,
+                //     name: participant.name,
+                //     votes: options.map(({ id }, i) => {
+                //       return {
+                //         optionId: id,
+                //         type: participant.votes[i] ?? "no",
+                //       };
+                //     }),
+                //   });
+                // }}
+                // activeParticipant={activeParticipant}
+                // onChangeActiveParticipant={(participantId) => {
+                //   if (participantId) {
+                //     const participant = getParticipantInfoById(participantId);
+                //     if (participant) {
+                //       formMethods.reset({
+                //         name: participant.name,
+                //         votes: participant.votes,
+                //       });
+                //       setActiveParticipant(participant);
+                //     }
+
+                //     return;
+                //   }
+
+                //   setActiveParticipant(null);
+                // }}
+                // onDeleteEntry={deleteParticipant}
+                // onUpdateEntry={async (participantId, participant) => {
+                //   await updateParticipant.mutateAsync({
+                //     participantId,
+                //     pollId,
+                //     votes: options.map(({ id }, i) => {
+                //       return {
+                //         optionId: id,
+                //         type: participant.votes[i] ?? "no",
+                //       };
+                //     }),
+                //     name: participant.name,
+                //   });
+                // }}
+                // isBusy={
+                //   addParticipant.isLoading || updateParticipant.isLoading
+                // }
+                // userAlreadyVoted={userAlreadyVoted}
+              />
+            )}
+          />
+          <div className="flex h-14 items-center justify-end space-x-3 border-t px-2">
+            <Button htmlType="submit" type="primary">
+              {t("continue")}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </PollDataContext.Provider>
   );
 };

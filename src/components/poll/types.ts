@@ -7,11 +7,13 @@ export interface ParticipantForm {
 
 export type PollViewOption =
   | {
+      id: string;
       type: "date";
       date: string;
       score: number;
     }
   | {
+      id: string;
       type: "time";
       start: string;
       end: string;
@@ -22,18 +24,16 @@ export interface PollViewParticipant {
   id: string;
   name: string;
   votes: Array<VoteType | undefined>;
+  voteByOptionId: Record<string, VoteType | undefined>;
   editable?: boolean;
   you?: boolean;
 }
 
+export type PollValue = Record<string, VoteType | undefined>;
+
 export interface PollProps {
   options: PollViewOption[];
-  activeParticipant: PollViewParticipant | null;
-  onChangeActiveParticipant: (participantId: string | null) => void;
-  userAlreadyVoted?: boolean;
   participants: PollViewParticipant[];
-  onEntry?: (entry: ParticipantForm) => Promise<{ id: string }>;
-  onUpdateEntry?: (id: string, entry: ParticipantForm) => Promise<void>;
-  onDeleteEntry?: (id: string) => void;
-  isBusy?: boolean;
+  value?: PollValue;
+  onChange?: (value: PollValue) => void;
 }

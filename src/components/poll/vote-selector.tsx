@@ -16,7 +16,7 @@ export interface VoteSelectorProps {
 
 const orderedVoteTypes: VoteType[] = ["yes", "ifNeedBe", "no"];
 
-export const useVoteSelector = (value?: VoteType) => {
+export const useVoteState = (value?: VoteType) => {
   return React.useMemo(
     () => ({
       toggle: () => {
@@ -40,7 +40,7 @@ export const VoteSelector = React.forwardRef<
   { value, onChange, onFocus, onBlur, onKeyDown, className },
   ref,
 ) {
-  const { toggle } = useVoteSelector(value);
+  const { toggle } = useVoteState(value);
 
   return (
     <button

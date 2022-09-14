@@ -1,54 +1,46 @@
 import { VoteType } from "@prisma/client";
 import clsx from "clsx";
+import { useTranslation } from "next-i18next";
 import * as React from "react";
 
-import CompactButton from "@/components/compact-button";
-import Pencil from "@/components/icons/pencil-alt.svg";
+import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
+import Pencil from "@/components/icons/pencil.svg";
 import Trash from "@/components/icons/trash.svg";
 
-import { ParticipantForm, PollViewOption } from "../types";
+import CompactButton from "../../compact-button";
+import Dropdown, { DropdownItem } from "../../dropdown";
+import { PollViewOption } from "../types";
 import UserAvatar from "../user-avatar";
 import VoteIcon from "../vote-icon";
-import ControlledScrollArea from "./controlled-scroll-area";
 import { usePollContext } from "./poll-context";
 
 export interface ParticipantRowProps {
   name: string;
   options: PollViewOption[];
   votes: Array<VoteType | undefined>;
-  editMode: boolean;
-  onChangeEditMode: (value: boolean) => void;
-  onChange: (participant: ParticipantForm) => Promise<void>;
-  onDelete: () => Promise<void>;
-  isYou?: boolean;
-  isEditable?: boolean;
   className?: string;
-  active?: boolean;
 }
 
 export const ParticipantRowView: React.VoidFunctionComponent<{
   name: string;
   color?: string;
   votes: Array<VoteType | undefined>;
-  onEdit?: () => void;
-  onDelete?: () => void;
   columnWidth: number;
   sidebarWidth: number;
-  isYou?: boolean;
   className?: string;
-  active?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }> = ({
   name,
   votes,
-  onEdit,
-  onDelete,
   sidebarWidth,
   columnWidth,
-  active,
-  isYou,
   color,
   className,
+  onEdit,
+  onDelete,
 }) => {
+  const { t } = useTranslation("app");
   return (
     <div
       data-testid="participant-row"
@@ -57,15 +49,27 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
       <div
         className="absolute flex h-14 shrink-0 items-center pr-1 pl-4"
         style={{ width: sidebarWidth, marginLeft: sidebarWidth * -1 }}
-        onClick={onEdit}
       >
         <UserAvatar
           className="mr-2"
           name={name}
           showName={true}
-          isYou={isYou}
           color={color}
         />
+        <Dropdown trigger={<CompactButton icon={DotsHorizontal} />}>
+          <DropdownItem
+            icon={Pencil}
+            label={t("edit")}
+            onClick={onEdit}
+            disabled={!onEdit}
+          />
+          <DropdownItem
+            icon={Trash}
+            label={t("delete")}
+            onClick={onDelete}
+            disabled={!onDelete}
+          />
+        </Dropdown>
       </div>
       <div className="flex">
         {votes.map((vote, i) => {
@@ -98,14 +102,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
 const ParticipantRow: React.VoidFunctionComponent<ParticipantRowProps> = ({
   name,
   votes,
-  editMode,
   options,
-  onChangeEditMode,
-  onChange,
-  onDelete,
-  isYou,
-  active,
-  isEditable,
   className,
 }) => {
   const { columnWidth, sidebarWidth } = usePollContext();
@@ -116,13 +113,7 @@ const ParticipantRow: React.VoidFunctionComponent<ParticipantRowProps> = ({
       columnWidth={columnWidth}
       name={name}
       votes={votes}
-      isYou={isYou}
       className={className}
-      active={active}
-      onEdit={() => {
-        onChangeEditMode?.(true);
-      }}
-      onDelete={onDelete}
     />
   );
 };

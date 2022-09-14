@@ -1,14 +1,14 @@
 import { VoteType } from "@prisma/client";
 import * as React from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller } from "react-hook-form";
 
 import { usePollData } from "../poll-data-provider";
-import { ParticipantForm, PollOption } from "../types";
+import { PollViewOption } from "../types";
 import DateOption from "./date-option";
 import TimeSlotOption from "./time-slot-option";
 
 export interface PollOptions {
-  options: Array<PollOption>;
+  options: Array<PollViewOption>;
   editable?: boolean;
   selectedParticipantId?: string;
 }
@@ -18,8 +18,6 @@ const PollOptions: React.VoidFunctionComponent<PollOptions> = ({
   editable,
   selectedParticipantId,
 }) => {
-  const { control } = useFormContext<ParticipantForm>();
-
   const { getParticipantInfoById, getParticipantsWhoVoted } = usePollData();
   const { getParticipantVoteForOptionAtIndex } = usePollData();
   const selectedParticipant = selectedParticipantId
@@ -32,7 +30,6 @@ const PollOptions: React.VoidFunctionComponent<PollOptions> = ({
         return (
           <Controller
             key={option.index}
-            control={control}
             name="votes"
             render={({ field }) => {
               const vote =

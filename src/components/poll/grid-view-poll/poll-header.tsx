@@ -2,18 +2,22 @@ import { VoteType } from "@prisma/client";
 import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useForm, useFormContext } from "react-hook-form";
 
 import ArrowLeft from "@/components/icons/chevron-left.svg";
 import ArrowRight from "@/components/icons/chevron-right.svg";
 
+import { participants } from "../../../server/routers/polls/participants";
 import { useDayjs } from "../../../utils/dayjs";
 import { useFormValidation } from "../../../utils/form-validation";
+import { Button } from "../../button";
 import CompactButton from "../../compact-button";
+import Dropdown from "../../dropdown";
 import { ScrollSyncPane, useScrollSync } from "../../scroll-sync";
 import { Sticky } from "../../sticky";
+import GridViewPoll from "../grid-view-poll";
 import { ScoreSummary } from "../score-summary";
-import { ParticipantForm, PollViewOption } from "../types";
+import { PollValue, PollViewOption, PollViewParticipant } from "../types";
 import UserAvatar from "../user-avatar";
 import { VoteSelector } from "../vote-selector";
 import { usePollContext } from "./poll-context";
@@ -49,7 +53,7 @@ export const PollOption: React.VFC<{
   const voteSelectorRef = React.useRef<HTMLButtonElement>(null);
   return (
     <div
-      className="shrink-0 select-none snap-start py-2 pr-2 text-center "
+      className="shrink-0 select-none pt-2 pr-2 text-center "
       style={{ width }}
     >
       <div
@@ -58,7 +62,7 @@ export const PollOption: React.VFC<{
           voteSelectorRef.current?.click();
         }}
         className={clsx(
-          "space-y-3 rounded-md border py-4",
+          "space-y-3 rounded-md border py-3",
           editing
             ? {
                 "shadow-sm active:bg-slate-500/10 active:shadow-none": true,
@@ -86,23 +90,17 @@ export const PollOption: React.VFC<{
           </div>
         </div>
         {option.type === "time" ? (
-          <TimeRange
-            className="mt-3"
-            startTime={option.start}
-            endTime={option.end}
-          />
+          <TimeRange startTime={option.start} endTime={option.end} />
         ) : null}
-        <div className="flex h-7 items-end justify-center">
-          {editing ? (
+        {editing ? (
+          <div className="flex h-6 items-end justify-center">
             <VoteSelector
               ref={voteSelectorRef}
               value={value}
               onChange={onChange}
             />
-          ) : (
-            <ScoreSummary yesScore={option.score} />
-          )}
-        </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -111,24 +109,12 @@ export const PollOption: React.VFC<{
 const PollHeader: React.VoidFunctionComponent<{
   options: Array<PollViewOption>;
   participantCount: number;
-  onSubmit?: (data: ParticipantForm) => Promise<void>;
-  onCancel?: () => void;
-}> = ({ options, participantCount, onCancel, onSubmit }) => {
+  value?: PollValue;
+  onChange?: (value: PollValue) => void;
+}> = ({ options, participantCount, value, onChange }) => {
   const { t } = useTranslation("app");
-  const { requiredString } = useFormValidation();
-  const {
-    goToNextPage,
-    scrollPosition,
-    maxScrollPosition,
-    goToPreviousPage,
-    numberOfColumns,
-    columnWidth,
-    sidebarWidth,
-    isEditing,
-  } = usePollContext();
-
-  const { control, reset, handleSubmit, formState } =
-    useFormContext<ParticipantForm>();
+  const { numberOfColumns, columnWidth, sidebarWidth, isEditing } =
+    usePollContext();
 
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
 
@@ -187,39 +173,41 @@ const PollHeader: React.VoidFunctionComponent<{
             className="absolute h-full shrink-0 py-3 px-4 font-medium"
             style={{ width: sidebarWidth }}
           >
-            <div className="mb-2">Select your availability</div>
-            <div>
-              <UserAvatar name={t("you")} showName />
-            </div>
-          </div>
-          <Controller
-            control={control}
-            name="votes"
-            render={({ field }) => (
-              <ScrollSyncPane
-                ref={scrollAreaRef}
-                className={clsx("no-scrollbar flex overflow-y-auto")}
-                style={{
-                  marginLeft: sidebarWidth,
-                }}
-              >
-                {options.map((option, index) => (
-                  <PollOption
-                    key={index}
-                    option={option}
-                    width={columnWidth}
-                    editing={isEditing}
-                    value={field.value[index]}
-                    onChange={(vote) => {
-                      const newValue = [...field.value];
-                      newValue[index] = vote;
-                      field.onChange(newValue);
-                    }}
-                  />
-                ))}
-              </ScrollSyncPane>
+            {!isEditing ? (
+              <div className="flex h-full items-end">
+                {t("participantCount", { count: participantCount })}
+              </div>
+            ) : (
+              <>
+                <div className="mb-2">Select your availability</div>
+                <div>
+                  <UserAvatar name={t("you")} showName />
+                </div>
+              </>
             )}
-          />
+          </div>
+          <ScrollSyncPane
+            ref={scrollAreaRef}
+            className={clsx("no-scrollbar flex overflow-y-auto")}
+            style={{
+              marginLeft: sidebarWidth,
+            }}
+          >
+            {options.map((option, index) => (
+              <PollOption
+                key={index}
+                option={option}
+                width={columnWidth}
+                editing={isEditing}
+                value={value?.[option.id]}
+                onChange={(vote) => {
+                  const newValue = { ...value };
+                  newValue[option.id] = vote;
+                  onChange?.(newValue);
+                }}
+              />
+            ))}
+          </ScrollSyncPane>
         </div>
       </div>
     </Sticky>

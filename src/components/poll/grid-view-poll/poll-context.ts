@@ -13,9 +13,7 @@ export const PollContext = React.createContext<{
   goToNextPage: () => void;
   goToPreviousPage: () => void;
   isEditing: boolean;
-  activeParticipantId: string | null;
 }>({
-  activeParticipantId: null,
   activeOptionId: null,
   setActiveOptionId: noop,
   scrollPosition: 0,

@@ -1,9 +1,11 @@
+import clsx from "clsx";
 import React from "react";
 
 import { useRequiredContext } from "./use-required-context";
 
 const ScrollSyncContext =
   React.createContext<{
+    left: number;
     onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
     setScroll: (left: number) => void;
     registerPane: (ref: React.RefObject<HTMLDivElement>) => void;
@@ -14,10 +16,12 @@ export const ScrollSync: React.VoidFunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children }) => {
   const refs = React.useRef<Set<React.RefObject<HTMLDivElement>>>(new Set());
+  const [left, setLeft] = React.useState(0);
 
   return (
     <ScrollSyncContext.Provider
       value={{
+        left,
         registerPane: (ref) => {
           refs.current.add(ref);
         },
@@ -25,6 +29,7 @@ export const ScrollSync: React.VoidFunctionComponent<{
           refs.current.delete(ref);
         },
         setScroll: (left) => {
+          setLeft(left);
           refs.current.forEach((ref) => {
             if (ref.current) {
               ref.current.scrollLeft = left;
@@ -46,7 +51,7 @@ export const ScrollSync: React.VoidFunctionComponent<{
 };
 
 export const useScrollSync = () => {
-  const { onScroll, registerPane, unregisterPane, setScroll } =
+  const { left, onScroll, registerPane, unregisterPane, setScroll } =
     useRequiredContext(ScrollSyncContext, "ScrollSync");
 
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -58,13 +63,13 @@ export const useScrollSync = () => {
     };
   }, [registerPane, unregisterPane]);
 
-  return { ref, onScroll, unregisterPane, setScroll };
+  return { ref, left, onScroll, unregisterPane, setScroll };
 };
 
 export const ScrollSyncPane = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div">
->(function ScrollSyncPane({ children, ...forwardedProps }, ref) {
+>(function ScrollSyncPane({ children, className, ...forwardedProps }, ref) {
   const props = useScrollSync();
 
   return (
@@ -81,6 +86,7 @@ export const ScrollSyncPane = React.forwardRef<
       onScroll={(e) => {
         props.onScroll(e);
       }}
+      className={clsx("select-none", className)}
     >
       {children}
     </div>

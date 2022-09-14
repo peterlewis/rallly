@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
-import { Controller, FormProvider, useFormContext } from "react-hook-form";
+import { Controller, FormProvider } from "react-hook-form";
 
 import Check from "@/components/icons/check.svg";
 import ChevronDown from "@/components/icons/chevron-down.svg";
@@ -24,6 +24,8 @@ import UserAvatar from "./user-avatar";
 const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
   options,
   participants,
+  value,
+  onChange,
   onEntry,
   onUpdateEntry,
   onDeleteEntry,
@@ -35,10 +37,6 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
 
   const { poll } = pollContext;
 
-  const form = useFormContext<ParticipantForm>();
-
-  const { reset, handleSubmit, control, formState } = form;
-
   const [isEditing, setIsEditing] = React.useState(
     !userAlreadyVoted && !poll.closed,
   );
@@ -48,198 +46,123 @@ const ListViewPoll: React.VoidFunctionComponent<PollProps> = ({
   const { t } = useTranslation("app");
   const { dayjs } = useDayjs();
   return (
-    <FormProvider {...form}>
-      <form
-        className="mobile:zero-padding border-y bg-white"
-        ref={formRef}
-        onSubmit={handleSubmit(async (data) => {
-          if (activeParticipant) {
-            await onUpdateEntry?.(activeParticipant.id, data);
-            setIsEditing(false);
-          } else {
-            if (!onEntry) {
-              setIsEditing(false);
-              return;
-            }
-            const newParticipant = await onEntry(data);
-            onChangeActiveParticipant(newParticipant.id);
-            setIsEditing(false);
-          }
-        })}
-      >
-        <div className="sticky top-12 z-30 flex flex-col space-y-2 border-b bg-gray-50 px-4 py-3 sm:px-6">
-          <div className="flex space-x-3">
-            {!isEditing ? (
-              <Listbox
-                value={activeParticipant?.id}
-                onChange={(participantId) => {
-                  onChangeActiveParticipant(participantId ?? null);
-                }}
-                disabled={isEditing}
-              >
-                <div className="menu min-w-0 grow">
-                  <Listbox.Button
-                    as={Button}
-                    className="w-full"
-                    disabled={!isEditing}
-                    data-testid="participant-selector"
-                  >
-                    <div className="min-w-0 grow text-left">
-                      {activeParticipant ? (
-                        <div className="flex items-center space-x-2">
-                          <UserAvatar
-                            name={activeParticipant.name}
-                            showName={true}
-                          />
-                        </div>
-                      ) : (
-                        t("participantCount", { count: participants.length })
-                      )}
-                    </div>
-                    <ChevronDown className="h-5 shrink-0" />
-                  </Listbox.Button>
-                  <Listbox.Options
-                    as={motion.div}
-                    transition={{
-                      duration: 0.1,
-                    }}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="menu-items max-h-72 w-full overflow-auto"
-                  >
-                    <Listbox.Option value={undefined} className={styleMenuItem}>
-                      {t("participantCount", { count: participants.length })}
-                    </Listbox.Option>
-                    {participants.map((participant) => (
-                      <Listbox.Option
-                        key={participant.id}
-                        value={participant.id}
-                        className={styleMenuItem}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <UserAvatar name={participant.name} showName={true} />
-                        </div>
-                      </Listbox.Option>
-                    ))}
-                  </Listbox.Options>
-                </div>
-              </Listbox>
-            ) : (
-              <div className="grow">
-                <Controller
-                  name="name"
-                  control={control}
-                  rules={{ validate: requiredString }}
-                  render={({ field }) => (
-                    <NameInput
-                      disabled={formState.isSubmitting}
-                      className={clsx("input w-full", {
-                        "input-error": formState.errors.name,
-                      })}
-                      {...field}
-                    />
-                  )}
-                />
-              </div>
-            )}
-            {isEditing ? (
-              <Button
-                onClick={() => {
-                  setIsEditing(false);
-                  reset();
-                }}
-              >
-                {t("cancel")}
-              </Button>
-            ) : activeParticipant ? (
-              <div className="flex space-x-3">
-                <Button
-                  icon={<Pencil />}
-                  disabled={poll.closed}
-                  onClick={() => {
-                    setIsEditing(true);
-                    reset({
-                      name: activeParticipant.name,
-                      votes: activeParticipant.votes,
-                    });
-                  }}
+    <form className="mobile:zero-padding border-y bg-white" ref={formRef}>
+      <div className="sticky top-12 z-30 flex flex-col space-y-2 border-b bg-gray-50 px-4 py-3 sm:px-6">
+        <div className="flex space-x-3">
+          {!isEditing ? (
+            <Listbox
+              value={activeParticipant?.id}
+              onChange={(participantId) => {
+                // onChangeActiveParticipant(participantId ?? null);
+              }}
+              disabled={isEditing}
+            >
+              <div className="menu min-w-0 grow">
+                <Listbox.Button
+                  as={Button}
+                  className="w-full"
+                  disabled={!isEditing}
+                  data-testid="participant-selector"
                 >
-                  {t("edit")}
-                </Button>
-                <Button
-                  icon={<Trash />}
-                  disabled={poll.closed}
-                  data-testid="delete-participant-button"
-                  type="danger"
-                  onClick={() => {
-                    if (activeParticipant) {
-                      onDeleteEntry?.(activeParticipant.id);
-                    }
+                  <div className="min-w-0 grow text-left">
+                    {activeParticipant ? (
+                      <div className="flex items-center space-x-2">
+                        <UserAvatar
+                          name={activeParticipant.name}
+                          showName={true}
+                        />
+                      </div>
+                    ) : (
+                      t("participantCount", { count: participants.length })
+                    )}
+                  </div>
+                  <ChevronDown className="h-5 shrink-0" />
+                </Listbox.Button>
+                <Listbox.Options
+                  as={motion.div}
+                  transition={{
+                    duration: 0.1,
                   }}
-                />
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="menu-items max-h-72 w-full overflow-auto"
+                >
+                  <Listbox.Option value={undefined} className={styleMenuItem}>
+                    {t("participantCount", { count: participants.length })}
+                  </Listbox.Option>
+                  {participants.map((participant) => (
+                    <Listbox.Option
+                      key={participant.id}
+                      value={participant.id}
+                      className={styleMenuItem}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <UserAvatar name={participant.name} showName={true} />
+                      </div>
+                    </Listbox.Option>
+                  ))}
+                </Listbox.Options>
               </div>
-            ) : (
+            </Listbox>
+          ) : null}
+          {isEditing ? (
+            <Button
+              onClick={() => {
+                setIsEditing(false);
+              }}
+            >
+              {t("cancel")}
+            </Button>
+          ) : activeParticipant ? (
+            <div className="flex space-x-3">
               <Button
-                icon={<PlusSm />}
+                icon={<Pencil />}
                 disabled={poll.closed}
                 onClick={() => {
-                  reset({
-                    name: "",
-                    votes: [],
-                  });
                   setIsEditing(true);
                 }}
               >
-                {t("new")}
+                {t("edit")}
               </Button>
-            )}
-          </div>
-        </div>
-        <GroupedOptions
-          selectedParticipantId={activeParticipant?.id}
-          options={options}
-          editable={isEditing}
-          groupClassName="top-[61px]"
-          group={(option) => {
-            if (option.type === "time") {
-              return dayjs(option.start).format("LL");
-            } else {
-              return dayjs(option.date).format("MMMM YYYY");
-            }
-          }}
-        />
-        <AnimatePresence initial={false}>
-          {isEditing ? (
-            <motion.div
-              variants={{
-                hidden: { opacity: 0, y: -100, height: 0 },
-                visible: { opacity: 1, y: 0, height: "auto" },
-              }}
-              initial="hidden"
-              animate="visible"
-              exit={{
-                opacity: 0,
-                y: -10,
-                height: 0,
-                transition: { duration: 0.2 },
+              <Button
+                icon={<Trash />}
+                disabled={poll.closed}
+                data-testid="delete-participant-button"
+                type="danger"
+                onClick={() => {
+                  if (activeParticipant) {
+                    onDeleteEntry?.(activeParticipant.id);
+                  }
+                }}
+              />
+            </div>
+          ) : (
+            <Button
+              icon={<PlusSm />}
+              disabled={poll.closed}
+              onClick={() => {
+                setIsEditing(true);
               }}
             >
-              <div className="flex justify-end border-t bg-gray-50 p-3 sm:rounded-b-xl">
-                <Button
-                  icon={<Check />}
-                  className="w-full sm:w-auto"
-                  htmlType="submit"
-                  type="primary"
-                  loading={formState.isSubmitting}
-                >
-                  {t("save")}
-                </Button>
-              </div>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
-      </form>
-    </FormProvider>
+              {t("new")}
+            </Button>
+          )}
+        </div>
+      </div>
+      <GroupedOptions
+        selectedParticipantId={activeParticipant?.id}
+        options={options}
+        editable={isEditing}
+        groupClassName="top-[61px]"
+        group={(option) => {
+          if (option.type === "time") {
+            return dayjs(option.start).format("LL");
+          } else {
+            return dayjs(option.date).format("MMMM YYYY");
+          }
+        }}
+      />
+    </form>
   );
 };
 

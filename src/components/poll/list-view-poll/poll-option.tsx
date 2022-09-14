@@ -11,7 +11,7 @@ import { ScoreSummary } from "../score-summary";
 import { PollViewParticipant } from "../types";
 import UserAvatar from "../user-avatar";
 import VoteIcon from "../vote-icon";
-import { useVoteSelector, VoteSelector } from "../vote-selector";
+import { useVoteState, VoteSelector } from "../vote-selector";
 
 export interface PollOptionProps {
   children?: React.ReactNode;
@@ -161,7 +161,7 @@ const PollOption: React.VoidFunctionComponent<PollOptionProps> = ({
   const [expanded, setExpanded] = React.useState(expandedFromProps);
   const selectorRef = React.useRef<HTMLButtonElement>(null);
 
-  const { toggle } = useVoteSelector(vote);
+  const { toggle } = useVoteState(vote);
   React.useEffect(() => {
     if (expandedFromProps !== undefined) {
       setExpanded(expandedFromProps);

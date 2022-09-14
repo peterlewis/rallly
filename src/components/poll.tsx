@@ -23,6 +23,7 @@ import { AppLayout, AppLayoutHeading } from "./app-layout";
 import { useLoginModal } from "./auth/login-modal";
 import { LinkText } from "./link-text";
 import { useParticipants } from "./participants-provider";
+import { ConnectedPoll } from "./poll/grid-view-poll";
 import NotificationsToggle from "./poll/notifications-toggle";
 import { PollDataProvider } from "./poll/poll-data-provider";
 import PollSubheader from "./poll/poll-subheader";
@@ -280,6 +281,25 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
               {participants ? (
+                <ConnectedPoll
+                  admin={poll.admin}
+                  options={poll.options.map(({ id, value }) => ({
+                    id,
+                    value:
+                      value.indexOf("/") === -1
+                        ? { type: "date", date: value }
+                        : {
+                            type: "time",
+                            start: value.split("/")[0],
+                            end: value.split("/")[1],
+                          },
+                  }))}
+                  timezone={poll.timeZone}
+                  participants={participants}
+                />
+              ) : null}
+
+              {/* {participants ? (
                 <PollDataProvider
                   admin={poll.admin}
                   options={poll.options.map(({ id, value }) => ({
@@ -297,7 +317,7 @@ const PollPage: NextPage = () => {
                   timeZone={poll.timeZone}
                   participants={participants}
                 />
-              ) : null}
+              ) : null} */}
               <Discussion />
             </motion.div>
           </LayoutGroup>

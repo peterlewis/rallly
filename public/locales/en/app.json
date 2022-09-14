@@ -117,6 +117,7 @@
   "allDay": "All-day",
   "optionCount": "{{count}} option",
   "pollCount_other": "{{count}} polls",
+  "selectAvailability": "Select availability",
   "pollCount": "{{count}} poll",
   "pollHasBeenLocked": "This poll has been locked by the administrator (voting is disabled)",
   "manageDescription": "Manage your poll details and settings",

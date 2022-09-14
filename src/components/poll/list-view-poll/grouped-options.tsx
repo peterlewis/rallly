@@ -3,14 +3,14 @@ import { groupBy } from "lodash";
 import * as React from "react";
 
 import { Sticky } from "../../sticky";
-import { PollOption } from "../types";
+import { PollViewOption } from "../types";
 import PollOptions from "./poll-options";
 
 export interface GroupedOptionsProps {
-  options: PollOption[];
+  options: PollViewOption[];
   editable?: boolean;
   selectedParticipantId?: string;
-  group: (option: PollOption) => string;
+  group: (option: PollViewOption) => string;
   groupClassName?: string;
 }
 
