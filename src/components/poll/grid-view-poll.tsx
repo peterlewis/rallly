@@ -18,6 +18,7 @@ import CompactButton from "../compact-button";
 import Dropdown, { DropdownItem } from "../dropdown";
 import { usePoll } from "../poll-provider";
 import { ScrollSync, ScrollSyncPane, useScrollSync } from "../scroll-sync";
+import { Slider } from "../slider";
 import { Sticky } from "../sticky";
 import { useUser } from "../user-provider";
 import ParticipantRow, {
@@ -165,11 +166,23 @@ const NavigationControl: React.VoidFunctionComponent<{
   const { t } = useTranslation("app");
 
   return (
-    <div className="flex items-center space-x-3">
-      <div className="font-medium text-slate-500">
+    <div className="flex grow items-center space-x-3">
+      <div className="grow">
+        <Slider
+          value={left}
+          min={0}
+          step={step}
+          max={maxValue}
+          onValueChange={([newLeft]) => {
+            setScroll(newLeft);
+          }}
+          className="w-full"
+        />
+      </div>
+      <div className="whitespace-nowrap font-medium text-slate-500">
         {t("optionCount", { count })}
       </div>
-      <div className="ml-4 space-x-2">
+      <div className="ml-4 flex space-x-1">
         <CompactButton
           icon={ArrowLeft}
           onClick={() => {
@@ -207,7 +220,6 @@ const GridPoll: React.VoidFunctionComponent<{
   const { ref, columnWidth, sidebarWidth, numberOfVisibleColumns } = useGrid(
     options.length,
   );
-  const { t } = useTranslation("app");
 
   return (
     <ScrollSync>
@@ -225,14 +237,17 @@ const GridPoll: React.VoidFunctionComponent<{
           }
         >
           {numberOfVisibleColumns < options.length ? (
-            <div className="flex items-center justify-end space-x-3 px-3 pb-2 pt-4">
-              <NavigationControl
-                step={columnWidth}
-                maxValue={
-                  (options.length - numberOfVisibleColumns) * columnWidth
-                }
-                count={options.length}
-              />
+            <div className="flex items-center pb-2 pt-4">
+              <div style={{ width: sidebarWidth }}></div>
+              <div className="grow pr-3">
+                <NavigationControl
+                  step={columnWidth}
+                  maxValue={
+                    (options.length - numberOfVisibleColumns) * columnWidth
+                  }
+                  count={options.length}
+                />
+              </div>
             </div>
           ) : null}
           <div className="flex">
@@ -332,15 +347,18 @@ const GridPollInputOption: React.VoidFunctionComponent<{
   return (
     <div
       role="button"
-      className={clsx("rounded-md border py-4 text-center transition-all", {
-        "shadow-sm active:bg-slate-500/10 active:shadow-none": true,
-        "border-t-8 border-green-300 bg-green-400/5  active:bg-green-400/10":
-          value === "yes",
-        "border-t-8 border-amber-300 bg-amber-400/5 active:bg-amber-400/10":
-          value === "ifNeedBe",
-        "bg-slate-50": value === "no",
-        "hover:bg-slate-500/5": !value,
-      })}
+      className={clsx(
+        "rounded-md border border-t-8 py-3 text-center transition-all",
+        {
+          "shadow-sm active:bg-slate-500/10 active:shadow-none": true,
+          " border-green-300 border-t-green-400 bg-green-400/5  active:bg-green-400/10":
+            value === "yes",
+          " border-amber-300 border-t-amber-300 bg-amber-400/5 active:bg-amber-400/10":
+            value === "ifNeedBe",
+          "bg-slate-50": value === "no",
+          "hover:bg-slate-500/5": !value,
+        },
+      )}
       onClick={() => {
         onChange(toggle());
       }}

@@ -17,7 +17,6 @@ export const ScrollSync: React.VoidFunctionComponent<{
 }> = ({ children }) => {
   const refs = React.useRef<Set<React.RefObject<HTMLDivElement>>>(new Set());
   const [left, setLeft] = React.useState(0);
-
   return (
     <ScrollSyncContext.Provider
       value={{
@@ -37,6 +36,7 @@ export const ScrollSync: React.VoidFunctionComponent<{
           });
         },
         onScroll: (e) => {
+          setLeft(e.currentTarget.scrollLeft);
           refs.current.forEach((ref) => {
             if (ref.current && e.target !== ref.current) {
               ref.current.scrollLeft = e.currentTarget.scrollLeft;
