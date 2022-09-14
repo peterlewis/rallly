@@ -56,7 +56,10 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
           showName={true}
           color={color}
         />
-        <Dropdown trigger={<CompactButton icon={DotsHorizontal} />}>
+        <Dropdown
+          placement="bottom-start"
+          trigger={<CompactButton icon={DotsHorizontal} />}
+        >
           <DropdownItem
             icon={Pencil}
             label={t("edit")}

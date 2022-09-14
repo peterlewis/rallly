@@ -166,7 +166,7 @@ const NavigationControl: React.VoidFunctionComponent<{
   const { t } = useTranslation("app");
 
   return (
-    <div className="flex grow items-center space-x-3">
+    <div className="flex grow touch-none select-none items-center space-x-3">
       <div className="grow">
         <Slider
           value={left}
@@ -179,7 +179,7 @@ const NavigationControl: React.VoidFunctionComponent<{
           className="w-full"
         />
       </div>
-      <div className="whitespace-nowrap font-medium text-slate-500">
+      <div className="whitespace-nowrap font-medium text-slate-400">
         {t("optionCount", { count })}
       </div>
       <div className="ml-4 flex space-x-1">
@@ -237,7 +237,7 @@ const GridPoll: React.VoidFunctionComponent<{
           }
         >
           {numberOfVisibleColumns < options.length ? (
-            <div className="flex items-center pb-2 pt-4">
+            <div className="flex items-center pb-1 pt-3">
               <div style={{ width: sidebarWidth }}></div>
               <div className="grow pr-3">
                 <NavigationControl
@@ -252,7 +252,7 @@ const GridPoll: React.VoidFunctionComponent<{
           ) : null}
           <div className="flex">
             <div
-              className="p shrink-0 p-4 pb-6"
+              className="p shrink-0 p-4 pb-4"
               style={{ width: sidebarWidth }}
             >
               {sidebar}
@@ -426,7 +426,7 @@ const GridPollResultsOption: React.VoidFunctionComponent<{
   option: PollViewOption;
 }> = ({ option }) => {
   return (
-    <div className="border border-transparent py-4">
+    <div className="border border-transparent py-2">
       <GridPollOption option={option}>
         <ScoreSummary yesScore={option.score} />
       </GridPollOption>
@@ -786,24 +786,3 @@ const Poll: React.VoidFunctionComponent<{
     );
   }
 };
-
-// userAlreadyVoted ? <PollResults options={options} entries={entries} onEditParticipant={} /> : <NewParticpantForm />
-// {
-//   activeParticipant ? (
-//     <EditParticipantForm
-//       name={activeParticipant.name}
-//       options={options}
-//       entries={entries}
-//       votes={activeParticipant.votes}
-//       onCancel={() => setActiveParticipant(null)}
-//     />
-//   ) : (
-//     <PollResults
-//       options={options}
-//       entries={entries}
-//       onEditParticipant={(participantId) => {
-//         setActiveParticipant(participantId);
-//       }}
-//     />
-//   );
-// }
