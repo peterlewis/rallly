@@ -18,6 +18,7 @@ import { PollOption } from "../../utils/trpc/types";
 import { Button } from "../button";
 import CompactButton from "../compact-button";
 import { CustomScrollbar } from "../custom-scrollbar";
+import { DraggableContainer } from "../drag-scroll";
 import Dropdown, { DropdownItem } from "../dropdown";
 import { useModal } from "../modal";
 import { ModalProps } from "../modal/modal";
@@ -258,7 +259,10 @@ const GridPoll: React.VoidFunctionComponent<{
             >
               {sidebar}
             </div>
-            <ScrollSyncPane className="no-scrollbar flex overflow-y-auto py-2">
+            <ScrollSyncPane
+              as={DraggableContainer}
+              className="no-scrollbar flex overflow-y-auto py-2"
+            >
               {options.map((option, i) => (
                 <div
                   key={i}
@@ -274,6 +278,7 @@ const GridPoll: React.VoidFunctionComponent<{
 
         <div className="bg-slate-400/5 py-2">
           <ScrollSyncPane
+            as={DraggableContainer}
             className="no-scrollbar overflow-x-auto overflow-y-hidden"
             style={{ marginLeft: sidebarWidth }}
           >

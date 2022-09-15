@@ -1,6 +1,8 @@
 import clsx from "clsx";
 import React from "react";
 
+import { useCombinedRefs } from "../utils/use-combined-refs";
+import { useDragScroll } from "./drag-scroll";
 import { useRequiredContext } from "./use-required-context";
 
 const ScrollSyncContext =
@@ -68,20 +70,17 @@ export const useScrollSync = () => {
 
 export const ScrollSyncPane = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
->(function ScrollSyncPane({ children, className, ...forwardedProps }, ref) {
+  React.ComponentProps<"div"> & {
+    as?: React.ComponentType;
+  }
+>(function ScrollSyncPane({ children, className, as, ...forwardedProps }, ref) {
   const props = useScrollSync();
 
+  const combinedRefs = useCombinedRefs(props.ref, ref);
+  const Element = as ?? "div";
   return (
-    <div
-      ref={(el) => {
-        props.ref.current = el;
-        if (typeof ref === "function") {
-          ref(el);
-        } else if (ref) {
-          ref.current = el;
-        }
-      }}
+    <Element
+      ref={combinedRefs}
       {...forwardedProps}
       onScroll={(e) => {
         props.onScroll(e);
@@ -89,6 +88,6 @@ export const ScrollSyncPane = React.forwardRef<
       className={clsx("select-none", className)}
     >
       {children}
-    </div>
+    </Element>
   );
 });
