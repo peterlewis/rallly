@@ -4,7 +4,7 @@ import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { requiredString } from "../../../utils/form-validation";
-import NameInput from "../../name-input";
+import { NameInput } from "../../name-input";
 import { ParticipantForm, PollViewOption } from "../types";
 import { VoteSelector } from "../vote-selector";
 import ControlledScrollArea from "./controlled-scroll-area";

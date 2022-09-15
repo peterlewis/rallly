@@ -1,5 +1,6 @@
 import { Participant, Vote, VoteType } from "@prisma/client";
 import clsx from "clsx";
+import { current } from "immer";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -18,9 +19,14 @@ import { Button } from "../button";
 import CompactButton from "../compact-button";
 import { CustomScrollbar } from "../custom-scrollbar";
 import Dropdown, { DropdownItem } from "../dropdown";
+import { useModal } from "../modal";
+import { ModalProps } from "../modal/modal";
+import ModalProvider, { useModalContext } from "../modal/modal-provider";
+import { NameInput } from "../name-input";
 import { usePoll } from "../poll-provider";
 import { ScrollSync, ScrollSyncPane, useScrollSync } from "../scroll-sync";
 import { Sticky } from "../sticky";
+import { TextInput } from "../text-input";
 import { useUser } from "../user-provider";
 import ParticipantRow, {
   ParticipantRowView,
@@ -96,7 +102,6 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps> = ({
   return (
     <PollContext.Provider
       value={{
-        activeOptionId,
         setActiveOptionId,
         scrollPosition,
         setScrollPosition,
@@ -683,20 +688,22 @@ export const ConnectedPoll: React.VoidFunctionComponent<{
   );
 
   return (
-    <div>
-      <div>toolbar goes here</div>
-      <div className="card-0">
-        <Poll
-          id={id}
-          options={pollOptions}
-          entries={entries}
-          view={view}
-          defaultMode={
-            admin ? "read" : !isLocked && !didAlreadyVote ? "create" : "read"
-          }
-        />
+    <ModalProvider>
+      <div>
+        <div>toolbar goes here</div>
+        <div className="card-0">
+          <Poll
+            id={id}
+            options={pollOptions}
+            entries={entries}
+            view={view}
+            defaultMode={
+              admin ? "read" : !isLocked && !didAlreadyVote ? "create" : "read"
+            }
+          />
+        </div>
       </div>
-    </div>
+    </ModalProvider>
   );
 };
 
@@ -723,17 +730,80 @@ const usePollContext = () => {
   return React.useContext(PollContext);
 };
 
+const ChangeNameDialog: React.VoidFunctionComponent<{
+  currentName: string;
+  participantId: string;
+  pollId: string;
+  onDone: () => void;
+}> = ({ pollId, participantId, currentName, onDone }) => {
+  const { t } = useTranslation("app");
+  const queryClient = trpc.useContext();
+  const changeName = trpc.useMutation("polls.participants.changeName", {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["polls.participants.list", { pollId }]);
+    },
+  });
+  const { register, handleSubmit, formState } = useForm<{ name: string }>({
+    defaultValues: {
+      name: currentName,
+    },
+  });
+  return (
+    <div className="w-[450px] p-4">
+      <div className="mb-4 text-lg font-semibold">{t("changeName")}</div>
+      <form
+        className="space-y-4"
+        onSubmit={handleSubmit(async ({ name }) => {
+          await changeName.mutateAsync({ pollId, participantId, name });
+          onDone();
+        })}
+      >
+        <fieldset className="grid grid-cols-9 gap-4">
+          <label className="col-span-3 flex h-full items-center justify-end font-medium text-slate-500">
+            {t("currentName")}
+          </label>
+          <div className="col-span-6">
+            <UserAvatar name={currentName} showName={true} />
+          </div>
+        </fieldset>
+        <fieldset className="grid grid-cols-9 gap-4">
+          <label className="col-span-3 flex items-center justify-end font-medium text-slate-500">
+            {t("name")}
+          </label>
+          <div className="col-span-6">
+            <TextInput
+              placeholder={t("namePlaceholder")}
+              className="w-full"
+              autoFocus={true}
+              {...register("name")}
+            />
+          </div>
+        </fieldset>
+        <div className="flex justify-end">
+          <Button
+            htmlType="submit"
+            loading={formState.isSubmitting}
+            type="primary"
+          >
+            {t("save")}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
 const Poll: React.VoidFunctionComponent<{
   id: string;
   options: PollViewOption[];
   entries: PollViewParticipant[];
   view: "grid" | "list";
-  defaultMode: "create" | "read";
+  defaultMode: "create" | "read" | "edit";
 }> = ({ id, options, entries, view, defaultMode }) => {
-  const [activeParticipant, setActiveParticipant] =
-    React.useState<PollViewParticipant | null>(null);
+  const [activeParticipantId, setActiveParticipantId] =
+    React.useState<string | null>(null);
 
-  const [isCreating, setCreating] = React.useState(defaultMode === "create");
+  const [mode, setMode] = React.useState(defaultMode);
 
   const findParticipantById = React.useCallback(
     (participantId: string): PollViewParticipant | null => {
@@ -741,6 +811,12 @@ const Poll: React.VoidFunctionComponent<{
     },
     [entries],
   );
+
+  const activeParticipant = activeParticipantId
+    ? findParticipantById(activeParticipantId)
+    : null;
+
+  const modalContext = useModalContext();
 
   const deleteParticipant = useDeleteParticipantModal();
 
@@ -752,28 +828,50 @@ const Poll: React.VoidFunctionComponent<{
         options,
         entries,
         onEditParticipant: (participantId) => {
-          setActiveParticipant(findParticipantById(participantId));
+          setActiveParticipantId(participantId);
+          setMode("edit");
         },
         onDeleteParticipant: deleteParticipant,
         onAddParticipant: () => {
-          setCreating(true);
+          setMode("create");
         },
         onChangeName: (participantId) => {
-          // rename participant
+          const participant = findParticipantById(participantId);
+          if (participant) {
+            // rename participant
+            modalContext.render({
+              overlayClosable: true,
+              showClose: true,
+              content: function Content({ close }) {
+                return (
+                  <ChangeNameDialog
+                    participantId={participant.id}
+                    pollId={id}
+                    currentName={participant.name}
+                    onDone={close}
+                  />
+                );
+              },
+              footer: null,
+            });
+          }
         },
       }}
     >
-      {isCreating ? (
-        <NewEntryForm
-          onDone={() => {
-            setCreating(false);
-          }}
-        />
-      ) : activeParticipant ? (
+      {mode === "create" ? (
+        <>
+          <NewEntryForm
+            onDone={() => {
+              setMode("read");
+            }}
+          />
+        </>
+      ) : mode === "edit" && activeParticipant ? (
         <EditParticipantForm
           participant={activeParticipant}
           onDone={() => {
-            setActiveParticipant(null);
+            setMode("read");
+            setActiveParticipantId(null);
           }}
         />
       ) : (

@@ -33,7 +33,7 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
     return (
       <span
         className={clsx(
-          "flex items-center rounded-md border bg-white text-slate-700 ",
+          "flex items-center rounded-md border bg-white text-slate-700",
           {
             "h-9 px-2": size === "md",
             "h-12 px-3": size === "lg",

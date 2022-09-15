@@ -124,4 +124,29 @@ export const participants = createRouter()
 
       return participant;
     },
+  })
+  .mutation("changeName", {
+    input: z.object({
+      pollId: z.string(),
+      participantId: z.string(),
+      name: z.string(),
+    }),
+    resolve: async ({ input: { pollId, participantId, name } }) => {
+      const participant = await prisma.participant.update({
+        select: {
+          name: true,
+        },
+        where: {
+          id_pollId: {
+            id: participantId,
+            pollId: pollId,
+          },
+        },
+        data: {
+          name,
+        },
+      });
+
+      return participant;
+    },
   });

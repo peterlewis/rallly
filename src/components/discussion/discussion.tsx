@@ -13,7 +13,7 @@ import CompactButton from "../compact-button";
 import Dropdown, { DropdownItem } from "../dropdown";
 import DotsHorizontal from "../icons/dots-horizontal.svg";
 import Trash from "../icons/trash.svg";
-import NameInput from "../name-input";
+import { NameInput } from "../name-input";
 import TruncatedLinkify from "../poll/truncated-linkify";
 import UserAvatar from "../poll/user-avatar";
 import { usePoll } from "../poll-provider";
