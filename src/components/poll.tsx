@@ -25,7 +25,6 @@ import { LinkText } from "./link-text";
 import { useParticipants } from "./participants-provider";
 import { ConnectedPoll } from "./poll/grid-view-poll";
 import NotificationsToggle from "./poll/notifications-toggle";
-import { PollDataProvider } from "./poll/poll-data-provider";
 import PollSubheader from "./poll/poll-subheader";
 import TruncatedLinkify from "./poll/truncated-linkify";
 import { useTouchBeacon } from "./poll/use-touch-beacon";
@@ -282,6 +281,7 @@ const PollPage: NextPage = () => {
               </div>
               {participants ? (
                 <ConnectedPoll
+                  id={poll.id}
                   admin={poll.admin}
                   options={poll.options.map(({ id, value }) => ({
                     id,

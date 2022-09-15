@@ -3,7 +3,7 @@ import clsx from "clsx";
 import React from "react";
 import { useMeasure } from "react-use";
 
-export const Slider = React.forwardRef<
+export const CustomScrollbar = React.forwardRef<
   HTMLSpanElement,
   Omit<SliderPrimitive.SliderProps, "value"> & {
     max: number;
@@ -20,7 +20,7 @@ export const Slider = React.forwardRef<
   }, [defaultValue, value]);
 
   return (
-    <div ref={ref} className={clsx("h-3 touch-none select-none", className)}>
+    <div ref={ref} className={clsx("h-2 touch-none select-none", className)}>
       <SliderPrimitive.Slider
         {...props}
         value={position}
@@ -32,7 +32,7 @@ export const Slider = React.forwardRef<
         </SliderPrimitive.Track>
         {width > 0 ? (
           <SliderPrimitive.SliderThumb
-            className="relative block h-3 rounded-full bg-slate-500/60 ring-primary-500 transition-colors hover:bg-slate-500/70"
+            className="relative block h-2 rounded-full bg-slate-500/60 outline-none ring-primary-500 transition-colors hover:bg-slate-500/70"
             style={{
               width: Math.min(
                 width * 0.75,

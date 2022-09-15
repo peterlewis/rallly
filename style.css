@@ -48,6 +48,10 @@
   #floating-ui-root {
     @apply absolute z-50 w-full;
   }
+
+  :focus-visible {
+    @apply outline-primary-500 ring-primary-500;
+  }
 }
 
 @layer components {

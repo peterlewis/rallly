@@ -3,7 +3,8 @@ import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 
-import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
+import Calendar from "@/components/icons/calendar.svg";
+import DotsVertical from "@/components/icons/dots-horizontal.svg";
 import Pencil from "@/components/icons/pencil.svg";
 import Trash from "@/components/icons/trash.svg";
 
@@ -30,6 +31,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
   className?: string;
   onEdit?: () => void;
   onDelete?: () => void;
+  onChangeName?: () => void;
 }> = ({
   name,
   votes,
@@ -39,6 +41,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
   className,
   onEdit,
   onDelete,
+  onChangeName,
 }) => {
   const { t } = useTranslation("app");
   return (
@@ -47,7 +50,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
       className={clsx("group flex h-14 py-1", className)}
     >
       <div
-        className="absolute flex h-14 shrink-0 items-center pr-1 pl-4"
+        className="absolute flex h-14 shrink-0 items-center justify-between pr-4 pl-4"
         style={{ width: sidebarWidth, marginLeft: sidebarWidth * -1 }}
       >
         <UserAvatar
@@ -58,13 +61,23 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
         />
         <Dropdown
           placement="bottom-start"
-          trigger={<CompactButton icon={DotsHorizontal} />}
+          trigger={
+            <button className="inline-flex h-5 w-5 items-center justify-center text-slate-400/50 hover:text-slate-400">
+              <DotsVertical className="h-4" />
+            </button>
+          }
         >
           <DropdownItem
-            icon={Pencil}
-            label={t("edit")}
+            icon={Calendar}
+            label={t("editVotes")}
             onClick={onEdit}
             disabled={!onEdit}
+          />
+          <DropdownItem
+            icon={Pencil}
+            label={t("changeName")}
+            onClick={onChangeName}
+            disabled={!onChangeName}
           />
           <DropdownItem
             icon={Trash}

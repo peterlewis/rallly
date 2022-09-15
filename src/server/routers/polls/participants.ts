@@ -88,7 +88,6 @@ export const participants = createRouter()
     input: z.object({
       pollId: z.string(),
       participantId: z.string(),
-      name: z.string(),
       votes: z
         .object({
           optionId: z.string(),
@@ -96,7 +95,7 @@ export const participants = createRouter()
         })
         .array(),
     }),
-    resolve: async ({ input: { pollId, participantId, votes, name } }) => {
+    resolve: async ({ input: { pollId, participantId, votes } }) => {
       const participant = await prisma.participant.update({
         where: {
           id_pollId: {
@@ -117,7 +116,6 @@ export const participants = createRouter()
               })),
             },
           },
-          name,
         },
         include: {
           votes: true,
