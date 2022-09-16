@@ -139,7 +139,7 @@ const AdminPanel = () => {
   const { openLoginModal } = useLoginModal();
   const { user } = useUser();
   return (
-    <div className="card border-b">
+    <div className="rounded-md border bg-white/20 p-6 shadow-sm">
       <div className="justify flex justify-between font-bold">
         <div className="flex text-sm sm:text-lg">
           {t("administrationPanel")}
@@ -154,8 +154,8 @@ const AdminPanel = () => {
       <div className="space-y-4 pt-4">
         {!poll.user && user.isGuest ? (
           <div className="flex rounded-md bg-amber-500/5 p-2">
-            <Exclamation className="mr-2 h-5 text-amber-500" />
-            <div className="text-sm text-amber-700/75">
+            <Exclamation className="mr-2 h-5 text-amber-600/75" />
+            <div className="text-sm text-amber-600/75">
               <Trans
                 t={t}
                 i18nKey="guestPollWarning"
@@ -163,7 +163,7 @@ const AdminPanel = () => {
                   a: (
                     <LinkText
                       href="/login"
-                      className="text-amber-700/75 underline hover:text-amber-700 active:text-amber-700/50"
+                      className="text-amber-600/75 underline hover:text-amber-600 active:text-amber-600/50"
                       onClick={(e) => {
                         e.preventDefault();
                         openLoginModal();

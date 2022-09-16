@@ -64,7 +64,10 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
         <Dropdown
           placement="bottom-start"
           trigger={
-            <button className="inline-flex h-5 w-5 items-center justify-center text-slate-400/50 hover:text-slate-400">
+            <button
+              type="button"
+              className="inline-flex h-5 w-5 items-center justify-center text-slate-400/50 hover:text-slate-400"
+            >
               <DotsVertical className="h-4" />
             </button>
           }

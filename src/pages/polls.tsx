@@ -57,7 +57,7 @@ const Polls: React.VoidFunctionComponent = () => {
           className="w-full sm:w-64"
         />
       </div>
-      <div className="divide-y">
+      <div className="space-y-4">
         {polls.map((poll) => {
           const participantNames = poll.participants.map(({ name }) => name);
           return (
@@ -66,7 +66,7 @@ const Polls: React.VoidFunctionComponent = () => {
               exit={{ opacity: 0 }}
               layout="position"
               key={poll.id}
-              className="edge-6 flex overflow-hidden p-6"
+              className="card flex overflow-hidden p-4"
             >
               <div className="grow">
                 <div className="flex justify-between space-x-2">
@@ -82,7 +82,7 @@ const Polls: React.VoidFunctionComponent = () => {
                 <div className="flex space-x-2">
                   {participantNames.length > 0 ? (
                     <UserAvatarProvider names={participantNames} seed={poll.id}>
-                      <div className="flex h-7 items-center rounded-full bg-slate-100 px-1">
+                      <div className="flex h-7 items-center rounded-full">
                         <SummarizedParticipantBubbles
                           participants={participantNames}
                         />
@@ -121,7 +121,7 @@ const Page = () => {
 
   return (
     <AppLayout title={t("meetingPolls")}>
-      <div className="card">
+      <div className="pt-8">
         <AppLayoutHeading
           title={t("meetingPolls")}
           description={t("meetingPollsDescription")}

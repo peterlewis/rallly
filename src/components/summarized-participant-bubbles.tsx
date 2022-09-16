@@ -23,7 +23,7 @@ export const SummarizedParticipantBubbles: React.VoidFunctionComponent<{
           );
         })}
       {participants.length > 8 ? (
-        <span className="inline-flex h-5 items-center justify-center rounded-full bg-slate-100 px-1 text-xs font-medium ring-1 ring-white">
+        <span className="inline-flex h-6 items-center justify-center rounded-full bg-slate-100 px-2 text-xs font-medium text-slate-400 ring-1 ring-white">
           +{participants.length - 7}
         </span>
       ) : null}
