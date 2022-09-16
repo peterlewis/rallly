@@ -4,6 +4,7 @@ import { current } from "immer";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { useMeasure } from "react-use";
 
 import ArrowLeft from "@/components/icons/arrow-left.svg";
@@ -495,6 +496,7 @@ const EditParticipantForm: React.VoidFunctionComponent<{
           return newParticipants;
         },
       );
+      toast.success(t("saved"));
     },
   });
 
@@ -681,7 +683,7 @@ export const ConnectedPoll: React.VoidFunctionComponent<{
   return (
     <ModalProvider>
       <div>
-        <div>toolbar goes here</div>
+        <div className="mb-8">toolbar goes here</div>
         <div className="card-0">
           <Poll
             id={id}
@@ -732,6 +734,7 @@ const ChangeNameDialog: React.VoidFunctionComponent<{
   const changeName = trpc.useMutation("polls.participants.changeName", {
     onSuccess: () => {
       queryClient.invalidateQueries(["polls.participants.list", { pollId }]);
+      toast.success(t("saved"));
     },
   });
   const { register, handleSubmit, formState } = useForm<{ name: string }>({

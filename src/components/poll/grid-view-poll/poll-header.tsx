@@ -186,13 +186,7 @@ const PollHeader: React.VoidFunctionComponent<{
               </>
             )}
           </div>
-          <ScrollSyncPane
-            ref={scrollAreaRef}
-            className={clsx("no-scrollbar flex overflow-y-auto")}
-            style={{
-              marginLeft: sidebarWidth,
-            }}
-          >
+          <div>
             {options.map((option, index) => (
               <PollOption
                 key={index}
@@ -207,7 +201,7 @@ const PollHeader: React.VoidFunctionComponent<{
                 }}
               />
             ))}
-          </ScrollSyncPane>
+          </div>
         </div>
       </div>
     </Sticky>

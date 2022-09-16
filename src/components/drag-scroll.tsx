@@ -45,7 +45,7 @@ export const useDragScroll = <T extends HTMLElement>(): [
       e.preventDefault();
       if (!isDragging) return;
       const x = e.pageX - slider.offsetLeft;
-      const walk = (x - startX.current) * 2;
+      const walk = x - startX.current;
       slider.scrollLeft = scrollLeft.current - walk;
     };
 
