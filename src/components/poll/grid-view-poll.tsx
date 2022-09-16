@@ -545,7 +545,7 @@ const EditParticipantForm: React.VoidFunctionComponent<{
   );
 };
 
-const NewEntryForm: React.VoidFunctionComponent<{
+const NewParticipantForm: React.VoidFunctionComponent<{
   onDone: () => void;
 }> = ({ onDone }) => {
   const { options, entries, view } = usePollContext();
@@ -854,7 +854,7 @@ const Poll: React.VoidFunctionComponent<{
     >
       {mode === "create" ? (
         <>
-          <NewEntryForm
+          <NewParticipantForm
             onDone={() => {
               setMode("read");
             }}

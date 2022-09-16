@@ -74,11 +74,21 @@ export const DraggableContainer = React.forwardRef<
   const [dragRef] = useDragScroll<HTMLDivElement>();
   const combinedRef = useCombinedRefs(dragRef, ref);
 
+  const isOverflowing = () => {
+    if (!dragRef.current) {
+      return false;
+    }
+
+    return dragRef.current.scrollWidth > dragRef.current.clientWidth;
+  };
+
   return (
     <div
       ref={combinedRef}
       {...forwardedProps}
-      className={clsx("cursor-grab active:cursor-grabbing", className)}
+      className={clsx(className, {
+        "cursor-grab active:cursor-grabbing": isOverflowing(),
+      })}
     >
       {children}
     </div>
