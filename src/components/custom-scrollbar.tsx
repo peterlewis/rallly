@@ -32,7 +32,7 @@ export const CustomScrollbar = React.forwardRef<
         </SliderPrimitive.Track>
         {width > 0 ? (
           <SliderPrimitive.SliderThumb
-            className="relative block h-2 rounded-full bg-slate-500/60 outline-none ring-primary-500 transition-colors hover:bg-slate-500/70"
+            className="relative block h-2 cursor-grab rounded-full bg-slate-500/60 outline-none ring-primary-500 transition-colors hover:bg-slate-500/70 active:cursor-grabbing"
             style={{
               width: Math.min(
                 width * 0.75,

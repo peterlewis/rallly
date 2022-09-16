@@ -49,7 +49,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
   return (
     <div
       data-testid="participant-row"
-      className={clsx("group flex h-14 py-1", className)}
+      className={clsx("flex h-14 select-none py-1", className)}
     >
       <div
         className="flex h-14 shrink-0 items-center justify-between pr-4 pl-4"

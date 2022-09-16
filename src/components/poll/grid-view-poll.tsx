@@ -273,32 +273,34 @@ const GridPoll: React.VoidFunctionComponent<{
           </div>
         </Sticky>
 
-        <div className="bg-slate-400/5 py-2">
-          {entries.map((entry) => {
-            return (
-              <ParticipantRowView
-                key={entry.id}
-                name={entry.name}
-                votes={entry.votes}
-                sidebarWidth={sidebarWidth}
-                columnWidth={columnWidth}
-                onEdit={
-                  onEditParticipant
-                    ? () => onEditParticipant(entry.id)
-                    : undefined
-                }
-                onDelete={
-                  onDeleteParticipant
-                    ? () => onDeleteParticipant(entry.id)
-                    : undefined
-                }
-                onChangeName={
-                  onChangeName ? () => onChangeName(entry.id) : undefined
-                }
-              />
-            );
-          })}
-        </div>
+        {entries.length > 0 ? (
+          <div className="bg-slate-400/5 py-2">
+            {entries.map((entry) => {
+              return (
+                <ParticipantRowView
+                  key={entry.id}
+                  name={entry.name}
+                  votes={entry.votes}
+                  sidebarWidth={sidebarWidth}
+                  columnWidth={columnWidth}
+                  onEdit={
+                    onEditParticipant
+                      ? () => onEditParticipant(entry.id)
+                      : undefined
+                  }
+                  onDelete={
+                    onDeleteParticipant
+                      ? () => onDeleteParticipant(entry.id)
+                      : undefined
+                  }
+                  onChangeName={
+                    onChangeName ? () => onChangeName(entry.id) : undefined
+                  }
+                />
+              );
+            })}
+          </div>
+        ) : null}
       </div>
     </ScrollSync>
   );
