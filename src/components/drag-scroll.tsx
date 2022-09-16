@@ -45,19 +45,17 @@ export const useDragScroll = <T extends HTMLElement>(): [
       e.preventDefault();
       if (!isDragging) return;
       const x = e.pageX - slider.offsetLeft;
-      const walk = x - startX.current;
+      const walk = (x - startX.current) * 2;
       slider.scrollLeft = scrollLeft.current - walk;
     };
 
     const cleanup = () => {
       window.removeEventListener("mouseup", handleMouseLeave);
-      window.removeEventListener("mouseleave", handleMouseLeave);
       window.removeEventListener("mousemove", handleMouseMove);
     };
 
     if (isDragging) {
       window.addEventListener("mouseup", handleMouseLeave);
-      slider.addEventListener("mouseleave", handleMouseLeave);
       window.addEventListener("mousemove", handleMouseMove);
     } else {
       cleanup();

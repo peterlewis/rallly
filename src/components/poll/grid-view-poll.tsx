@@ -238,76 +238,65 @@ const GridPoll: React.VoidFunctionComponent<{
             )
           }
         >
-          {numberOfVisibleColumns < options.length ? (
-            <div className="flex items-center pb-1 pt-3">
-              <div style={{ width: sidebarWidth }}></div>
-              <div className="grow pr-3">
-                <NavigationControl
-                  step={columnWidth}
-                  maxValue={
-                    (options.length - numberOfVisibleColumns) * columnWidth
-                  }
-                  count={options.length}
-                />
-              </div>
-            </div>
-          ) : null}
           <div className="flex">
-            <div
-              className="p shrink-0 p-4 pb-4"
-              style={{ width: sidebarWidth }}
-            >
+            <div className="shrink-0 p-4 pb-4" style={{ width: sidebarWidth }}>
               {sidebar}
             </div>
-            <ScrollSyncPane
-              as={DraggableContainer}
-              className="no-scrollbar flex overflow-y-auto py-2"
-            >
-              {options.map((option, i) => (
-                <div
-                  key={i}
-                  className="shrink-0 pr-2"
-                  style={{ width: columnWidth }}
-                >
-                  {renderOption({ option })}
+            <div className="min-w-0 grow">
+              {numberOfVisibleColumns < options.length ? (
+                <div className="pt-3 pr-3">
+                  <NavigationControl
+                    step={columnWidth}
+                    maxValue={
+                      (options.length - numberOfVisibleColumns) * columnWidth
+                    }
+                    count={options.length}
+                  />
                 </div>
-              ))}
-            </ScrollSyncPane>
+              ) : null}
+              <ScrollSyncPane
+                as={DraggableContainer}
+                className="no-scrollbar flex overflow-y-auto py-2"
+              >
+                {options.map((option, i) => (
+                  <div
+                    key={i}
+                    className="shrink-0 pr-2"
+                    style={{ width: columnWidth }}
+                  >
+                    {renderOption({ option })}
+                  </div>
+                ))}
+              </ScrollSyncPane>
+            </div>
           </div>
         </Sticky>
 
         <div className="bg-slate-400/5 py-2">
-          <ScrollSyncPane
-            as={DraggableContainer}
-            className="no-scrollbar overflow-x-auto overflow-y-hidden"
-            style={{ marginLeft: sidebarWidth }}
-          >
-            {entries.map((entry) => {
-              return (
-                <div key={entry.id}>
-                  <ParticipantRowView
-                    name={entry.name}
-                    votes={entry.votes}
-                    sidebarWidth={sidebarWidth}
-                    columnWidth={columnWidth}
-                    onEdit={
-                      onEditParticipant
-                        ? () => onEditParticipant(entry.id)
-                        : undefined
-                    }
-                    onDelete={
-                      onDeleteParticipant
-                        ? () => onDeleteParticipant(entry.id)
-                        : undefined
-                    }
-                    onChangeName={
-                      onChangeName ? () => onChangeName(entry.id) : undefined
-                    }
-                  />
-                </div>
-              );
-            })}
-          </ScrollSyncPane>
+          {entries.map((entry) => {
+            return (
+              <ParticipantRowView
+                key={entry.id}
+                name={entry.name}
+                votes={entry.votes}
+                sidebarWidth={sidebarWidth}
+                columnWidth={columnWidth}
+                onEdit={
+                  onEditParticipant
+                    ? () => onEditParticipant(entry.id)
+                    : undefined
+                }
+                onDelete={
+                  onDeleteParticipant
+                    ? () => onDeleteParticipant(entry.id)
+                    : undefined
+                }
+                onChangeName={
+                  onChangeName ? () => onChangeName(entry.id) : undefined
+                }
+              />
+            );
+          })}
         </div>
       </div>
     </ScrollSync>
@@ -360,18 +349,15 @@ const GridPollInputOption: React.VoidFunctionComponent<{
   return (
     <div
       role="button"
-      className={clsx(
-        "rounded-md border border-t-8 py-3 text-center transition-all",
-        {
-          "shadow-sm active:bg-slate-500/10 active:shadow-none": true,
-          " border-green-300 border-t-green-400 bg-green-400/5  active:bg-green-400/10":
-            value === "yes",
-          " border-amber-300 border-t-amber-300 bg-amber-400/5 active:bg-amber-400/10":
-            value === "ifNeedBe",
-          "bg-slate-50": value === "no",
-          "hover:bg-slate-500/5": !value,
-        },
-      )}
+      className={clsx("rounded-md border border-t-8 py-3 text-center", {
+        "shadow-sm active:bg-slate-500/10 active:shadow-none": true,
+        " border-green-300 border-t-green-400 bg-green-400/5  active:bg-green-400/10":
+          value === "yes",
+        " border-amber-300 border-t-amber-300 bg-amber-400/5 active:bg-amber-400/10":
+          value === "ifNeedBe",
+        "bg-slate-50": value === "no",
+        "hover:bg-slate-500/5": !value,
+      })}
       onClick={() => {
         onChange(toggle());
       }}
@@ -435,7 +421,7 @@ const GridPollResultsOption: React.VoidFunctionComponent<{
   option: PollViewOption;
 }> = ({ option }) => {
   return (
-    <div className="border border-transparent pt-5 pb-2">
+    <div className="rounded-md border border-t-8 border-transparent py-3">
       <GridPollOption option={option}>
         <ScoreSummary yesScore={option.score} />
       </GridPollOption>
@@ -873,6 +859,7 @@ const Poll: React.VoidFunctionComponent<{
         </>
       ) : mode === "edit" && activeParticipant ? (
         <EditParticipantForm
+          key={activeParticipant.id}
           participant={activeParticipant}
           onDone={() => {
             setMode("read");

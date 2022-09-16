@@ -9,7 +9,9 @@ import Pencil from "@/components/icons/pencil.svg";
 import Trash from "@/components/icons/trash.svg";
 
 import CompactButton from "../../compact-button";
+import { DraggableContainer } from "../../drag-scroll";
 import Dropdown, { DropdownItem } from "../../dropdown";
+import { ScrollSyncPane } from "../../scroll-sync";
 import { PollViewOption } from "../types";
 import UserAvatar from "../user-avatar";
 import VoteIcon from "../vote-icon";
@@ -50,8 +52,8 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
       className={clsx("group flex h-14 py-1", className)}
     >
       <div
-        className="absolute flex h-14 shrink-0 items-center justify-between pr-4 pl-4"
-        style={{ width: sidebarWidth, marginLeft: sidebarWidth * -1 }}
+        className="flex h-14 shrink-0 items-center justify-between pr-4 pl-4"
+        style={{ width: sidebarWidth }}
       >
         <UserAvatar
           className="mr-2"
@@ -87,7 +89,10 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
           />
         </Dropdown>
       </div>
-      <div className="flex">
+      <ScrollSyncPane
+        as={DraggableContainer}
+        className="no-scrollbar flex overflow-y-auto"
+      >
         {votes.map((vote, i) => {
           return (
             <div
@@ -110,7 +115,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
             </div>
           );
         })}
-      </div>
+      </ScrollSyncPane>
     </div>
   );
 };
