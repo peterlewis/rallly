@@ -58,7 +58,9 @@ const VoteIcon: React.VoidFunctionComponent<{
 
   return (
     <span className="relative inline-block h-5 w-5">
-      <span className="absolute left-1/2 top-1/2 -z-10 h-3 w-3 -translate-y-1/2 -translate-x-1/2 rounded-full bg-white" />
+      {type !== undefined ? (
+        <span className="absolute left-1/2 top-1/2 -z-10 h-3 w-3 -translate-y-1/2 -translate-x-1/2 rounded-full bg-white" />
+      ) : null}
       {renderIcon()}
     </span>
   );

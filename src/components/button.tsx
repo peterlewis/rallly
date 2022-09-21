@@ -20,6 +20,7 @@ export interface ButtonProps
   type?: "default" | "primary" | "danger" | "link" | "ghost" | "success";
   form?: string;
   rounded?: boolean;
+  size?: "lg" | "md";
   title?: string;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
@@ -35,6 +36,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       icon,
       disabled,
       rounded,
+      size = "md",
       ...passThroughProps
     },
     ref,
@@ -55,6 +57,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             "h-9 rounded-lg bg-blue-700/5 px-4 font-medium ": type === "ghost",
             "btn-disabled": disabled,
             "h-auto rounded-full p-2": rounded,
+            "h-12 px-6": size === "lg",
             "w-10 p-0": !children,
           },
           className,

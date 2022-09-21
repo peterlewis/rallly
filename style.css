@@ -10,7 +10,7 @@
     @apply overflow-x-hidden;
   }
   body {
-    @apply bg-white text-base text-slate-700 sm:bg-slate-500/5;
+    @apply bg-white text-slate-700 sm:bg-slate-500/5;
   }
   p {
     @apply mb-4;
@@ -59,7 +59,7 @@
     @apply mb-4;
   }
   .input {
-    @apply appearance-none rounded-md border border-gray-200 px-2 py-1 text-slate-700 ring-inset placeholder:text-slate-400;
+    @apply appearance-none rounded border border-gray-200 px-2 py-1 text-slate-700 ring-inset placeholder:text-slate-400;
   }
   input.input {
     @apply h-9;
@@ -74,7 +74,7 @@
     @apply h-4 w-4 rounded border-slate-300 text-primary-500 shadow-sm focus:ring-primary-500;
   }
   .btn {
-    @apply inline-flex h-9 select-none items-center justify-center whitespace-nowrap rounded-md border px-3 font-medium shadow-sm transition-all;
+    @apply inline-flex h-9 select-none items-center justify-center whitespace-nowrap rounded border px-3 font-medium shadow-sm transition-all;
   }
   a.btn {
     @apply cursor-pointer hover:no-underline;
@@ -167,6 +167,9 @@
   }
   .edge {
     @apply box-content w-full;
+  }
+  .edge-2 {
+    @apply edge -ml-2 px-2;
   }
   .edge-4 {
     @apply edge -ml-4 px-4;

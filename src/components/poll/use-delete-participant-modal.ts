@@ -2,7 +2,11 @@ import { useModalContext } from "../modal/modal-provider";
 import { usePoll } from "../poll-provider";
 import { useDeleteParticipantMutation } from "./mutations";
 
-export const useDeleteParticipantModal = () => {
+export const useDeleteParticipantModal = ({
+  onSuccess,
+}: {
+  onSuccess: () => void;
+}) => {
   const { render } = useModalContext();
 
   const deleteParticipant = useDeleteParticipantMutation();
@@ -17,11 +21,12 @@ export const useDeleteParticipantModal = () => {
         type: "danger",
       },
       okText: "Delete",
-      onOk: () => {
-        deleteParticipant.mutate({
+      onOk: async () => {
+        await deleteParticipant.mutateAsync({
           pollId: poll.id,
           participantId,
         });
+        onSuccess();
       },
       cancelText: "Cancel",
     });

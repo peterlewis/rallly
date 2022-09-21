@@ -4,6 +4,7 @@ import * as React from "react";
 import { useDayjs } from "../../utils/dayjs";
 import { ParticipantRowView } from "../poll/grid-view-poll/participant-row";
 import { ScoreSummary } from "../poll/score-summary";
+import { ScrollSync } from "../scroll-sync";
 
 const sidebarWidth = 180;
 const columnWidth = 100;
@@ -37,64 +38,66 @@ const PollDemo: React.VoidFunctionComponent = () => {
 
   const { dayjs } = useDayjs();
   return (
-    <div
-      className="rounded-lg bg-white py-1 shadow-huge"
-      style={{ width: 600 }}
-    >
-      <div className="flex">
-        <div
-          className="flex shrink-0 items-center py-2 pl-4 pr-2 font-medium"
-          style={{ width: sidebarWidth }}
-        >
-          <div className="flex h-full grow items-end">
-            {t("participantCount", { count: participants.length })}
+    <ScrollSync>
+      <div
+        className="rounded-lg bg-white py-1 shadow-huge"
+        style={{ width: 600 }}
+      >
+        <div className="flex">
+          <div
+            className="flex shrink-0 items-center py-2 pl-4 pr-2 font-medium"
+            style={{ width: sidebarWidth }}
+          >
+            <div className="flex h-full grow items-end">
+              {t("participantCount", { count: participants.length })}
+            </div>
           </div>
-        </div>
-        {options.map((option, i) => {
-          const d = new Date(option);
-          let score = 0;
-          participants.forEach((participant) => {
-            if (participant.votes.includes(i)) {
-              score++;
-            }
-          });
-          return (
-            <div
-              key={i}
-              className="shrink-0 space-y-3 py-2 pt-3 text-center transition-colors"
-              style={{ width: columnWidth }}
-            >
-              <div>
-                <div className="font-semibold leading-9">
-                  <div className="text-sm uppercase text-slate-400">
-                    {dayjs(d).format("ddd")}
-                  </div>
-                  <div className="text-2xl">{dayjs(d).format("DD")}</div>
-                  <div className="text-xs font-medium uppercase text-slate-400/75">
-                    {dayjs(d).format("MMM")}
+          {options.map((option, i) => {
+            const d = new Date(option);
+            let score = 0;
+            participants.forEach((participant) => {
+              if (participant.votes.includes(i)) {
+                score++;
+              }
+            });
+            return (
+              <div
+                key={i}
+                className="shrink-0 space-y-3 py-2 pt-3 text-center transition-colors"
+                style={{ width: columnWidth }}
+              >
+                <div>
+                  <div className="font-semibold leading-9">
+                    <div className="text-sm uppercase text-slate-400">
+                      {dayjs(d).format("ddd")}
+                    </div>
+                    <div className="text-2xl">{dayjs(d).format("DD")}</div>
+                    <div className="text-xs font-medium uppercase text-slate-400/75">
+                      {dayjs(d).format("MMM")}
+                    </div>
                   </div>
                 </div>
+                <div>
+                  <ScoreSummary yesScore={score} />
+                </div>
               </div>
-              <div>
-                <ScoreSummary yesScore={score} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      {participants.map((participant, i) => (
-        <ParticipantRowView
-          key={i}
-          color={participant.color}
-          sidebarWidth={sidebarWidth}
-          columnWidth={columnWidth}
-          name={participant.name}
-          votes={options.map((_, i) => {
-            return participant.votes.some((vote) => vote === i) ? "yes" : "no";
+            );
           })}
-        />
-      ))}
-    </div>
+        </div>
+        {participants.map((participant, i) => (
+          <ParticipantRowView
+            key={i}
+            color={participant.color}
+            name={participant.name}
+            votes={options.map((_, i) => {
+              return participant.votes.some((vote) => vote === i)
+                ? "yes"
+                : "no";
+            })}
+          />
+        ))}
+      </div>
+    </ScrollSync>
   );
 };
 

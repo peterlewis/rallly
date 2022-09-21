@@ -5,20 +5,20 @@ export interface ParticipantForm {
   votes: Array<VoteType | undefined>;
 }
 
-export type PollViewOption =
+export type PollViewOption = {
+  id: string;
+  score: number;
+} & (
   | {
-      id: string;
       type: "date";
       date: string;
-      score: number;
     }
   | {
-      id: string;
       type: "time";
       start: string;
       end: string;
-      score: number;
-    };
+    }
+);
 
 export interface PollViewParticipant {
   id: string;

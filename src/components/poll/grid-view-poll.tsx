@@ -1,17 +1,20 @@
 import { Participant, Vote, VoteType } from "@prisma/client";
 import clsx from "clsx";
-import { current } from "immer";
+import { AnimatePresence, motion } from "framer-motion";
+import { noop } from "lodash";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { useMeasure } from "react-use";
+import { useMeasure, useMount } from "react-use";
+import { string } from "zod";
 
 import ArrowLeft from "@/components/icons/arrow-left.svg";
 import ArrowRight from "@/components/icons/arrow-right.svg";
+import Pencil from "@/components/icons/pencil.svg";
 import Plus from "@/components/icons/plus-sm.svg";
+import Trash from "@/components/icons/trash.svg";
 
-import poll from "../../pages/poll";
 import { getBrowserTimeZone } from "../../utils/date-time-utils";
 import { useDayjs } from "../../utils/dayjs";
 import { trpc } from "../../utils/trpc";
@@ -19,16 +22,12 @@ import { PollOption } from "../../utils/trpc/types";
 import { Button } from "../button";
 import CompactButton from "../compact-button";
 import { CustomScrollbar } from "../custom-scrollbar";
-import { DraggableContainer } from "../drag-scroll";
-import Dropdown, { DropdownItem } from "../dropdown";
-import { useModal } from "../modal";
-import { ModalProps } from "../modal/modal";
 import ModalProvider, { useModalContext } from "../modal/modal-provider";
-import { NameInput } from "../name-input";
 import { usePoll } from "../poll-provider";
 import { ScrollSync, ScrollSyncPane, useScrollSync } from "../scroll-sync";
 import { Sticky } from "../sticky";
 import { TextInput } from "../text-input";
+import { useRequiredContext } from "../use-required-context";
 import { useUser } from "../user-provider";
 import ParticipantRow, {
   ParticipantRowView,
@@ -43,13 +42,28 @@ import {
 } from "./types";
 import { useDeleteParticipantModal } from "./use-delete-participant-modal";
 import UserAvatar from "./user-avatar";
+import VoteIcon from "./vote-icon";
 import { useVoteState, VoteSelector } from "./vote-selector";
 
-const useGrid = (columns: number) => {
+interface GridProps {
+  width: number;
+  sidebarWidth: number;
+  hasOverflow: boolean;
+  columnWidth: number;
+  numberOfVisibleColumns: number;
+}
+
+const GridContext = React.createContext<GridProps | null>(null);
+
+export const useGridContext = () => {
+  return useRequiredContext(GridContext);
+};
+
+const useGrid = <T extends HTMLElement>(columns: number) => {
   const minSidebarWidth = 220;
 
-  const [ref, { width }] = useMeasure<HTMLDivElement>();
-  const availableSpace = width - minSidebarWidth;
+  const [ref, { width }] = useMeasure<T>();
+  const availableSpace = width - minSidebarWidth - 2;
 
   const columnWidth = Math.min(Math.max(90, availableSpace / columns), 100);
 
@@ -63,7 +77,16 @@ const useGrid = (columns: number) => {
     width - numberOfVisibleColumns * columnWidth,
   );
 
-  return { ref, width, sidebarWidth, numberOfVisibleColumns, columnWidth };
+  return {
+    ref,
+    props: {
+      width,
+      sidebarWidth,
+      hasOverflow: numberOfVisibleColumns < columns,
+      numberOfVisibleColumns,
+      columnWidth,
+    },
+  };
 };
 
 const GridViewPoll: React.VoidFunctionComponent<PollProps> = ({
@@ -74,9 +97,10 @@ const GridViewPoll: React.VoidFunctionComponent<PollProps> = ({
 }) => {
   const { t } = useTranslation("app");
 
-  const { ref, sidebarWidth, numberOfVisibleColumns, columnWidth } = useGrid(
-    options.length,
-  );
+  const {
+    ref,
+    props: { sidebarWidth, numberOfVisibleColumns, columnWidth },
+  } = useGrid(options.length);
 
   const [activeOptionId, setActiveOptionId] =
     React.useState<string | null>(null);
@@ -209,393 +233,144 @@ const NavigationControl: React.VoidFunctionComponent<{
   );
 };
 
-const GridPoll: React.VoidFunctionComponent<{
-  sidebar?: React.ReactNode;
-  renderOption: React.FunctionComponent<{ option: PollViewOption }>;
-}> = ({ sidebar, renderOption }) => {
-  const {
-    options,
-    entries,
-    onEditParticipant,
-    onDeleteParticipant,
-    onChangeName,
-  } = usePollContext();
-  const { ref, columnWidth, sidebarWidth, numberOfVisibleColumns } = useGrid(
-    options.length,
-  );
-
-  return (
-    <ScrollSync>
-      <div ref={ref}>
-        <Sticky
-          top={48}
-          className={(isPinned) =>
-            clsx(
-              "group z-20 rounded-t-md border-b bg-white/75 backdrop-blur-md",
-              {
-                "border-gray-100": !isPinned,
-                "shadow-[0_3px_3px_0px_rgba(0,0,0,0.02)]": isPinned,
-              },
-            )
-          }
-        >
-          <div className="flex">
-            <div className="shrink-0 p-4 pb-4" style={{ width: sidebarWidth }}>
-              {sidebar}
-            </div>
-            <div className="min-w-0 grow">
-              {numberOfVisibleColumns < options.length ? (
-                <div className="pt-3 pr-3">
-                  <NavigationControl
-                    step={columnWidth}
-                    maxValue={
-                      (options.length - numberOfVisibleColumns) * columnWidth
-                    }
-                    count={options.length}
-                  />
-                </div>
-              ) : null}
-              <ScrollSyncPane
-                as={DraggableContainer}
-                className="no-scrollbar flex overflow-y-auto py-2"
-              >
-                {options.map((option, i) => (
-                  <div
-                    key={i}
-                    className="shrink-0 pr-2"
-                    style={{ width: columnWidth }}
-                  >
-                    {renderOption({ option })}
-                  </div>
-                ))}
-              </ScrollSyncPane>
-            </div>
-          </div>
-        </Sticky>
-
-        {entries.length > 0 ? (
-          <div className="bg-slate-400/5 py-2">
-            {entries.map((entry) => {
-              return (
-                <ParticipantRowView
-                  key={entry.id}
-                  name={entry.name}
-                  votes={entry.votes}
-                  sidebarWidth={sidebarWidth}
-                  columnWidth={columnWidth}
-                  onEdit={
-                    onEditParticipant
-                      ? () => onEditParticipant(entry.id)
-                      : undefined
-                  }
-                  onDelete={
-                    onDeleteParticipant
-                      ? () => onDeleteParticipant(entry.id)
-                      : undefined
-                  }
-                  onChangeName={
-                    onChangeName ? () => onChangeName(entry.id) : undefined
-                  }
-                />
-              );
-            })}
-          </div>
-        ) : null}
-      </div>
-    </ScrollSync>
-  );
-};
-
-const GridPollOption: React.VoidFunctionComponent<{
+const GridPollOptionList: React.VoidFunctionComponent<{
   className?: string;
-  option: PollViewOption;
-  children?: React.ReactNode;
-}> = ({ option, className, children }) => {
-  const { dayjs } = useDayjs();
-  const date = dayjs(option.type === "date" ? option.date : option.start);
+  renderOption?: React.ComponentType<{
+    option: PollViewOption;
+    children?: React.ReactNode;
+  }>;
+  options: PollViewOption[];
+}> = ({ className, options, renderOption }) => {
+  const { hasOverflow, numberOfVisibleColumns, columnWidth } = useGridContext();
   return (
-    <div className={clsx("space-y-2 text-center", className)}>
-      <div className="leading-9">
-        <div className="text-xs font-semibold uppercase text-slate-500/75">
-          {date.format("ddd")}
-        </div>
-        <div className="text-2xl font-semibold text-slate-700">
-          {date.format("D")}
-        </div>
-        <div className="text-xs font-medium uppercase text-slate-500/75">
-          {date.format("MMM")}
-        </div>
-      </div>
-      {option.type === "time" ? (
-        <div
-          className={
-            "relative -mr-2 inline-block pr-2 text-right text-xs after:absolute after:top-2 after:right-0 after:h-4 after:w-1 after:border-t after:border-r after:border-b after:border-slate-300 after:content-['']"
-          }
-        >
-          <div className="font-bold text-slate-500">
-            {dayjs(option.start).format("LT")}
-          </div>
-          <div className="text-slate-400">{dayjs(option.end).format("LT")}</div>
+    <div className={className}>
+      {hasOverflow ? (
+        <div className="border-b px-4 py-3">
+          <NavigationControl
+            step={columnWidth}
+            maxValue={(options.length - numberOfVisibleColumns) * columnWidth}
+            count={options.length}
+          />
         </div>
       ) : null}
-      <div className="flex h-7 items-end justify-center">{children}</div>
-    </div>
-  );
-};
-
-const GridPollInputOption: React.VoidFunctionComponent<{
-  option: PollViewOption;
-  value: VoteType | undefined;
-  onChange: (value: VoteType) => void;
-}> = ({ option, value, onChange }) => {
-  const { toggle } = useVoteState(value);
-  return (
-    <div
-      role="button"
-      className={clsx("rounded-md border border-t-8 py-3 text-center", {
-        "shadow-sm active:bg-slate-500/10 active:shadow-none": true,
-        " border-green-300 border-t-green-400 bg-green-400/5  active:bg-green-400/10":
-          value === "yes",
-        " border-amber-300 border-t-amber-300 bg-amber-400/5 active:bg-amber-400/10":
-          value === "ifNeedBe",
-        "bg-slate-50": value === "no",
-        "hover:bg-slate-500/5": !value,
-      })}
-      onClick={() => {
-        onChange(toggle());
-      }}
-    >
-      <GridPollOption option={option}>
-        <VoteSelector value={value} />
-      </GridPollOption>
-    </div>
-  );
-};
-
-const GridPollInput: React.VoidFunctionComponent<{
-  name?: string;
-  value: PollValue;
-  onChange: (value: PollValue) => void;
-}> = ({ name, value, onChange }) => {
-  const { t } = useTranslation("app");
-  return (
-    <GridPoll
-      sidebar={
-        <div>
-          <div className="mb-2 font-medium">{t("selectAvailability")}</div>
-          <div>
-            <UserAvatar name={name ?? t("you")} showName={true} />
+      <ScrollSyncPane className="no-scrollbar flex overflow-y-auto">
+        {options.map((option, i) => (
+          <div
+            key={i}
+            className="shrink-0 border-r"
+            style={{ width: columnWidth }}
+          >
+            {renderOption ? (
+              React.createElement(
+                renderOption,
+                { option },
+                <GridPollOption option={option} />,
+              )
+            ) : (
+              <GridPollOption option={option} />
+            )}
           </div>
-        </div>
-      }
-      renderOption={({ option }) => {
-        return (
-          <GridPollInputOption
-            option={option}
-            value={value[option.id]}
-            onChange={(vote) => {
-              const newValue = { ...value };
-              newValue[option.id] = vote;
-              onChange(newValue);
-            }}
-          />
-        );
-      }}
-    />
-  );
-};
-
-const PollInput: React.VoidFunctionComponent<{
-  name?: string;
-  options: PollViewOption[];
-  entries: PollViewParticipant[];
-  view: "grid" | "list";
-  value: PollValue;
-  onChange: (value: PollValue) => void;
-}> = ({ view, ...rest }) => {
-  if (view === "grid") {
-    return <GridPollInput {...rest} />;
-  } else {
-    return null;
-  }
-};
-
-const GridPollResultsOption: React.VoidFunctionComponent<{
-  option: PollViewOption;
-}> = ({ option }) => {
-  return (
-    <div className="rounded-md border border-t-8 border-transparent py-3">
-      <GridPollOption option={option}>
-        <ScoreSummary yesScore={option.score} />
-      </GridPollOption>
+        ))}
+      </ScrollSyncPane>
     </div>
   );
 };
 
-const GridPollResults = () => {
-  const { onAddParticipant, entries } = usePollContext();
-  const { t } = useTranslation("app");
+const GridPollHeader: React.VoidFunctionComponent<{
+  sidebar: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ sidebar, children }) => {
+  const { sidebarWidth, numberOfVisibleColumns, columnWidth } =
+    useGridContext();
   return (
-    <GridPoll
-      renderOption={GridPollResultsOption}
-      sidebar={
-        <div className="flex h-full items-end">
-          <div className="flex items-center space-x-2">
-            <div className="font-medium">
-              {t("participantCount", {
-                count: entries.length,
+    <Sticky
+      top={47}
+      className={(isPinned) =>
+        clsx("group z-20 border-b bg-white/75", {
+          "rounded-t-md": !isPinned,
+          "shadow-[0_3px_3px_0px_rgba(0,0,0,0.02)] backdrop-blur-md": isPinned,
+        })
+      }
+    >
+      <div className="flex w-fit max-w-full">
+        <div
+          className="flex shrink-0 border-r p-4 pb-4"
+          style={{ width: sidebarWidth }}
+        >
+          {sidebar}
+        </div>
+        <div className="min-w-0 grow">{children}</div>
+      </div>
+    </Sticky>
+  );
+};
+
+const NewParticipantModal: React.VoidFunctionComponent<{
+  onCancel?: () => void;
+  onSubmit?: (data: {
+    name: string;
+    votes: Record<string, VoteType | undefined>;
+  }) => Promise<void>;
+  votes: Record<string, VoteType | undefined>;
+}> = ({ onCancel, onSubmit, votes }) => {
+  const { t } = useTranslation("app");
+
+  const { register, handleSubmit, formState } = useForm<{ name: string }>({
+    defaultValues: { name: "" },
+  });
+
+  return (
+    <div className="w-[400px] space-y-8 p-6">
+      <form
+        onSubmit={handleSubmit(async ({ name }) => {
+          await onSubmit?.({ name, votes });
+        })}
+        className="space-y-4"
+      >
+        <div className="text-lg font-bold">Create a new entry</div>
+        <fieldset>
+          <div className="mb-2 font-medium">Your Name</div>
+          <div>
+            <TextInput
+              size="lg"
+              className="w-full"
+              placeholder="Enter name…"
+              autoFocus={true}
+              {...register("name")}
+            />
+          </div>
+        </fieldset>
+
+        {/* <div>
+            <div className="mb-2 flex space-x-2">
+              <div className="font-medium">Your selection</div>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {votes.map(({ option, type }) => {
+                return (
+                  <div key={option.id} className="w-20">
+                    <GridPollInputOption option={option} value={type} />
+                  </div>
+                );
               })}
             </div>
-            <CompactButton
-              icon={Plus}
-              disabled={!onAddParticipant}
-              onClick={onAddParticipant}
-            />
-          </div>
+          </div> */}
+
+        <div className="flex space-x-3">
+          <Button size="lg" onClick={onCancel}>
+            {t("cancel")}
+          </Button>
+          <Button
+            size="lg"
+            loading={formState.isSubmitting}
+            htmlType="submit"
+            type="primary"
+          >
+            {t("save")}
+          </Button>
         </div>
-      }
-    />
-  );
-};
-
-const PollResults: React.VoidFunctionComponent = () => {
-  const { view } = usePollContext();
-  if (view === "grid") {
-    return <GridPollResults />;
-  } else {
-    return null;
-  }
-};
-
-const EditParticipantForm: React.VoidFunctionComponent<{
-  participant: PollViewParticipant;
-  onDone: () => void;
-}> = ({ participant, onDone }) => {
-  const { poll } = usePoll();
-  const { options, entries, view } = usePollContext();
-  const { t } = useTranslation("app");
-  const { handleSubmit, control, formState } = useForm<{ votes: PollValue }>({
-    defaultValues: {
-      votes: participant.voteByOptionId,
-    },
-  });
-  const queryClient = trpc.useContext();
-  const updateParticipant = trpc.useMutation("polls.participants.update", {
-    onSuccess: (participant) => {
-      queryClient.setQueryData(
-        ["polls.participants.list", { pollId: participant.pollId }],
-        (existingParticipants = []) => {
-          const newParticipants = [...existingParticipants];
-
-          const index = newParticipants.findIndex(
-            ({ id }) => id === participant.id,
-          );
-
-          if (index !== -1) {
-            newParticipants[index] = participant;
-          }
-
-          return newParticipants;
-        },
-      );
-      toast.success(t("saved"));
-    },
-  });
-
-  return (
-    <form
-      onSubmit={handleSubmit(async ({ votes }) => {
-        // update votes for participantId
-        await updateParticipant.mutateAsync({
-          pollId: poll.id,
-          participantId: participant.id,
-          votes: options.map((option) => ({
-            optionId: option.id,
-            type: votes[option.id] ?? "no",
-          })),
-        });
-        onDone();
-      })}
-    >
-      <Controller
-        name="votes"
-        control={control}
-        render={({ field }) => {
-          return (
-            <PollInput
-              name={participant.name}
-              view={view}
-              options={options}
-              entries={entries}
-              value={field.value}
-              onChange={field.onChange}
-            />
-          );
-        }}
-      />
-      <div className="flex justify-between space-x-3 p-3">
-        <Button onClick={onDone}>{t("cancel")}</Button>
-        <Button
-          loading={formState.isSubmitting}
-          htmlType="submit"
-          type="primary"
-        >
-          {t("save")}
-        </Button>
-      </div>
-    </form>
-  );
-};
-
-const NewParticipantForm: React.VoidFunctionComponent<{
-  onDone: () => void;
-}> = ({ onDone }) => {
-  const { options, entries, view } = usePollContext();
-  const { t } = useTranslation("app");
-  const { handleSubmit, control } = useForm<{ votes: PollValue }>({
-    defaultValues: {
-      votes: {},
-    },
-  });
-  const queryClient = trpc.useContext();
-
-  const addParticipant = trpc.useMutation(["polls.participants.add"], {
-    onSuccess: (participant) => {
-      queryClient.setQueryData(
-        ["polls.participants.list", { pollId: participant.pollId }],
-        (existingParticipants = []) => {
-          return [...existingParticipants, participant];
-        },
-      );
-    },
-  });
-
-  return (
-    <form
-      onSubmit={handleSubmit(({ votes }) => {
-        // update votes for participantId
-      })}
-    >
-      <Controller
-        name="votes"
-        control={control}
-        render={({ field }) => {
-          return (
-            <PollInput
-              view={view}
-              options={options}
-              entries={entries}
-              value={field.value}
-              onChange={field.onChange}
-            />
-          );
-        }}
-      />
-      <div className="flex justify-between space-x-3 border-t p-3">
-        <Button onClick={onDone}>{t("cancel")}</Button>
-        <Button type="primary">{t("continue")}</Button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 
@@ -685,44 +460,53 @@ export const ConnectedPoll: React.VoidFunctionComponent<{
   return (
     <ModalProvider>
       <div>
-        <div className="mb-8">toolbar goes here</div>
-        <div className="card-0">
-          <Poll
-            id={id}
-            options={pollOptions}
-            entries={entries}
-            view={view}
-            defaultMode={
-              admin ? "read" : !isLocked && !didAlreadyVote ? "create" : "read"
-            }
-          />
+        <div className="mb-8">{/* Toolbar goes here */}</div>
+        <div>
+          <Poll id={id} options={pollOptions} entries={entries} view={view} />
         </div>
       </div>
     </ModalProvider>
   );
 };
 
+type PollStateRead = { type: "read" };
+type PollStateEdit = {
+  type: "edit";
+  participantId: string;
+  votes: PollValue;
+};
+type PollStateSelect = {
+  type: "select";
+  participantId: string;
+};
+
+type PollStateCreate = {
+  type: "create";
+  votes?: PollValue;
+};
+
+type PollState =
+  | PollStateRead
+  | PollStateEdit
+  | PollStateCreate
+  | PollStateSelect;
+
 interface PollContextValue {
-  id: string;
-  view: "grid" | "list";
   options: PollViewOption[];
   entries: PollViewParticipant[];
-  onNavigate?: (optionId: string) => void;
-  onEditParticipant?: (participantId: string) => void;
+  state: PollState;
+  getParticipant: (id: string) => PollViewParticipant | null;
+  onAddParticipant: (votes: PollValue) => void;
+  onEditParticipant: (participantId: string, votes: PollValue) => void;
+  onStateChange?: React.Dispatch<React.SetStateAction<PollState>>;
   onDeleteParticipant?: (participantId: string) => void;
-  onAddParticipant?: () => void;
   onChangeName?: (participantId: string) => void;
 }
 
-const PollContext = React.createContext<PollContextValue>({
-  id: "",
-  view: "grid",
-  options: [],
-  entries: [],
-});
+const PollContext = React.createContext<PollContextValue | null>(null);
 
 const usePollContext = () => {
-  return React.useContext(PollContext);
+  return useRequiredContext(PollContext);
 };
 
 const ChangeNameDialog: React.VoidFunctionComponent<{
@@ -739,14 +523,26 @@ const ChangeNameDialog: React.VoidFunctionComponent<{
       toast.success(t("saved"));
     },
   });
-  const { register, handleSubmit, formState } = useForm<{ name: string }>({
+  const { register, handleSubmit, setFocus, formState } = useForm<{
+    name: string;
+  }>({
     defaultValues: {
       name: currentName,
     },
   });
+
+  useMount(() => {
+    setFocus("name");
+  });
+
   return (
-    <div className="w-[450px] p-4">
-      <div className="mb-4 text-lg font-semibold">{t("changeName")}</div>
+    <div className="w-[400px] p-4">
+      <div className="mb-4">
+        <div className="text-lg font-semibold">{t("Rename participant")}</div>
+        <div className="text-slate-500">
+          {t("Type in the new name for this participant")}
+        </div>
+      </div>
       <form
         className="space-y-4"
         onSubmit={handleSubmit(async ({ name }) => {
@@ -754,38 +550,444 @@ const ChangeNameDialog: React.VoidFunctionComponent<{
           onDone();
         })}
       >
-        <fieldset className="grid grid-cols-9 gap-4">
-          <label className="col-span-3 flex h-full items-center justify-end font-medium text-slate-500">
-            {t("currentName")}
-          </label>
-          <div className="col-span-6">
-            <UserAvatar name={currentName} showName={true} />
-          </div>
-        </fieldset>
-        <fieldset className="grid grid-cols-9 gap-4">
-          <label className="col-span-3 flex items-center justify-end font-medium text-slate-500">
-            {t("name")}
-          </label>
-          <div className="col-span-6">
-            <TextInput
-              placeholder={t("namePlaceholder")}
-              className="w-full"
-              autoFocus={true}
-              {...register("name")}
-            />
-          </div>
-        </fieldset>
-        <div className="flex justify-end">
+        <TextInput
+          placeholder={t("namePlaceholder")}
+          className="w-full"
+          {...register("name")}
+        />
+        <div className="flex space-x-3">
+          <Button onClick={onDone}>{t("cancel")}</Button>
           <Button
             htmlType="submit"
             loading={formState.isSubmitting}
             type="primary"
           >
-            {t("save")}
+            {t("Rename")}
           </Button>
         </div>
       </form>
     </div>
+  );
+};
+
+const GridPollOption: React.VoidFunctionComponent<{
+  className?: string;
+  option: PollViewOption;
+  suffix?: React.ReactNode;
+}> = ({ option, className, suffix }) => {
+  const { dayjs } = useDayjs();
+  const date = dayjs(option.type === "date" ? option.date : option.start);
+  return (
+    <div className={clsx("text-center", className)}>
+      <div className="space-y-3 py-3">
+        {suffix}
+        <div>
+          <div className="text-xs font-semibold uppercase text-slate-500/75">
+            {date.format("ddd")}
+          </div>
+          <div className="text-2xl font-semibold text-slate-700">
+            {date.format("D")}
+          </div>
+          <div className="text-xs font-medium uppercase text-slate-500/75">
+            {date.format("MMM")}
+          </div>
+          {option.type === "time" ? (
+            <div
+              className={
+                "relative mt-2 -mr-2 inline-block pr-2 text-right text-xs after:absolute after:top-2 after:right-0 after:h-4 after:w-1 after:border-t after:border-r after:border-b after:border-slate-300 after:content-['']"
+              }
+            >
+              <div className="font-bold text-slate-500">
+                {dayjs(option.start).format("LT")}
+              </div>
+              <div className="text-slate-400">
+                {dayjs(option.end).format("LT")}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const GridPollEntries: React.VoidFunctionComponent<{
+  className?: string;
+  entries: PollViewParticipant[];
+  selectedId?: string;
+  disabled?: boolean;
+  onSelect?: (participantId: string) => void;
+}> = ({ entries, selectedId, onSelect, disabled, className }) => {
+  return (
+    <div className={clsx("divide-y", className)}>
+      {entries.map((entry) => {
+        return (
+          <ParticipantRowView
+            disabled={disabled}
+            className="border-slate-200/75"
+            key={entry.id}
+            selected={selectedId === entry.id}
+            name={entry.name}
+            votes={entry.votes}
+            onSelect={() => {
+              onSelect?.(entry.id);
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+const GridPollOptionToggle: React.VoidFunctionComponent<{
+  className?: string;
+  value?: VoteType;
+  option: PollViewOption;
+  onChange?: (value: VoteType) => void;
+}> = ({ option, className, value, onChange }) => {
+  const { toggle } = useVoteState(value);
+  return (
+    <div
+      className={clsx(
+        "h-full hover:bg-slate-500/5 active:bg-slate-500/10",
+
+        className,
+      )}
+      role="button"
+      onClick={() => {
+        onChange?.(toggle());
+      }}
+    >
+      <GridPollOption
+        option={option}
+        suffix={
+          <GridPollOptionSuffix>
+            <VoteSelector value={value} />
+          </GridPollOptionSuffix>
+        }
+      />
+    </div>
+  );
+};
+
+const GridPollOptionSuffix: React.VoidFunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
+  return <div className="flex h-7 items-center justify-center">{children}</div>;
+};
+
+const GridPollFooter: React.VoidFunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
+  return (
+    <div className="flex h-14 items-center justify-between space-x-4 rounded-b-md border-t bg-white/50 px-2">
+      {children}
+    </div>
+  );
+};
+const GridPollNew: React.VoidFunctionComponent<{
+  value?: PollState;
+  onChange?: (state: PollState) => void;
+  onSubmit?: (state: PollState) => void;
+}> = ({ value, onChange }) => {
+  const { t } = useTranslation("app");
+
+  const {
+    onStateChange,
+    onChangeName,
+    onDeleteParticipant,
+    options,
+    onAddParticipant: onCreateEntry,
+    onEditParticipant: onEditEntry,
+    entries,
+    state,
+    getParticipant: getEntry,
+  } = usePollContext();
+
+  const renderHeader = () => {
+    switch (state.type) {
+      case "read":
+        return (
+          <GridPollHeader
+            sidebar={
+              <div className="flex h-full items-end">
+                <div className="flex items-center space-x-2">
+                  <div className="font-medium">
+                    {t("participantCount", {
+                      count: entries.length,
+                    })}
+                  </div>
+                  <CompactButton
+                    icon={Plus}
+                    onClick={() => {
+                      onStateChange?.({ type: "create", votes: {} });
+                    }}
+                  />
+                </div>
+              </div>
+            }
+          >
+            <GridPollOptionList
+              options={options}
+              renderOption={({ option }) => {
+                return (
+                  <GridPollOption
+                    option={option}
+                    suffix={
+                      <GridPollOptionSuffix>
+                        <div className="inline-block h-6 w-6 rounded-full bg-slate-500/5 px-1 text-xs font-semibold leading-6 text-slate-400 shadow-sm">
+                          {option.score}
+                        </div>
+                      </GridPollOptionSuffix>
+                    }
+                  />
+                );
+              }}
+            />
+          </GridPollHeader>
+        );
+      case "create":
+        return (
+          <GridPollHeader
+            sidebar={
+              <div>
+                <div className="mb-2 font-medium">
+                  {t("selectAvailability")}
+                </div>
+                <div>
+                  <UserAvatar name={t("you")} showName={true} />
+                </div>
+              </div>
+            }
+          >
+            <GridPollOptionList
+              options={options}
+              renderOption={({ option }) => {
+                return (
+                  <GridPollOptionToggle
+                    option={option}
+                    value={state.votes?.[option.id]}
+                    onChange={(value) => {
+                      const newVotes = { ...state.votes };
+                      newVotes[option.id] = value;
+                      onStateChange?.({ ...state, votes: newVotes });
+                    }}
+                  />
+                );
+              }}
+            />
+          </GridPollHeader>
+        );
+      case "edit": {
+        const participant = getEntry(state.participantId);
+        return (
+          <GridPollHeader
+            sidebar={
+              <div>
+                <div className="mb-2 font-medium">
+                  {t("selectAvailability")}
+                </div>
+                <div>
+                  <UserAvatar name={participant?.name ?? ""} showName={true} />
+                </div>
+              </div>
+            }
+          >
+            <GridPollOptionList
+              options={options}
+              renderOption={({ option }) => {
+                return (
+                  <GridPollOptionToggle
+                    option={option}
+                    value={state.votes?.[option.id]}
+                    onChange={(value) => {
+                      const newVotes = { ...state.votes };
+                      newVotes[option.id] = value;
+                      onStateChange?.({ ...state, votes: newVotes });
+                    }}
+                  />
+                );
+              }}
+            />
+          </GridPollHeader>
+        );
+      }
+      case "select":
+        const participant = getEntry(state.participantId);
+        const voteByOptionId = participant?.voteByOptionId ?? {};
+        return (
+          <GridPollHeader
+            sidebar={
+              <div>
+                <div className="mb-2 font-medium">Manage participant</div>
+                <div>
+                  <UserAvatar name={participant?.name ?? ""} showName={true} />
+                </div>
+              </div>
+            }
+          >
+            <GridPollOptionList
+              options={options}
+              renderOption={({ option }) => {
+                return (
+                  <GridPollOption
+                    option={option}
+                    suffix={
+                      <GridPollOptionSuffix>
+                        <VoteIcon type={voteByOptionId[option.id]} />
+                      </GridPollOptionSuffix>
+                    }
+                  />
+                );
+              }}
+            />
+          </GridPollHeader>
+        );
+    }
+  };
+
+  const { ref, props: gridProps } = useGrid<HTMLDivElement>(options.length);
+
+  const renderFooter = () => {
+    switch (state.type) {
+      case "read":
+        return (
+          <GridPollFooter>
+            <div>
+              <Button
+                onClick={() => {
+                  onStateChange?.({ type: "create" });
+                }}
+              >
+                Add participant
+              </Button>
+            </div>
+          </GridPollFooter>
+        );
+      case "create":
+        return (
+          <GridPollFooter>
+            <div>
+              <Button
+                onClick={() => {
+                  onStateChange?.({ type: "read" });
+                }}
+              >
+                {t("cancel")}
+              </Button>
+            </div>
+            <div>
+              <Button
+                onClick={() => {
+                  onCreateEntry(state.votes ?? {});
+                }}
+                type="primary"
+              >
+                {t("continue")} &rarr;
+              </Button>
+            </div>
+          </GridPollFooter>
+        );
+      case "edit":
+        return (
+          <GridPollFooter>
+            <div>
+              <Button
+                onClick={() => {
+                  onStateChange?.({ type: "read" });
+                }}
+              >
+                {t("cancel")}
+              </Button>
+            </div>
+            <div>
+              <Button
+                onClick={() => {
+                  onEditEntry(state.participantId, state.votes);
+                }}
+                type="primary"
+              >
+                {t("continue")}
+              </Button>
+            </div>
+          </GridPollFooter>
+        );
+      case "select":
+        return (
+          <GridPollFooter>
+            <div className="space-x-2">
+              <Button
+                onClick={() => {
+                  onStateChange?.({ type: "read" });
+                }}
+              >
+                {t("cancel")}
+              </Button>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                type="danger"
+                icon={<Trash />}
+                onClick={() => {
+                  onDeleteParticipant?.(state.participantId);
+                }}
+              >
+                {t("delete")}
+              </Button>
+              <Button
+                onClick={() => {
+                  onChangeName?.(state.participantId);
+                }}
+              >
+                {t("changeName")}
+              </Button>
+              <Button
+                icon={<Pencil />}
+                onClick={() => {
+                  onStateChange?.({
+                    type: "edit",
+                    participantId: state.participantId,
+                    votes: getEntry(state.participantId)?.voteByOptionId ?? {},
+                  });
+                }}
+              >
+                {t("editVotes")}
+              </Button>
+            </div>
+          </GridPollFooter>
+        );
+    }
+  };
+  return (
+    <GridContext.Provider value={gridProps}>
+      <ScrollSync>
+        <div className="rounded-md border shadow-sm" ref={ref}>
+          {renderHeader()}
+          <div className="overflow-hidden rounded-b-md bg-white/20">
+            {entries.length > 0 ? (
+              <GridPollEntries
+                disabled={state.type === "create" || state.type === "edit"}
+                entries={entries}
+                selectedId={
+                  "participantId" in state ? state.participantId : undefined
+                }
+                onSelect={(participantId) => {
+                  if (
+                    state.type === "select" &&
+                    state.participantId === participantId
+                  ) {
+                    onStateChange?.({ type: "read" });
+                  } else {
+                    onStateChange?.({ type: "select", participantId });
+                  }
+                }}
+              />
+            ) : null}
+            {renderFooter()}
+          </div>
+        </div>
+      </ScrollSync>
+    </GridContext.Provider>
   );
 };
 
@@ -794,13 +996,10 @@ const Poll: React.VoidFunctionComponent<{
   options: PollViewOption[];
   entries: PollViewParticipant[];
   view: "grid" | "list";
-  defaultMode: "create" | "read" | "edit";
-}> = ({ id, options, entries, view, defaultMode }) => {
-  const [activeParticipantId, setActiveParticipantId] =
-    React.useState<string | null>(null);
+}> = ({ id, options, entries }) => {
+  const [mode, setMode] = React.useState<PollState>({ type: "read" });
 
-  const [mode, setMode] = React.useState(defaultMode);
-
+  const { t } = useTranslation("app");
   const findParticipantById = React.useCallback(
     (participantId: string): PollViewParticipant | null => {
       return entries.find(({ id }) => id === participantId) ?? null;
@@ -808,29 +1007,96 @@ const Poll: React.VoidFunctionComponent<{
     [entries],
   );
 
-  const activeParticipant = activeParticipantId
-    ? findParticipantById(activeParticipantId)
-    : null;
-
   const modalContext = useModalContext();
 
-  const deleteParticipant = useDeleteParticipantModal();
+  const deleteParticipant = useDeleteParticipantModal({
+    onSuccess: () => {
+      setMode({ type: "read" });
+    },
+  });
+
+  const queryClient = trpc.useContext();
+  const addParticipant = trpc.useMutation("polls.participants.add", {
+    onSuccess: (newParticipant) => {
+      queryClient.setQueryData(
+        ["polls.participants.list", { pollId: id }],
+        (participants = []) => {
+          return [...participants, newParticipant];
+        },
+      );
+    },
+  });
+
+  const updateParticipant = trpc.useMutation("polls.participants.update", {
+    onSuccess: (participant) => {
+      queryClient.setQueryData(
+        ["polls.participants.list", { pollId: participant.pollId }],
+        (existingParticipants = []) => {
+          const newParticipants = [...existingParticipants];
+
+          const index = newParticipants.findIndex(
+            ({ id }) => id === participant.id,
+          );
+
+          if (index !== -1) {
+            newParticipants[index] = participant;
+          }
+
+          return newParticipants;
+        },
+      );
+    },
+  });
 
   return (
     <PollContext.Provider
       value={{
-        id,
-        view,
         options,
         entries,
-        onEditParticipant: (participantId) => {
-          setActiveParticipantId(participantId);
-          setMode("edit");
+        state: mode,
+        onEditParticipant: async (participantId, votes) => {
+          await updateParticipant.mutateAsync({
+            pollId: id,
+            participantId,
+            votes: options.map(({ id }) => {
+              return {
+                optionId: id,
+                type: votes[id] ?? "no",
+              };
+            }),
+          });
+          setMode({ type: "select", participantId });
+          toast.success(t("saved"));
         },
+        getParticipant: findParticipantById,
+        onAddParticipant: (votes) => {
+          modalContext.render({
+            footer: null,
+            content: function Content({ close }) {
+              return (
+                <NewParticipantModal
+                  onCancel={close}
+                  votes={votes}
+                  onSubmit={async ({ name, votes }) => {
+                    await addParticipant.mutateAsync({
+                      pollId: id,
+                      name,
+                      votes: options.map(({ id }) => {
+                        return {
+                          optionId: id,
+                          type: votes[id] ?? "no",
+                        };
+                      }),
+                    });
+                    close();
+                  }}
+                />
+              );
+            },
+          });
+        },
+        onStateChange: setMode,
         onDeleteParticipant: deleteParticipant,
-        onAddParticipant: () => {
-          setMode("create");
-        },
         onChangeName: (participantId) => {
           const participant = findParticipantById(participantId);
           if (participant) {
@@ -854,26 +1120,7 @@ const Poll: React.VoidFunctionComponent<{
         },
       }}
     >
-      {mode === "create" ? (
-        <>
-          <NewParticipantForm
-            onDone={() => {
-              setMode("read");
-            }}
-          />
-        </>
-      ) : mode === "edit" && activeParticipant ? (
-        <EditParticipantForm
-          key={activeParticipant.id}
-          participant={activeParticipant}
-          onDone={() => {
-            setMode("read");
-            setActiveParticipantId(null);
-          }}
-        />
-      ) : (
-        <PollResults />
-      )}
+      <GridPollNew />
     </PollContext.Provider>
   );
 };

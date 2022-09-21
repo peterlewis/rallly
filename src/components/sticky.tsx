@@ -17,17 +17,21 @@ export const useDetectSticky = <E extends HTMLElement>(
     );
 
     observer.observe(ref.current);
-  }, []);
+    return () => {
+      observer.disconnect();
+    };
+  }, [top]);
 
   return [ref, pinned];
 };
 
 export const Sticky: React.VoidFunctionComponent<{
-  children?: React.ReactNode;
+  children?: React.ReactNode | React.FunctionComponent<{ isPinned: boolean }>;
   className?: string | ((isPinned: boolean) => string);
   top: number;
 }> = ({ className, children, top, ...rest }) => {
   const [ref, isPinned] = useDetectSticky<HTMLDivElement>(top);
+
   return (
     <div
       ref={ref}
@@ -36,8 +40,9 @@ export const Sticky: React.VoidFunctionComponent<{
         typeof className === "function" ? className(isPinned) : className,
       )}
       style={{ top }}
+      {...rest}
     >
-      {children}
+      {typeof children === "function" ? children({ isPinned }) : children}
     </div>
   );
 };

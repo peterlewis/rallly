@@ -3,15 +3,8 @@ import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 
-import Calendar from "@/components/icons/calendar.svg";
-import DotsVertical from "@/components/icons/dots-horizontal.svg";
-import Pencil from "@/components/icons/pencil.svg";
-import Trash from "@/components/icons/trash.svg";
-
-import CompactButton from "../../compact-button";
-import { DraggableContainer } from "../../drag-scroll";
-import Dropdown, { DropdownItem } from "../../dropdown";
 import { ScrollSyncPane } from "../../scroll-sync";
+import { useGridContext } from "../grid-view-poll";
 import { PollViewOption } from "../types";
 import UserAvatar from "../user-avatar";
 import VoteIcon from "../vote-icon";
@@ -28,93 +21,46 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
   name: string;
   color?: string;
   votes: Array<VoteType | undefined>;
-  columnWidth: number;
-  sidebarWidth: number;
   className?: string;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onChangeName?: () => void;
-}> = ({
-  name,
-  votes,
-  sidebarWidth,
-  columnWidth,
-  color,
-  className,
-  onEdit,
-  onDelete,
-  onChangeName,
-}) => {
-  const { t } = useTranslation("app");
+  selected?: boolean;
+  disabled?: boolean;
+  onSelect?: () => void;
+}> = ({ name, votes, color, disabled, selected, className, onSelect }) => {
+  const { sidebarWidth, columnWidth } = useGridContext();
   return (
     <div
+      role={!disabled ? "button" : "container"}
       data-testid="participant-row"
-      className={clsx("flex h-14 select-none py-1", className)}
+      onClick={!disabled ? onSelect : undefined}
+      className={clsx(
+        "flex h-14 select-none",
+        {
+          "bg-white/30": selected,
+          "hover:bg-white/50 active:bg-slate-500/5": !disabled,
+        },
+        className,
+      )}
     >
       <div
-        className="flex h-14 shrink-0 items-center justify-between pr-4 pl-4"
+        className={clsx("flex h-full shrink-0 items-center border-r pl-4")}
         style={{ width: sidebarWidth }}
       >
-        <UserAvatar
-          className="mr-2"
-          name={name}
-          showName={true}
-          color={color}
-        />
-        <Dropdown
-          placement="bottom-start"
-          trigger={
-            <button
-              type="button"
-              className="inline-flex h-5 w-5 items-center justify-center text-slate-400/50 hover:text-slate-400"
-            >
-              <DotsVertical className="h-4" />
-            </button>
-          }
-        >
-          <DropdownItem
-            icon={Calendar}
-            label={t("editVotes")}
-            onClick={onEdit}
-            disabled={!onEdit}
-          />
-          <DropdownItem
-            icon={Pencil}
-            label={t("changeName")}
-            onClick={onChangeName}
-            disabled={!onChangeName}
-          />
-          <DropdownItem
-            icon={Trash}
-            label={t("delete")}
-            onClick={onDelete}
-            disabled={!onDelete}
-          />
-        </Dropdown>
+        <UserAvatar name={name} showName={true} color={color} />
       </div>
-      <ScrollSyncPane
-        as={DraggableContainer}
-        className="no-scrollbar flex overflow-y-auto"
-      >
+      <ScrollSyncPane className="no-scrollbar flex overflow-x-auto overflow-y-hidden">
         {votes.map((vote, i) => {
           return (
             <div
               key={i}
-              className="relative flex shrink-0 items-center justify-center pr-2 transition-colors"
+              className={clsx(
+                "relative flex h-14 shrink-0 items-center justify-center border-r bg-white/30",
+              )}
               style={{ width: columnWidth }}
             >
-              <div
-                className={clsx(
-                  "flex h-12 w-full items-center justify-center rounded-md border",
-                  {
-                    "border-green-600/10 bg-green-100/75": vote === "yes",
-                    "border-amber-600/10 bg-amber-100/75": vote === "ifNeedBe",
-                    "border-slate-300/40 bg-slate-300/5": vote === "no",
-                  },
-                )}
-              >
-                <VoteIcon type={vote} />
-              </div>
+              <VoteIcon
+                className="rounded-full shadow-slate-500/30"
+                type={vote}
+              />
             </div>
           );
         })}
@@ -129,17 +75,7 @@ const ParticipantRow: React.VoidFunctionComponent<ParticipantRowProps> = ({
   options,
   className,
 }) => {
-  const { columnWidth, sidebarWidth } = usePollContext();
-
-  return (
-    <ParticipantRowView
-      sidebarWidth={sidebarWidth}
-      columnWidth={columnWidth}
-      name={name}
-      votes={votes}
-      className={className}
-    />
-  );
+  return <ParticipantRowView name={name} votes={votes} className={className} />;
 };
 
 export default ParticipantRow;
