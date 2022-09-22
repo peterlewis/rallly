@@ -23,7 +23,7 @@ export type PollViewOption = {
 export interface PollViewParticipant {
   id: string;
   name: string;
-  votes: Array<VoteType | undefined>;
+  votes: Array<VoteType | undefined>; // TODO (Luke Vella) [2022-09-21]: Remove this?
   voteByOptionId: Record<string, VoteType | undefined>;
   editable?: boolean;
   you?: boolean;

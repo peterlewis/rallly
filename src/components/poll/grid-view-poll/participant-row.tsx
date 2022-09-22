@@ -33,16 +33,22 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
       data-testid="participant-row"
       onClick={!disabled ? onSelect : undefined}
       className={clsx(
-        "flex h-14 select-none",
+        "flex h-14 select-none ",
         {
-          "bg-white/30": selected,
-          "hover:bg-white/50 active:bg-slate-500/5": !disabled,
+          "bg-white": selected,
+          "hover:bg-slate-500/5 active:bg-slate-500/10": !disabled,
         },
         className,
       )}
     >
       <div
-        className={clsx("flex h-full shrink-0 items-center border-r pl-4")}
+        className={clsx(
+          "flex h-full shrink-0 items-center border-b border-l-4 border-r border-b-slate-200/75 pl-4",
+          {
+            "border-l-primary-500": selected,
+            "border-l-transparent": !selected,
+          },
+        )}
         style={{ width: sidebarWidth }}
       >
         <UserAvatar name={name} showName={true} color={color} />
@@ -53,7 +59,12 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
             <div
               key={i}
               className={clsx(
-                "relative flex h-14 shrink-0 items-center justify-center border-r bg-white/30",
+                "relative flex h-14 shrink-0 items-center justify-center border-r border-b bg-white/30",
+                {
+                  "border-green-700/10 bg-green-100/60": vote === "yes",
+                  "border-amber-700/10 bg-amber-100/60": vote === "ifNeedBe",
+                  "border-b-slate-200/75": !vote || vote === "no",
+                },
               )}
               style={{ width: columnWidth }}
             >

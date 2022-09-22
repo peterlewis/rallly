@@ -58,7 +58,7 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-0 bg-slate-900 bg-opacity-25"
+              className="fixed inset-0 z-0 bg-slate-900 bg-opacity-5"
             />
             <motion.div
               transition={{ duration: 0.1 }}
@@ -67,10 +67,10 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
               exit={{ opacity: 0, scale: 0.9 }}
               className="relative z-50 my-8 inline-block max-w-full transform text-left align-middle"
             >
-              <div className="mx-4 max-w-full overflow-hidden rounded-lg bg-white shadow-xl">
+              <div className="mx-4 max-w-full overflow-hidden rounded-md bg-white shadow-xl">
                 {showClose ? (
                   <button
-                    className="absolute right-5 top-1 z-10 rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-500/10 hover:text-slate-500 active:bg-slate-500/20"
+                    className="absolute right-5 top-1 z-10 inline-flex h-6 w-6 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-500/10 hover:text-slate-500 active:bg-slate-500/20"
                     onClick={onCancel}
                   >
                     <X className="h-4" />

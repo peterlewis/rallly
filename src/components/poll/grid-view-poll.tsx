@@ -53,13 +53,13 @@ interface GridProps {
   numberOfVisibleColumns: number;
 }
 
-const GridContext = React.createContext<GridProps | null>(null);
+export const GridContext = React.createContext<GridProps | null>(null);
 
 export const useGridContext = () => {
   return useRequiredContext(GridContext);
 };
 
-const useGrid = <T extends HTMLElement>(columns: number) => {
+export const useGrid = <T extends HTMLElement>(columns: number) => {
   const minSidebarWidth = 220;
 
   const [ref, { width }] = useMeasure<T>();
@@ -88,105 +88,6 @@ const useGrid = <T extends HTMLElement>(columns: number) => {
     },
   };
 };
-
-const GridViewPoll: React.VoidFunctionComponent<PollProps> = ({
-  options,
-  participants,
-  value,
-  onChange,
-}) => {
-  const { t } = useTranslation("app");
-
-  const {
-    ref,
-    props: { sidebarWidth, numberOfVisibleColumns, columnWidth },
-  } = useGrid(options.length);
-
-  const [activeOptionId, setActiveOptionId] =
-    React.useState<string | null>(null);
-
-  const [scrollPosition, setScrollPosition] = React.useState(0);
-
-  const maxScrollPosition =
-    columnWidth * options.length - columnWidth * numberOfVisibleColumns;
-
-  const goToNextPage = () => {
-    setScrollPosition(
-      Math.min(
-        maxScrollPosition,
-        scrollPosition + numberOfVisibleColumns * columnWidth,
-      ),
-    );
-  };
-
-  const goToPreviousPage = () => {
-    setScrollPosition(
-      Math.max(0, scrollPosition - numberOfVisibleColumns * columnWidth),
-    );
-  };
-
-  return (
-    <PollContext.Provider
-      value={{
-        setActiveOptionId,
-        scrollPosition,
-        setScrollPosition,
-        columnWidth,
-        sidebarWidth,
-        goToNextPage,
-        goToPreviousPage,
-        numberOfColumns: numberOfVisibleColumns,
-        maxScrollPosition,
-        isEditing: false,
-      }}
-    >
-      <ScrollSync>
-        <div ref={ref}>
-          <PollHeader
-            value={value}
-            onChange={onChange}
-            participantCount={participants.length}
-            options={options}
-          />
-          {participants.length > 0 ? (
-            <div className="mt-2 border-t bg-slate-400/5 py-2">
-              <ScrollSyncPane
-                className="no-scrollbar overflow-x-auto overflow-y-hidden"
-                style={{ marginLeft: sidebarWidth }}
-              >
-                {participants.map((participant, i) => {
-                  return (
-                    <ParticipantRow
-                      key={i}
-                      options={options}
-                      name={participant.name}
-                      votes={participant.votes}
-                    />
-                  );
-                })}
-                <div className="mt-3 mb-2 flex">
-                  {options.map((option) => {
-                    return (
-                      <div
-                        className="shrink-0 text-center"
-                        key={option.id}
-                        style={{ width: columnWidth }}
-                      >
-                        <ScoreSummary yesScore={option.score} />
-                      </div>
-                    );
-                  })}
-                </div>
-              </ScrollSyncPane>
-            </div>
-          ) : null}
-        </div>
-      </ScrollSync>
-    </PollContext.Provider>
-  );
-};
-
-export default GridViewPoll;
 
 const NavigationControl: React.VoidFunctionComponent<{
   step: number;
@@ -286,15 +187,16 @@ const GridPollHeader: React.VoidFunctionComponent<{
     <Sticky
       top={47}
       className={(isPinned) =>
-        clsx("group z-20 border-b bg-white/75", {
+        clsx("group z-20 border-b ", {
           "rounded-t-md": !isPinned,
-          "shadow-[0_3px_3px_0px_rgba(0,0,0,0.02)] backdrop-blur-md": isPinned,
+          "bg-white/75 shadow-[0_3px_3px_0px_rgba(0,0,0,0.02)] backdrop-blur-md":
+            isPinned,
         })
       }
     >
       <div className="flex w-fit max-w-full">
         <div
-          className="flex shrink-0 border-r p-4 pb-4"
+          className="shrink-0 border-r p-4 pb-4"
           style={{ width: sidebarWidth }}
         >
           {sidebar}
@@ -469,23 +371,24 @@ export const ConnectedPoll: React.VoidFunctionComponent<{
   );
 };
 
-type PollStateRead = { type: "read" };
-type PollStateEdit = {
+export type PollStateRead = { type: "read" };
+export type PollStateEdit = {
   type: "edit";
   participantId: string;
   votes: PollValue;
+  name: string;
 };
-type PollStateSelect = {
+export type PollStateSelect = {
   type: "select";
   participantId: string;
 };
 
-type PollStateCreate = {
+export type PollStateCreate = {
   type: "create";
   votes?: PollValue;
 };
 
-type PollState =
+export type PollState =
   | PollStateRead
   | PollStateEdit
   | PollStateCreate
@@ -505,7 +408,7 @@ interface PollContextValue {
 
 const PollContext = React.createContext<PollContextValue | null>(null);
 
-const usePollContext = () => {
+export const usePollContext = () => {
   return useRequiredContext(PollContext);
 };
 
@@ -580,7 +483,6 @@ const GridPollOption: React.VoidFunctionComponent<{
   return (
     <div className={clsx("text-center", className)}>
       <div className="space-y-3 py-3">
-        {suffix}
         <div>
           <div className="text-xs font-semibold uppercase text-slate-500/75">
             {date.format("ddd")}
@@ -606,6 +508,7 @@ const GridPollOption: React.VoidFunctionComponent<{
             </div>
           ) : null}
         </div>
+        {suffix}
       </div>
     </div>
   );
@@ -619,12 +522,12 @@ const GridPollEntries: React.VoidFunctionComponent<{
   onSelect?: (participantId: string) => void;
 }> = ({ entries, selectedId, onSelect, disabled, className }) => {
   return (
-    <div className={clsx("divide-y", className)}>
+    <div className={clsx(className)}>
       {entries.map((entry) => {
         return (
           <ParticipantRowView
             disabled={disabled}
-            className="border-slate-200/75"
+            className=""
             key={entry.id}
             selected={selectedId === entry.id}
             name={entry.name}
@@ -685,11 +588,8 @@ const GridPollFooter: React.VoidFunctionComponent<{
     </div>
   );
 };
-const GridPollNew: React.VoidFunctionComponent<{
-  value?: PollState;
-  onChange?: (state: PollState) => void;
-  onSubmit?: (state: PollState) => void;
-}> = ({ value, onChange }) => {
+
+const GridPollNew: React.VoidFunctionComponent = () => {
   const { t } = useTranslation("app");
 
   const {
@@ -706,6 +606,7 @@ const GridPollNew: React.VoidFunctionComponent<{
 
   const renderHeader = () => {
     switch (state.type) {
+      case "select":
       case "read":
         return (
           <GridPollHeader
@@ -812,37 +713,37 @@ const GridPollNew: React.VoidFunctionComponent<{
           </GridPollHeader>
         );
       }
-      case "select":
-        const participant = getEntry(state.participantId);
-        const voteByOptionId = participant?.voteByOptionId ?? {};
-        return (
-          <GridPollHeader
-            sidebar={
-              <div>
-                <div className="mb-2 font-medium">Manage participant</div>
-                <div>
-                  <UserAvatar name={participant?.name ?? ""} showName={true} />
-                </div>
-              </div>
-            }
-          >
-            <GridPollOptionList
-              options={options}
-              renderOption={({ option }) => {
-                return (
-                  <GridPollOption
-                    option={option}
-                    suffix={
-                      <GridPollOptionSuffix>
-                        <VoteIcon type={voteByOptionId[option.id]} />
-                      </GridPollOptionSuffix>
-                    }
-                  />
-                );
-              }}
-            />
-          </GridPollHeader>
-        );
+      // case "select":
+      //   const participant = getEntry(state.participantId);
+      //   const voteByOptionId = participant?.voteByOptionId ?? {};
+      //   return (
+      //     <GridPollHeader
+      //       sidebar={
+      //         <div>
+      //           <div className="mb-2 font-medium">Manage participant</div>
+      //           <div>
+      //             <UserAvatar name={participant?.name ?? ""} showName={true} />
+      //           </div>
+      //         </div>
+      //       }
+      //     >
+      //       <GridPollOptionList
+      //         options={options}
+      //         renderOption={({ option }) => {
+      //           return (
+      //             <GridPollOption
+      //               option={option}
+      //               suffix={
+      //                 <GridPollOptionSuffix>
+      //                   <VoteIcon type={voteByOptionId[option.id]} />
+      //                 </GridPollOptionSuffix>
+      //               }
+      //             />
+      //           );
+      //         }}
+      //       />
+      //     </GridPollHeader>
+      // );
     }
   };
 
@@ -850,20 +751,6 @@ const GridPollNew: React.VoidFunctionComponent<{
 
   const renderFooter = () => {
     switch (state.type) {
-      case "read":
-        return (
-          <GridPollFooter>
-            <div>
-              <Button
-                onClick={() => {
-                  onStateChange?.({ type: "create" });
-                }}
-              >
-                Add participant
-              </Button>
-            </div>
-          </GridPollFooter>
-        );
       case "create":
         return (
           <GridPollFooter>
@@ -883,7 +770,7 @@ const GridPollNew: React.VoidFunctionComponent<{
                 }}
                 type="primary"
               >
-                {t("continue")} &rarr;
+                {t("submit")}
               </Button>
             </div>
           </GridPollFooter>
@@ -894,7 +781,10 @@ const GridPollNew: React.VoidFunctionComponent<{
             <div>
               <Button
                 onClick={() => {
-                  onStateChange?.({ type: "read" });
+                  onStateChange?.({
+                    type: "select",
+                    participantId: state.participantId,
+                  });
                 }}
               >
                 {t("cancel")}
@@ -907,7 +797,7 @@ const GridPollNew: React.VoidFunctionComponent<{
                 }}
                 type="primary"
               >
-                {t("continue")}
+                {t("save")}
               </Button>
             </div>
           </GridPollFooter>
@@ -917,15 +807,6 @@ const GridPollNew: React.VoidFunctionComponent<{
           <GridPollFooter>
             <div className="space-x-2">
               <Button
-                onClick={() => {
-                  onStateChange?.({ type: "read" });
-                }}
-              >
-                {t("cancel")}
-              </Button>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
                 type="danger"
                 icon={<Trash />}
                 onClick={() => {
@@ -933,6 +814,15 @@ const GridPollNew: React.VoidFunctionComponent<{
                 }}
               >
                 {t("delete")}
+              </Button>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                onClick={() => {
+                  onStateChange?.({ type: "read" });
+                }}
+              >
+                {t("unselect")}
               </Button>
               <Button
                 onClick={() => {
@@ -944,11 +834,15 @@ const GridPollNew: React.VoidFunctionComponent<{
               <Button
                 icon={<Pencil />}
                 onClick={() => {
-                  onStateChange?.({
-                    type: "edit",
-                    participantId: state.participantId,
-                    votes: getEntry(state.participantId)?.voteByOptionId ?? {},
-                  });
+                  const participant = getEntry(state.participantId);
+                  if (participant) {
+                    onStateChange?.({
+                      type: "edit",
+                      participantId: participant.id,
+                      name: participant.name,
+                      votes: participant.voteByOptionId,
+                    });
+                  }
                 }}
               >
                 {t("editVotes")}
@@ -961,9 +855,9 @@ const GridPollNew: React.VoidFunctionComponent<{
   return (
     <GridContext.Provider value={gridProps}>
       <ScrollSync>
-        <div className="rounded-md border shadow-sm" ref={ref}>
+        <div className="rounded-md border bg-white shadow-sm" ref={ref}>
           {renderHeader()}
-          <div className="overflow-hidden rounded-b-md bg-white/20">
+          <div className="overflow-hidden rounded-b-md bg-slate-500/5">
             {entries.length > 0 ? (
               <GridPollEntries
                 disabled={state.type === "create" || state.type === "edit"}
@@ -978,7 +872,13 @@ const GridPollNew: React.VoidFunctionComponent<{
                   ) {
                     onStateChange?.({ type: "read" });
                   } else {
-                    onStateChange?.({ type: "select", participantId });
+                    const participant = getEntry(participantId);
+                    if (participant) {
+                      onStateChange?.({
+                        type: "select",
+                        participantId,
+                      });
+                    }
                   }
                 }}
               />
