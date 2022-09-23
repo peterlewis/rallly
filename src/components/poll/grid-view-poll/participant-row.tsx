@@ -35,7 +35,7 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
       className={clsx(
         "flex h-14 select-none ",
         {
-          "bg-white": selected,
+          "bg-white/50": selected,
           "hover:bg-slate-500/5 active:bg-slate-500/10": !disabled,
         },
         className,
@@ -63,7 +63,8 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
                 {
                   "border-green-700/10 bg-green-100/60": vote === "yes",
                   "border-amber-700/10 bg-amber-100/60": vote === "ifNeedBe",
-                  "border-b-slate-200/75": !vote || vote === "no",
+                  "bg-slate-50/200/75 border-b-slate-200/75":
+                    !vote || vote === "no",
                 },
               )}
               style={{ width: columnWidth }}

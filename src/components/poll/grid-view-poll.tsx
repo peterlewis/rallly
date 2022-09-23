@@ -1,17 +1,16 @@
 import { Participant, Vote, VoteType } from "@prisma/client";
 import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
-import { noop } from "lodash";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useMeasure, useMount } from "react-use";
-import { string } from "zod";
 
 import ArrowLeft from "@/components/icons/arrow-left.svg";
 import ArrowRight from "@/components/icons/arrow-right.svg";
+import Check from "@/components/icons/check.svg";
 import Pencil from "@/components/icons/pencil.svg";
+import PencilAlt from "@/components/icons/pencil-alt.svg";
 import Plus from "@/components/icons/plus-sm.svg";
 import Trash from "@/components/icons/trash.svg";
 
@@ -23,23 +22,13 @@ import { Button } from "../button";
 import CompactButton from "../compact-button";
 import { CustomScrollbar } from "../custom-scrollbar";
 import ModalProvider, { useModalContext } from "../modal/modal-provider";
-import { usePoll } from "../poll-provider";
 import { ScrollSync, ScrollSyncPane, useScrollSync } from "../scroll-sync";
 import { Sticky } from "../sticky";
 import { TextInput } from "../text-input";
 import { useRequiredContext } from "../use-required-context";
 import { useUser } from "../user-provider";
-import ParticipantRow, {
-  ParticipantRowView,
-} from "./grid-view-poll/participant-row";
-import PollHeader from "./grid-view-poll/poll-header";
-import { ScoreSummary } from "./score-summary";
-import {
-  PollProps,
-  PollValue,
-  PollViewOption,
-  PollViewParticipant,
-} from "./types";
+import { ParticipantRowView } from "./grid-view-poll/participant-row";
+import { PollValue, PollViewOption, PollViewParticipant } from "./types";
 import { useDeleteParticipantModal } from "./use-delete-participant-modal";
 import UserAvatar from "./user-avatar";
 import VoteIcon from "./vote-icon";
@@ -179,17 +168,18 @@ const GridPollOptionList: React.VoidFunctionComponent<{
 
 const GridPollHeader: React.VoidFunctionComponent<{
   sidebar: React.ReactNode;
+  suffix?: React.ReactNode;
   children: React.ReactNode;
-}> = ({ sidebar, children }) => {
+}> = ({ sidebar, suffix, children }) => {
   const { sidebarWidth, numberOfVisibleColumns, columnWidth } =
     useGridContext();
   return (
     <Sticky
       top={47}
       className={(isPinned) =>
-        clsx("group z-20 border-b ", {
+        clsx("group z-20 border", {
           "rounded-t-md": !isPinned,
-          "bg-white/75 shadow-[0_3px_3px_0px_rgba(0,0,0,0.02)] backdrop-blur-md":
+          "bg-white/75 shadow-[0_3px_3px_0px_rgba(0,0,0,0.02)] backdrop-blur-lg":
             isPinned,
         })
       }
@@ -203,6 +193,7 @@ const GridPollHeader: React.VoidFunctionComponent<{
         </div>
         <div className="min-w-0 grow">{children}</div>
       </div>
+      {suffix}
     </Sticky>
   );
 };
@@ -214,61 +205,105 @@ const NewParticipantModal: React.VoidFunctionComponent<{
     votes: Record<string, VoteType | undefined>;
   }) => Promise<void>;
   votes: Record<string, VoteType | undefined>;
-}> = ({ onCancel, onSubmit, votes }) => {
+  options: PollViewOption[];
+}> = ({ onCancel, onSubmit, options, votes }) => {
   const { t } = useTranslation("app");
 
-  const { register, handleSubmit, formState } = useForm<{ name: string }>({
-    defaultValues: { name: "" },
+  const { user } = useUser();
+  const { register, handleSubmit, setFocus, formState } = useForm<{
+    name: string;
+  }>({
+    defaultValues: { name: user.isGuest ? "" : user.name },
   });
 
+  useMount(() => {
+    setFocus("name");
+  });
+
+  if (formState.isSubmitSuccessful) {
+    return (
+      <div className="p-6">
+        <div className="mb-8 w-full space-y-4 text-center">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-400">
+            <Check className="h-10 text-white" />
+          </div>
+          <div className="">
+            <div className="mb-1 text-xl font-medium text-slate-700">
+              Thank you
+            </div>
+            <div className="text-lg leading-snug text-slate-400">
+              Your submission has been added
+            </div>
+          </div>
+        </div>
+        <Button type="primary" className="w-full" onClick={onCancel}>
+          {t("continue")}
+        </Button>
+      </div>
+    );
+  }
   return (
-    <div className="w-[400px] space-y-8 p-6">
+    <div className="w-[480px] max-w-full space-y-8 p-4">
       <form
         onSubmit={handleSubmit(async ({ name }) => {
           await onSubmit?.({ name, votes });
         })}
         className="space-y-4"
       >
-        <div className="text-lg font-bold">Create a new entry</div>
+        <div className="-mt-1">
+          <div className="text-lg font-semibold">New submission</div>
+          <div className="text-slate-400">
+            Add a new submission to this poll.
+          </div>
+        </div>
         <fieldset>
-          <div className="mb-2 font-medium">Your Name</div>
+          <div className="mb-1 text-sm font-semibold">Name</div>
           <div>
             <TextInput
               size="lg"
-              className="w-full"
+              className="max-w-full"
               placeholder="Enter name…"
               autoFocus={true}
               {...register("name")}
             />
           </div>
         </fieldset>
-
-        {/* <div>
-            <div className="mb-2 flex space-x-2">
-              <div className="font-medium">Your selection</div>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {votes.map(({ option, type }) => {
-                return (
-                  <div key={option.id} className="w-20">
-                    <GridPollInputOption option={option} value={type} />
-                  </div>
-                );
+        <div>
+          <div className="mb-2 text-sm font-semibold">Votes</div>
+          <div className="overflow-auto pb-6 pt-2 scrollbar-thin scrollbar-track-slate-500/10 scrollbar-thumb-slate-500/50 hover:scrollbar-thumb-slate-500/75">
+            <div className="flex space-x-3 ">
+              {options.map((option) => {
+                const vote = votes[option.id];
+                if (vote && vote !== "no") {
+                  return (
+                    <div className="relative w-20 shrink-0 rounded border bg-white pt-1 shadow-sm">
+                      <GridPollOption
+                        className="w-full"
+                        key={option.id}
+                        option={option}
+                      />
+                      <div className="absolute -top-3 left-1/2 z-10 inline-flex h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full bg-white">
+                        <VoteIcon type={vote} />
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
               })}
             </div>
-          </div> */}
-
-        <div className="flex space-x-3">
-          <Button size="lg" onClick={onCancel}>
-            {t("cancel")}
-          </Button>
+          </div>
+        </div>
+        <div className="flex flex-col space-y-3">
           <Button
-            size="lg"
             loading={formState.isSubmitting}
             htmlType="submit"
+            className="w-full"
             type="primary"
           >
-            {t("save")}
+            {t("submit")}
+          </Button>
+          <Button className="w-full" onClick={onCancel}>
+            {t("cancel")}
           </Button>
         </div>
       </form>
@@ -483,6 +518,8 @@ const GridPollOption: React.VoidFunctionComponent<{
   return (
     <div className={clsx("text-center", className)}>
       <div className="space-y-3 py-3">
+        {suffix}
+
         <div>
           <div className="text-xs font-semibold uppercase text-slate-500/75">
             {date.format("ddd")}
@@ -508,7 +545,6 @@ const GridPollOption: React.VoidFunctionComponent<{
             </div>
           ) : null}
         </div>
-        {suffix}
       </div>
     </div>
   );
@@ -583,7 +619,7 @@ const GridPollFooter: React.VoidFunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children }) => {
   return (
-    <div className="flex h-14 items-center justify-between space-x-4 rounded-b-md border-t bg-white/50 px-2">
+    <div className="-mt-px flex h-14 items-center justify-between space-x-4 rounded-b-md border bg-white px-2">
       {children}
     </div>
   );
@@ -651,12 +687,24 @@ const GridPollNew: React.VoidFunctionComponent = () => {
         return (
           <GridPollHeader
             sidebar={
-              <div>
-                <div className="mb-2 font-medium">
-                  {t("selectAvailability")}
-                </div>
+              <div className="flex h-full flex-col justify-between">
                 <div>
-                  <UserAvatar name={t("you")} showName={true} />
+                  <div className="mb-2 font-medium">
+                    {t("selectAvailability")}
+                  </div>
+                  <div>
+                    <UserAvatar name={t("you")} showName={true} />
+                  </div>
+                </div>
+              </div>
+            }
+            suffix={
+              <div className="flex h-7 items-center justify-end border-t bg-slate-500/5 px-3 text-xs">
+                <div className=" text-slate-700/50">
+                  Press <strong>Continue</strong> when you're ready{" "}
+                  <span className="relative top-1 inline-block animate-bounce">
+                    &darr;
+                  </span>
                 </div>
               </div>
             }
@@ -684,13 +732,24 @@ const GridPollNew: React.VoidFunctionComponent = () => {
         return (
           <GridPollHeader
             sidebar={
-              <div>
-                <div className="mb-2 font-medium">
-                  {t("selectAvailability")}
-                </div>
+              <div className="flex h-full flex-col justify-between">
                 <div>
-                  <UserAvatar name={participant?.name ?? ""} showName={true} />
+                  <div className="mb-2 font-medium">{t("editVotes")}</div>
+                  <div>
+                    <UserAvatar
+                      name={participant?.name ?? ""}
+                      showName={true}
+                    />
+                  </div>
                 </div>
+              </div>
+            }
+            suffix={
+              <div className="h-7 border-t bg-slate-500/5 px-3 text-right text-xs leading-7 text-slate-700/50">
+                Press <strong>Save</strong> when you're ready{" "}
+                <span className="relative top-1 inline-block animate-bounce">
+                  &darr;
+                </span>
               </div>
             }
           >
@@ -770,7 +829,7 @@ const GridPollNew: React.VoidFunctionComponent = () => {
                 }}
                 type="primary"
               >
-                {t("submit")}
+                {t("continue")}
               </Button>
             </div>
           </GridPollFooter>
@@ -850,18 +909,21 @@ const GridPollNew: React.VoidFunctionComponent = () => {
             </div>
           </GridPollFooter>
         );
+      default:
+        return <GridPollFooter></GridPollFooter>;
     }
   };
   return (
     <GridContext.Provider value={gridProps}>
       <ScrollSync>
-        <div className="rounded-md border bg-white shadow-sm" ref={ref}>
+        <div className="rounded-md bg-white shadow-sm" ref={ref}>
           {renderHeader()}
           <div className="overflow-hidden rounded-b-md bg-slate-500/5">
             {entries.length > 0 ? (
               <GridPollEntries
                 disabled={state.type === "create" || state.type === "edit"}
                 entries={entries}
+                className="border-x"
                 selectedId={
                   "participantId" in state ? state.participantId : undefined
                 }
@@ -924,6 +986,7 @@ const Poll: React.VoidFunctionComponent<{
           return [...participants, newParticipant];
         },
       );
+      setMode({ type: "select", participantId: newParticipant.id });
     },
   });
 
@@ -972,11 +1035,13 @@ const Poll: React.VoidFunctionComponent<{
         onAddParticipant: (votes) => {
           modalContext.render({
             footer: null,
+            showClose: true,
             content: function Content({ close }) {
               return (
                 <NewParticipantModal
                   onCancel={close}
                   votes={votes}
+                  options={options}
                   onSubmit={async ({ name, votes }) => {
                     await addParticipant.mutateAsync({
                       pollId: id,
@@ -988,7 +1053,6 @@ const Poll: React.VoidFunctionComponent<{
                         };
                       }),
                     });
-                    close();
                   }}
                 />
               );

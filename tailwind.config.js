@@ -23,6 +23,12 @@ module.exports = {
         "in-expo": "cubic-bezier(0.68, -0.6, 0.32, 1.6)",
         "out-expo": "cubic-bezier(0.19, 1, 0.22, 1)",
       },
+      keyframes: {
+        goDown: {
+          "0%, 100%": { transform: "translateY(-2px)" },
+          50: { transform: "translateY(0)" },
+        },
+      },
     },
   },
   plugins: [

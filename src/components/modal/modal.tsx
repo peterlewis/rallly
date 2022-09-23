@@ -70,7 +70,7 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
               <div className="mx-4 max-w-full overflow-hidden rounded-md bg-white shadow-xl">
                 {showClose ? (
                   <button
-                    className="absolute right-5 top-1 z-10 inline-flex h-6 w-6 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-500/10 hover:text-slate-500 active:bg-slate-500/20"
+                    className="absolute right-6 top-2 z-10 inline-flex h-8 w-8 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-500/10 hover:text-slate-500 active:bg-slate-500/20"
                     onClick={onCancel}
                   >
                     <X className="h-4" />

@@ -34,13 +34,13 @@ export const RadioGroup = <T extends string>({
             type="button"
             key={option.value}
             className={clsx(
-              "flex grow items-center justify-center font-medium first:rounded-r-none last:rounded-l-none",
+              "flex grow items-center justify-center font-medium first:rounded-l last:rounded-r",
               {
                 "bg-white text-primary-500 shadow-sm ": option.value === value,
                 "hover:bg-slate-500/5 active:bg-slate-500/10":
                   option.value !== value,
-                "h-9 rounded-md px-3": size === "default",
-                "h-8 rounded-md px-3 text-sm": size === "small",
+                "h-9 px-3": size === "default",
+                "h-8 px-3 text-sm": size === "small",
               },
             )}
             onClick={() => onChange?.(option.value)}
