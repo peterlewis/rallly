@@ -209,11 +209,10 @@ const NewParticipantModal: React.VoidFunctionComponent<{
 }> = ({ onCancel, onSubmit, options, votes }) => {
   const { t } = useTranslation("app");
 
-  const { user } = useUser();
   const { register, handleSubmit, setFocus, formState } = useForm<{
     name: string;
   }>({
-    defaultValues: { name: user.isGuest ? "" : user.name },
+    defaultValues: { name: "" },
   });
 
   useMount(() => {
@@ -1036,6 +1035,7 @@ const Poll: React.VoidFunctionComponent<{
           modalContext.render({
             footer: null,
             showClose: true,
+            overlayClosable: true,
             content: function Content({ close }) {
               return (
                 <NewParticipantModal
