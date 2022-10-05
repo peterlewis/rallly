@@ -1,5 +1,6 @@
 import { Participant, Vote, VoteType } from "@prisma/client";
 import clsx from "clsx";
+import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -28,6 +29,7 @@ import { TextInput } from "../text-input";
 import { useRequiredContext } from "../use-required-context";
 import { useUser } from "../user-provider";
 import { ParticipantRowView } from "./grid-view-poll/participant-row";
+import { ScoreSummary } from "./score-summary";
 import { PollValue, PollViewOption, PollViewParticipant } from "./types";
 import { useDeleteParticipantModal } from "./use-delete-participant-modal";
 import UserAvatar from "./user-avatar";
@@ -74,6 +76,9 @@ export const useGrid = <T extends HTMLElement>(columns: number) => {
       hasOverflow: numberOfVisibleColumns < columns,
       numberOfVisibleColumns,
       columnWidth,
+      optimalWidth: width
+        ? sidebarWidth + numberOfVisibleColumns * columnWidth
+        : undefined,
     },
   };
 };
@@ -85,10 +90,11 @@ const NavigationControl: React.VoidFunctionComponent<{
 }> = ({ count, step, maxValue }) => {
   const { left, setScroll } = useScrollSync();
   const { t } = useTranslation("app");
-
+  const hasReachedEnd = left >= maxValue;
+  const didNotScroll = left === 0;
   return (
-    <div className="flex grow touch-none select-none items-center space-x-4">
-      <div className="grow">
+    <div className="flex h-full grow touch-none select-none items-center">
+      <div className="grow px-3">
         <CustomScrollbar
           value={left}
           min={0}
@@ -100,24 +106,38 @@ const NavigationControl: React.VoidFunctionComponent<{
           className="w-full"
         />
       </div>
-      <div className="whitespace-nowrap font-medium text-slate-400">
+      <div className="whitespace-nowrap text-sm font-medium text-slate-500">
         {t("optionCount", { count })}
       </div>
-      <div className="ml-4 flex space-x-2">
-        <CompactButton
-          icon={ArrowLeft}
+      <div className="ml-4 flex h-full divide-x border-l">
+        <button
+          className={clsx("h-full px-2", {
+            "hover:bg-slate-500/5 active:bg-slate-500/10": !didNotScroll,
+            "bg-slate-500/5 text-slate-500/75": didNotScroll,
+          })}
+          disabled={didNotScroll}
+          type="button"
           onClick={() => {
             setScroll(Math.max(0, Math.round(left / step) * step - step));
           }}
-        />
-        <CompactButton
-          icon={ArrowRight}
+        >
+          <ArrowLeft className="h-4" />
+        </button>
+        <button
+          className={clsx("h-full px-2", {
+            "hover:bg-slate-500/5 active:bg-slate-500/10": !hasReachedEnd,
+            "bg-slate-500/5 text-slate-500/75": hasReachedEnd,
+          })}
+          type="button"
+          disabled={hasReachedEnd}
           onClick={() => {
             setScroll(
               Math.min(maxValue, Math.round(left / step) * step + step),
             );
           }}
-        />
+        >
+          <ArrowRight className="h-4" />
+        </button>
       </div>
     </div>
   );
@@ -134,16 +154,12 @@ const GridPollOptionList: React.VoidFunctionComponent<{
   const { hasOverflow, numberOfVisibleColumns, columnWidth } = useGridContext();
   return (
     <div className={className}>
-      {hasOverflow ? (
-        <div className="border-b px-4 py-3">
-          <NavigationControl
-            step={columnWidth}
-            maxValue={(options.length - numberOfVisibleColumns) * columnWidth}
-            count={options.length}
-          />
-        </div>
-      ) : null}
-      <ScrollSyncPane className="no-scrollbar flex overflow-y-auto">
+      <ScrollSyncPane
+        className="no-scrollbar flex overflow-y-auto"
+        style={{
+          width: numberOfVisibleColumns * columnWidth,
+        }}
+      >
         {options.map((option, i) => (
           <div
             key={i}
@@ -162,6 +178,15 @@ const GridPollOptionList: React.VoidFunctionComponent<{
           </div>
         ))}
       </ScrollSyncPane>
+      {hasOverflow ? (
+        <div className="flex h-8  items-center border-t">
+          <NavigationControl
+            step={columnWidth}
+            maxValue={(options.length - numberOfVisibleColumns) * columnWidth}
+            count={options.length}
+          />
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -179,11 +204,11 @@ const GridPollHeader: React.VoidFunctionComponent<{
       className={(isPinned) =>
         clsx("group z-20 border", {
           "rounded-t-md": !isPinned,
-          "bg-white/75 shadow-[0_3px_3px_0px_rgba(0,0,0,0.02)] backdrop-blur-lg":
-            isPinned,
+          "bg-white shadow-[0_3px_3px_0px_rgba(0,0,0,0.02)]": isPinned,
         })
       }
     >
+      {suffix ? <div className="border-b">{suffix}</div> : null}
       <div className="flex w-fit max-w-full">
         <div
           className="shrink-0 border-r p-4 pb-4"
@@ -193,7 +218,6 @@ const GridPollHeader: React.VoidFunctionComponent<{
         </div>
         <div className="min-w-0 grow">{children}</div>
       </div>
-      {suffix}
     </Sticky>
   );
 };
@@ -242,48 +266,38 @@ const NewParticipantModal: React.VoidFunctionComponent<{
     );
   }
   return (
-    <div className="w-[480px] max-w-full space-y-8 p-4">
+    <div className="w-[390px] max-w-full space-y-8 p-4">
       <form
         onSubmit={handleSubmit(async ({ name }) => {
           await onSubmit?.({ name, votes });
         })}
-        className="space-y-4"
       >
-        <div className="-mt-1">
+        <div className="-mt-1 mb-4">
           <div className="text-lg font-semibold">New submission</div>
-          <div className="text-slate-400">
-            Add a new submission to this poll.
-          </div>
         </div>
-        <fieldset>
-          <div className="mb-1 text-sm font-semibold">Name</div>
+        <div className="space-y-4">
+          <fieldset>
+            <div className="mb-1 text-sm font-semibold">Name</div>
+            <div>
+              <TextInput
+                size="lg"
+                className="max-w-full"
+                placeholder="Enter name…"
+                autoFocus={true}
+                {...register("name")}
+              />
+            </div>
+          </fieldset>
           <div>
-            <TextInput
-              size="lg"
-              className="max-w-full"
-              placeholder="Enter name…"
-              autoFocus={true}
-              {...register("name")}
-            />
-          </div>
-        </fieldset>
-        <div>
-          <div className="mb-2 text-sm font-semibold">Votes</div>
-          <div className="overflow-auto pb-6 pt-2 scrollbar-thin scrollbar-track-slate-500/10 scrollbar-thumb-slate-500/50 hover:scrollbar-thumb-slate-500/75">
-            <div className="flex space-x-3 ">
+            <div className="mb-2 text-sm font-semibold">Votes</div>
+            <div className="space-y-2 overflow-auto rounded border p-4">
               {options.map((option) => {
                 const vote = votes[option.id];
                 if (vote && vote !== "no") {
                   return (
-                    <div className="relative w-20 shrink-0 rounded border bg-white pt-1 shadow-sm">
-                      <GridPollOption
-                        className="w-full"
-                        key={option.id}
-                        option={option}
-                      />
-                      <div className="absolute -top-3 left-1/2 z-10 inline-flex h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full bg-white">
-                        <VoteIcon type={vote} />
-                      </div>
+                    <div className="flex items-center space-x-3">
+                      <VoteIcon type={vote} />
+                      <div>{option.i18nDate}</div>
                     </div>
                   );
                 }
@@ -291,19 +305,19 @@ const NewParticipantModal: React.VoidFunctionComponent<{
               })}
             </div>
           </div>
-        </div>
-        <div className="flex flex-col space-y-3">
-          <Button
-            loading={formState.isSubmitting}
-            htmlType="submit"
-            className="w-full"
-            type="primary"
-          >
-            {t("submit")}
-          </Button>
-          <Button className="w-full" onClick={onCancel}>
-            {t("cancel")}
-          </Button>
+          <div className="flex flex-col space-y-3">
+            <Button
+              loading={formState.isSubmitting}
+              htmlType="submit"
+              className="w-full"
+              type="primary"
+            >
+              {t("submit")}
+            </Button>
+            <Button className="w-full" onClick={onCancel}>
+              {t("cancel")}
+            </Button>
+          </div>
         </div>
       </form>
     </div>
@@ -348,6 +362,7 @@ export const ConnectedPoll: React.VoidFunctionComponent<{
           return {
             id: option.id,
             type: "time",
+            i18nDate: startTime.format("LLL"),
             index,
             start: startTime.format("YYYY-MM-DDTHH:mm"),
             end: endTime.format("YYYY-MM-DDTHH:mm"),
@@ -358,6 +373,7 @@ export const ConnectedPoll: React.VoidFunctionComponent<{
         return {
           id: option.id,
           type: "date",
+          i18nDate: dayjs(option.value.date).format("LL"),
           index,
           date: option.value.date,
           score,
@@ -395,12 +411,7 @@ export const ConnectedPoll: React.VoidFunctionComponent<{
 
   return (
     <ModalProvider>
-      <div>
-        <div className="mb-8">{/* Toolbar goes here */}</div>
-        <div>
-          <Poll id={id} options={pollOptions} entries={entries} view={view} />
-        </div>
-      </div>
+      <Poll id={id} options={pollOptions} entries={entries} view={view} />
     </ModalProvider>
   );
 };
@@ -422,11 +433,12 @@ export type PollStateCreate = {
   votes?: PollValue;
 };
 
-export type PollState =
+export type PollState = {} & (
   | PollStateRead
   | PollStateEdit
   | PollStateCreate
-  | PollStateSelect;
+  | PollStateSelect
+);
 
 interface PollContextValue {
   options: PollViewOption[];
@@ -516,14 +528,13 @@ const GridPollOption: React.VoidFunctionComponent<{
   const date = dayjs(option.type === "date" ? option.date : option.start);
   return (
     <div className={clsx("text-center", className)}>
-      <div className="space-y-3 py-3">
+      <div className="space-y-2 py-3">
         {suffix}
-
         <div>
           <div className="text-xs font-semibold uppercase text-slate-500/75">
             {date.format("ddd")}
           </div>
-          <div className="text-2xl font-semibold text-slate-700">
+          <div className="text-xl font-semibold text-slate-700">
             {date.format("D")}
           </div>
           <div className="text-xs font-medium uppercase text-slate-500/75">
@@ -532,13 +543,13 @@ const GridPollOption: React.VoidFunctionComponent<{
           {option.type === "time" ? (
             <div
               className={
-                "relative mt-2 -mr-2 inline-block pr-2 text-right text-xs after:absolute after:top-2 after:right-0 after:h-4 after:w-1 after:border-t after:border-r after:border-b after:border-slate-300 after:content-['']"
+                "relative mt-2 -mr-2 inline-block pr-2 text-right  after:absolute after:top-3 after:right-0 after:h-4 after:w-1 after:border-t after:border-r after:border-b after:border-slate-300 after:content-['']"
               }
             >
-              <div className="font-bold text-slate-500">
+              <div className="text-sm text-slate-700">
                 {dayjs(option.start).format("LT")}
               </div>
-              <div className="text-slate-400">
+              <div className="text-sm text-slate-700/50">
                 {dayjs(option.end).format("LT")}
               </div>
             </div>
@@ -557,7 +568,7 @@ const GridPollEntries: React.VoidFunctionComponent<{
   onSelect?: (participantId: string) => void;
 }> = ({ entries, selectedId, onSelect, disabled, className }) => {
   return (
-    <div className={clsx(className)}>
+    <div className={className}>
       {entries.map((entry) => {
         return (
           <ParticipantRowView
@@ -596,22 +607,9 @@ const GridPollOptionToggle: React.VoidFunctionComponent<{
         onChange?.(toggle());
       }}
     >
-      <GridPollOption
-        option={option}
-        suffix={
-          <GridPollOptionSuffix>
-            <VoteSelector value={value} />
-          </GridPollOptionSuffix>
-        }
-      />
+      <GridPollOption option={option} suffix={<VoteIcon type={value} />} />
     </div>
   );
-};
-
-const GridPollOptionSuffix: React.VoidFunctionComponent<{
-  children?: React.ReactNode;
-}> = ({ children }) => {
-  return <div className="flex h-7 items-center justify-center">{children}</div>;
 };
 
 const GridPollFooter: React.VoidFunctionComponent<{
@@ -666,18 +664,7 @@ const GridPollNew: React.VoidFunctionComponent = () => {
             <GridPollOptionList
               options={options}
               renderOption={({ option }) => {
-                return (
-                  <GridPollOption
-                    option={option}
-                    suffix={
-                      <GridPollOptionSuffix>
-                        <div className="inline-block h-6 w-6 rounded-full bg-slate-500/5 px-1 text-xs font-semibold leading-6 text-slate-400 shadow-sm">
-                          {option.score}
-                        </div>
-                      </GridPollOptionSuffix>
-                    }
-                  />
-                );
+                return <GridPollOption option={option} />;
               }}
             />
           </GridPollHeader>
@@ -686,24 +673,31 @@ const GridPollNew: React.VoidFunctionComponent = () => {
         return (
           <GridPollHeader
             sidebar={
-              <div className="flex h-full flex-col justify-between">
+              <div className="h-full">
                 <div>
-                  <div className="mb-2 font-medium">
-                    {t("selectAvailability")}
-                  </div>
-                  <div>
-                    <UserAvatar name={t("you")} showName={true} />
-                  </div>
+                  <UserAvatar name={t("you")} showName={true} />
                 </div>
               </div>
             }
             suffix={
-              <div className="flex h-7 items-center justify-end border-t bg-slate-500/5 px-3 text-xs">
-                <div className=" text-slate-700/50">
-                  Press <strong>Continue</strong> when you're ready{" "}
-                  <span className="relative top-1 inline-block animate-bounce">
-                    &darr;
-                  </span>
+              <div className="flex items-center justify-between rounded-t-md bg-white py-2 pl-4 pr-2 font-medium">
+                <div>Please choose your preferred dates</div>
+                <div className="flex items-center justify-end space-x-2">
+                  <Button
+                    onClick={() => {
+                      onStateChange?.({ type: "read" });
+                    }}
+                  >
+                    {t("cancel")}
+                  </Button>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      onCreateEntry(state.votes ?? {});
+                    }}
+                  >
+                    {t("continue")}
+                  </Button>
                 </div>
               </div>
             }
@@ -915,7 +909,7 @@ const GridPollNew: React.VoidFunctionComponent = () => {
   return (
     <GridContext.Provider value={gridProps}>
       <ScrollSync>
-        <div className="rounded-md bg-white shadow-sm" ref={ref}>
+        <div className="max-w-full rounded-md bg-white shadow-sm" ref={ref}>
           {renderHeader()}
           <div className="overflow-hidden rounded-b-md bg-slate-500/5">
             {entries.length > 0 ? (
@@ -944,7 +938,7 @@ const GridPollNew: React.VoidFunctionComponent = () => {
                 }}
               />
             ) : null}
-            {renderFooter()}
+            {/* {renderFooter()} */}
           </div>
         </div>
       </ScrollSync>

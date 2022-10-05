@@ -29,13 +29,13 @@ const Hero: React.VoidFunctionComponent = () => {
         <div className="space-x-3">
           <a
             href="/polls"
-            className="rounded-lg bg-primary-500 px-5 py-3 font-semibold text-white shadow-sm  transition-all hover:bg-primary-500/90 hover:text-white hover:no-underline hover:shadow-md focus:ring-2  focus:ring-primary-200 active:bg-primary-600/90"
+            className="rounded-lg bg-primary-500 px-5 py-3 font-semibold text-white shadow-sm  transition-all focus:ring-2 focus:ring-primary-200 hover:bg-primary-500/90 hover:text-white hover:no-underline  hover:shadow-md active:bg-primary-600/90"
           >
             {t("getStarted")}
           </a>
           <a
             href="/demo"
-            className="rounded-lg bg-slate-500 px-5 py-3 font-semibold text-white shadow-sm  transition-all hover:bg-slate-500/90 hover:text-white hover:no-underline hover:shadow-md focus:ring-2  focus:ring-primary-200 active:bg-slate-600/90"
+            className="rounded-lg bg-slate-500 px-5 py-3 font-semibold text-white shadow-sm  transition-all focus:ring-2 focus:ring-primary-200 hover:bg-slate-500/90 hover:text-white hover:no-underline  hover:shadow-md active:bg-slate-600/90"
             rel="nofollow"
           >
             {t("liveDemo")}
@@ -49,14 +49,14 @@ const Hero: React.VoidFunctionComponent = () => {
               <motion.div
                 className="absolute z-20 h-full rounded-2xl border-4 border-primary-500 bg-primary-200/10 shadow-md"
                 initial={{ opacity: 0, width: 100, scale: 1.1, x: 480 }}
-                animate={{ opacity: 1, x: 381 }}
+                animate={{ opacity: 1, x: 408 }}
                 transition={{ type: "spring", delay: 1 }}
               />
               <motion.div
                 className="absolute z-20 rounded-full bg-primary-500 py-1 px-3 text-sm text-slate-100"
                 initial={{
                   opacity: 0,
-                  right: 190,
+                  right: 180,
                   top: -65,
                   translateY: 50,
                 }}

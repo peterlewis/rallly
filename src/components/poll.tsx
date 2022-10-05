@@ -139,7 +139,7 @@ const AdminPanel = () => {
   const { openLoginModal } = useLoginModal();
   const { user } = useUser();
   return (
-    <div className="rounded-md border bg-white/20 p-6 shadow-sm">
+    <div className="rounded-md border bg-white p-6 shadow-sm">
       <div className="justify flex justify-between font-bold">
         <div className="flex text-sm sm:text-lg">
           {t("administrationPanel")}
@@ -252,7 +252,7 @@ const PollPage: NextPage = () => {
             ) : null}
             {poll.admin ? <AdminPanel /> : null}
             <motion.div layout="position" initial={false} className="space-y-4">
-              <div className="card space-y-4 rounded-lg">
+              <div className="card space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
                   description={<PollSubheader />}
@@ -298,28 +298,8 @@ const PollPage: NextPage = () => {
                   participants={participants}
                 />
               ) : null}
-
-              {/* {participants ? (
-                <PollDataProvider
-                  admin={poll.admin}
-                  options={poll.options.map(({ id, value }) => ({
-                    id,
-                    value:
-                      value.indexOf("/") === -1
-                        ? { type: "date", date: value }
-                        : {
-                            type: "time",
-                            start: value.split("/")[0],
-                            end: value.split("/")[1],
-                          },
-                  }))}
-                  pollId={poll.id}
-                  timeZone={poll.timeZone}
-                  participants={participants}
-                />
-              ) : null} */}
-              <Discussion />
             </motion.div>
+            <Discussion />
           </LayoutGroup>
         </div>
       </UserAvatarProvider>

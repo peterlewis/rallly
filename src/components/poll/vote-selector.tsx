@@ -51,7 +51,7 @@ export const VoteSelector = React.forwardRef<
       onBlur={onBlur}
       onKeyDown={onKeyDown}
       className={clsx(
-        "group relative inline-flex h-7 w-7 items-center justify-center overflow-hidden rounded border bg-white focus-visible:border-primary-500 focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:ring-offset-0 active:bg-gray-100",
+        "relative box-border inline-flex h-7 w-7 items-center justify-center overflow-hidden rounded border bg-white focus-visible:border-primary-500 focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:ring-offset-0 active:bg-gray-100",
         className,
       )}
       onClick={() => {
@@ -59,7 +59,9 @@ export const VoteSelector = React.forwardRef<
       }}
       ref={ref}
     >
-      {value ? <VoteIcon type={value} /> : null}
+      <div className="absolute inset-0 flex items-center justify-center">
+        {value ? <VoteIcon type={value} /> : null}
+      </div>
     </button>
   );
 });

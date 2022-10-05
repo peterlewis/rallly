@@ -10,14 +10,15 @@ import X from "@/components/icons/x-circle.svg";
 const VoteIcon: React.VoidFunctionComponent<{
   type?: VoteType;
   size?: "sm" | "md";
+  shape?: "circle" | "square";
   className?: string;
-}> = ({ type, className, size = "md" }) => {
+}> = ({ type, className, shape, size = "md" }) => {
   const renderIcon = () => {
     switch (type) {
       case "yes":
         return (
           <CheckCircle
-            className={clsx("text-green-400", className, {
+            className={clsx("text-green-400", {
               "h-5": size === "md",
               "h-3": size === "sm",
             })}
@@ -27,7 +28,7 @@ const VoteIcon: React.VoidFunctionComponent<{
       case "ifNeedBe":
         return (
           <IfNeedBe
-            className={clsx("text-amber-300", className, {
+            className={clsx("text-amber-300", {
               "h-5": size === "md",
               "h-3": size === "sm",
             })}
@@ -37,7 +38,7 @@ const VoteIcon: React.VoidFunctionComponent<{
       case "no":
         return (
           <X
-            className={clsx("text-slate-300", className, {
+            className={clsx("text-slate-300", {
               "h-5": size === "md",
               "h-3": size === "sm",
             })}
@@ -47,7 +48,7 @@ const VoteIcon: React.VoidFunctionComponent<{
       default:
         return (
           <QuestionMark
-            className={clsx("text-slate-300", className, {
+            className={clsx("text-slate-300", {
               "h-5": size === "md",
               "h-3": size === "sm",
             })}
@@ -57,7 +58,7 @@ const VoteIcon: React.VoidFunctionComponent<{
   };
 
   return (
-    <span className="relative inline-block h-5 w-5">
+    <span className={clsx("relative inline-block h-5 w-5", className)}>
       {type !== undefined ? (
         <span className="absolute left-1/2 top-1/2 -z-10 h-3 w-3 -translate-y-1/2 -translate-x-1/2 rounded-full bg-white" />
       ) : null}

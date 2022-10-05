@@ -89,7 +89,7 @@ const Footer: React.VoidFunctionComponent = () => {
       <div className="text-slate-300">&bull;</div>
       <a
         href="https://www.paypal.com/donate/?hosted_button_id=7QXP2CUBLY88E"
-        className="inline-flex h-8 items-center rounded-full bg-slate-100 pl-2 pr-3 text-sm text-slate-400 transition-colors hover:bg-primary-500 hover:text-white hover:no-underline focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 active:bg-primary-600"
+        className="inline-flex h-8 items-center rounded-full bg-slate-100 pl-2 pr-3 text-sm text-slate-400 transition-colors focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 hover:bg-primary-500 hover:text-white hover:no-underline active:bg-primary-600"
       >
         <Cash className="mr-1 inline-block w-5" />
         <span>{t("app:donate")}</span>
@@ -139,7 +139,7 @@ export const AppLayoutHeading: React.VoidFunctionComponent<{
     >
       <div className="grow">
         <h1
-          className="mb-1 font-semibold text-slate-700 md:text-left md:text-3xl"
+          className="mb-1 font-semibold text-slate-700 md:text-3xl"
           data-testid="poll-title"
         >
           {title}

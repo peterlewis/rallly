@@ -8,6 +8,7 @@ export interface ParticipantForm {
 export type PollViewOption = {
   id: string;
   score: number;
+  i18nDate: string;
 } & (
   | {
       type: "date";

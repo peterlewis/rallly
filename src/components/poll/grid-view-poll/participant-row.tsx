@@ -26,7 +26,8 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
   disabled?: boolean;
   onSelect?: () => void;
 }> = ({ name, votes, color, disabled, selected, className, onSelect }) => {
-  const { sidebarWidth, columnWidth } = useGridContext();
+  const { sidebarWidth, columnWidth, numberOfVisibleColumns } =
+    useGridContext();
   return (
     <div
       role={!disabled ? "button" : "container"}
@@ -53,7 +54,10 @@ export const ParticipantRowView: React.VoidFunctionComponent<{
       >
         <UserAvatar name={name} showName={true} color={color} />
       </div>
-      <ScrollSyncPane className="no-scrollbar flex overflow-x-auto overflow-y-hidden">
+      <ScrollSyncPane
+        className="no-scrollbar flex overflow-x-auto overflow-y-hidden"
+        style={{ width: numberOfVisibleColumns * columnWidth }}
+      >
         {votes.map((vote, i) => {
           return (
             <div
