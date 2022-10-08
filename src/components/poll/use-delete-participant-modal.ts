@@ -21,8 +21,8 @@ export const useDeleteParticipantModal = ({
         type: "danger",
       },
       okText: "Delete",
-      onOk: async () => {
-        await deleteParticipant.mutateAsync({
+      onOk: () => {
+        deleteParticipant.mutateAsync({
           pollId: poll.id,
           participantId,
         });

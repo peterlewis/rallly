@@ -17,20 +17,21 @@ export interface VoteSelectorProps {
 const orderedVoteTypes: VoteType[] = ["yes", "ifNeedBe", "no"];
 
 export const useVoteState = (value?: VoteType) => {
-  return React.useMemo(
-    () => ({
-      toggle: () => {
-        if (!value) {
-          return orderedVoteTypes[0];
-        }
+  const toggle = React.useCallback(
+    (v?: VoteType) => {
+      const currentValue = v ?? value;
+      if (!currentValue) {
+        return orderedVoteTypes[0];
+      }
 
-        return orderedVoteTypes[
-          (orderedVoteTypes.indexOf(value) + 1) % orderedVoteTypes.length
-        ];
-      },
-    }),
+      return orderedVoteTypes[
+        (orderedVoteTypes.indexOf(currentValue) + 1) % orderedVoteTypes.length
+      ];
+    },
     [value],
   );
+
+  return { toggle };
 };
 
 export const VoteSelector = React.forwardRef<

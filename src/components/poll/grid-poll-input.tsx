@@ -1,10 +1,8 @@
-import produce from "immer";
 import React from "react";
 
-import config from "../../../playwright.config";
 import { ScrollSync } from "../scroll-sync";
 import { useRequiredContext } from "../use-required-context";
-import { PollState, PollStateCreate } from "./grid-view-poll";
+import { PollState } from "./grid-view-poll";
 import { PollValue, PollViewOption, PollViewParticipant } from "./types";
 
 type PollConfig = {
@@ -81,48 +79,64 @@ const usePollState = (config: PollConfig) => {
   };
 };
 
-interface PollStateContextValue<
-  T extends PollState["type"] = PollState["type"],
-  S = PollState & { type: T },
-> {
-  state: S;
-  setState: React.Dispatch<React.SetStateAction<S>>;
+interface PollStateContextValue {
+  state: PollState;
+  setState: React.Dispatch<React.SetStateAction<PollState>>;
 }
 
 const PollStateContext =
   React.createContext<PollStateContextValue | null>(null);
 
-const usePollStateContext = <T extends PollState["type"] = PollState["type"]>(
-  mode?: T,
-): PollStateContextValue<T> => {
+const usePollStateContext = (): PollStateContextValue => {
   const context = useRequiredContext(PollStateContext, "PollStateContext");
 
-  if (mode && context.state.type !== mode) {
-    throw new Error(
-      `Expected mode to be "${mode}" but found ${context.state.type}`,
-    );
-  }
-
-  return context as unknown as PollStateContextValue<T>;
+  return context;
 };
 
-const GridPollHeaderCreate: React.VoidFunctionComponent = () => {
-  const { state, setState } = usePollStateContext("create");
-  <div
-    onChange={(votes) => {
-      setState((s) => {
-        return { s, votes };
-      });
-    }}
-  ></div>;
+const GridPollHeaderCreate: React.VoidFunctionComponent<{
+  value?: PollValue;
+  onChange: (value: PollValue) => void;
+}> = () => {
+  return <div>Create header</div>;
+};
+
+const GridPollHeaderEdit: React.VoidFunctionComponent<{
+  name: string;
+  value?: PollValue;
+  onChange: (value: PollValue) => void;
+}> = () => {
+  return <div>Edit header</div>;
 };
 
 const GridPollHeader = () => {
   const { state, setState } = usePollStateContext();
   switch (state.type) {
     case "create":
-      <GridPollHeaderCreate state={state} />;
+      return (
+        <GridPollHeaderCreate
+          value={state.votes}
+          onChange={(votes) => {
+            setState({ ...state, votes });
+          }}
+        />
+      );
+    case "edit":
+      return (
+        <GridPollHeaderEdit
+          name={state.name}
+          value={state.votes}
+          onChange={(votes) => {
+            setState({ ...state, votes });
+          }}
+        />
+      );
+    default:
+      return <div>Deault header</div>;
   }
+};
+
+const GridPollBody: React.VoidFunctionComponent = () => {
+  return <div>body</div>;
 };
 
 const GridPoll: React.VoidFunctionComponent = () => {

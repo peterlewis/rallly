@@ -1,6 +1,5 @@
 import { Participant, Vote, VoteType } from "@prisma/client";
 import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -9,9 +8,7 @@ import { useMeasure, useMount } from "react-use";
 
 import ArrowLeft from "@/components/icons/arrow-left.svg";
 import ArrowRight from "@/components/icons/arrow-right.svg";
-import Check from "@/components/icons/check.svg";
 import Pencil from "@/components/icons/pencil.svg";
-import PencilAlt from "@/components/icons/pencil-alt.svg";
 import Plus from "@/components/icons/plus-sm.svg";
 import Trash from "@/components/icons/trash.svg";
 
@@ -28,13 +25,14 @@ import { Sticky } from "../sticky";
 import { TextInput } from "../text-input";
 import { useRequiredContext } from "../use-required-context";
 import { useUser } from "../user-provider";
+import { ChangeNameModal } from "./change-name-modal";
 import { ParticipantRowView } from "./grid-view-poll/participant-row";
-import { ScoreSummary } from "./score-summary";
+import { NewParticipantModal } from "./new-participant-modal";
 import { PollValue, PollViewOption, PollViewParticipant } from "./types";
 import { useDeleteParticipantModal } from "./use-delete-participant-modal";
 import UserAvatar from "./user-avatar";
 import VoteIcon from "./vote-icon";
-import { useVoteState, VoteSelector } from "./vote-selector";
+import { useVoteState } from "./vote-selector";
 
 interface GridProps {
   width: number;
@@ -222,108 +220,6 @@ const GridPollHeader: React.VoidFunctionComponent<{
   );
 };
 
-const NewParticipantModal: React.VoidFunctionComponent<{
-  onCancel?: () => void;
-  onSubmit?: (data: {
-    name: string;
-    votes: Record<string, VoteType | undefined>;
-  }) => Promise<void>;
-  votes: Record<string, VoteType | undefined>;
-  options: PollViewOption[];
-}> = ({ onCancel, onSubmit, options, votes }) => {
-  const { t } = useTranslation("app");
-
-  const { register, handleSubmit, setFocus, formState } = useForm<{
-    name: string;
-  }>({
-    defaultValues: { name: "" },
-  });
-
-  useMount(() => {
-    setFocus("name");
-  });
-
-  if (formState.isSubmitSuccessful) {
-    return (
-      <div className="p-6">
-        <div className="mb-8 w-full space-y-4 text-center">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-400">
-            <Check className="h-10 text-white" />
-          </div>
-          <div className="">
-            <div className="mb-1 text-xl font-medium text-slate-700">
-              Thank you
-            </div>
-            <div className="text-lg leading-snug text-slate-400">
-              Your submission has been added
-            </div>
-          </div>
-        </div>
-        <Button type="primary" className="w-full" onClick={onCancel}>
-          {t("continue")}
-        </Button>
-      </div>
-    );
-  }
-  return (
-    <div className="w-[390px] max-w-full space-y-8 p-4">
-      <form
-        onSubmit={handleSubmit(async ({ name }) => {
-          await onSubmit?.({ name, votes });
-        })}
-      >
-        <div className="-mt-1 mb-4">
-          <div className="text-lg font-semibold">New submission</div>
-        </div>
-        <div className="space-y-4">
-          <fieldset>
-            <div className="mb-1 text-sm font-semibold">Name</div>
-            <div>
-              <TextInput
-                size="lg"
-                className="max-w-full"
-                placeholder="Enter name…"
-                autoFocus={true}
-                {...register("name")}
-              />
-            </div>
-          </fieldset>
-          <div>
-            <div className="mb-2 text-sm font-semibold">Votes</div>
-            <div className="space-y-2 overflow-auto rounded border p-4">
-              {options.map((option) => {
-                const vote = votes[option.id];
-                if (vote && vote !== "no") {
-                  return (
-                    <div className="flex items-center space-x-3">
-                      <VoteIcon type={vote} />
-                      <div>{option.i18nDate}</div>
-                    </div>
-                  );
-                }
-                return null;
-              })}
-            </div>
-          </div>
-          <div className="flex flex-col space-y-3">
-            <Button
-              loading={formState.isSubmitting}
-              htmlType="submit"
-              className="w-full"
-              type="primary"
-            >
-              {t("submit")}
-            </Button>
-            <Button className="w-full" onClick={onCancel}>
-              {t("cancel")}
-            </Button>
-          </div>
-        </div>
-      </form>
-    </div>
-  );
-};
-
 export const ConnectedPoll: React.VoidFunctionComponent<{
   id: string;
   admin?: boolean;
@@ -430,15 +326,14 @@ export type PollStateSelect = {
 
 export type PollStateCreate = {
   type: "create";
-  votes?: PollValue;
+  votes: PollValue;
 };
 
-export type PollState = {} & (
+export type PollState =
   | PollStateRead
   | PollStateEdit
   | PollStateCreate
-  | PollStateSelect
-);
+  | PollStateSelect;
 
 interface PollContextValue {
   options: PollViewOption[];
@@ -456,67 +351,6 @@ const PollContext = React.createContext<PollContextValue | null>(null);
 
 export const usePollContext = () => {
   return useRequiredContext(PollContext);
-};
-
-const ChangeNameDialog: React.VoidFunctionComponent<{
-  currentName: string;
-  participantId: string;
-  pollId: string;
-  onDone: () => void;
-}> = ({ pollId, participantId, currentName, onDone }) => {
-  const { t } = useTranslation("app");
-  const queryClient = trpc.useContext();
-  const changeName = trpc.useMutation("polls.participants.changeName", {
-    onSuccess: () => {
-      queryClient.invalidateQueries(["polls.participants.list", { pollId }]);
-      toast.success(t("saved"));
-    },
-  });
-  const { register, handleSubmit, setFocus, formState } = useForm<{
-    name: string;
-  }>({
-    defaultValues: {
-      name: currentName,
-    },
-  });
-
-  useMount(() => {
-    setFocus("name");
-  });
-
-  return (
-    <div className="w-[400px] p-4">
-      <div className="mb-4">
-        <div className="text-lg font-semibold">{t("Rename participant")}</div>
-        <div className="text-slate-500">
-          {t("Type in the new name for this participant")}
-        </div>
-      </div>
-      <form
-        className="space-y-4"
-        onSubmit={handleSubmit(async ({ name }) => {
-          await changeName.mutateAsync({ pollId, participantId, name });
-          onDone();
-        })}
-      >
-        <TextInput
-          placeholder={t("namePlaceholder")}
-          className="w-full"
-          {...register("name")}
-        />
-        <div className="flex space-x-3">
-          <Button onClick={onDone}>{t("cancel")}</Button>
-          <Button
-            htmlType="submit"
-            loading={formState.isSubmitting}
-            type="primary"
-          >
-            {t("Rename")}
-          </Button>
-        </div>
-      </form>
-    </div>
-  );
 };
 
 const GridPollOption: React.VoidFunctionComponent<{
@@ -1064,7 +898,7 @@ const Poll: React.VoidFunctionComponent<{
               showClose: true,
               content: function Content({ close }) {
                 return (
-                  <ChangeNameDialog
+                  <ChangeNameModal
                     participantId={participant.id}
                     pollId={id}
                     currentName={participant.name}

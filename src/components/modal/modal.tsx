@@ -128,3 +128,12 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
 };
 
 export default Modal;
+
+export const ModalContent: React.VoidFunctionComponent<{
+  children?: React.ReactNode;
+  overlayClosable?: boolean;
+  visible?: boolean;
+  showClose?: boolean;
+}> = ({ children, ...forwardProps }) => {
+  return <Modal content={children} {...forwardProps} />;
+};

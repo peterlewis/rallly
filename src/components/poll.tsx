@@ -26,6 +26,7 @@ import { useParticipants } from "./participants-provider";
 import { ConnectedPoll } from "./poll/grid-view-poll";
 import NotificationsToggle from "./poll/notifications-toggle";
 import PollSubheader from "./poll/poll-subheader";
+import { ConnectedPollViz, PollViz } from "./poll/poll-viz";
 import TruncatedLinkify from "./poll/truncated-linkify";
 import { useTouchBeacon } from "./poll/use-touch-beacon";
 import { UserAvatarProvider } from "./poll/user-avatar";
@@ -279,6 +280,7 @@ const PollPage: NextPage = () => {
                   <Legend />
                 </div>
               </div>
+              {participants ? <ConnectedPollViz /> : null}
               {participants ? (
                 <ConnectedPoll
                   id={poll.id}
