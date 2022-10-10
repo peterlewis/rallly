@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React from "react";
+import { useMount } from "react-use";
 
 import { useCombinedRefs } from "../utils/use-combined-refs";
 import { useDragScroll } from "./drag-scroll";
@@ -78,6 +79,12 @@ export const ScrollSyncPane = React.forwardRef<
 
   const combinedRefs = useCombinedRefs(props.ref, ref);
   const Element = as ?? "div";
+  useMount(() => {
+    // When a new component is mounted make sure the scroll position is correct
+    if (props.ref.current) {
+      props.ref.current.scrollLeft = props.left;
+    }
+  });
   return (
     <Element
       ref={combinedRefs}

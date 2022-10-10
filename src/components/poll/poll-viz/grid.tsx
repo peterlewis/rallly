@@ -22,7 +22,6 @@ const GridHeader: React.VoidFunctionComponent = () => {
   const {
     state,
     setState,
-    resetState,
     options,
     createParticipant,
     deleteParticipant,

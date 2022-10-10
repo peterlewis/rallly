@@ -281,25 +281,6 @@ const PollPage: NextPage = () => {
                 </div>
               </div>
               {participants ? <ConnectedPollViz /> : null}
-              {participants ? (
-                <ConnectedPoll
-                  id={poll.id}
-                  admin={poll.admin}
-                  options={poll.options.map(({ id, value }) => ({
-                    id,
-                    value:
-                      value.indexOf("/") === -1
-                        ? { type: "date", date: value }
-                        : {
-                            type: "time",
-                            start: value.split("/")[0],
-                            end: value.split("/")[1],
-                          },
-                  }))}
-                  timezone={poll.timeZone}
-                  participants={participants}
-                />
-              ) : null}
             </motion.div>
             <Discussion />
           </LayoutGroup>

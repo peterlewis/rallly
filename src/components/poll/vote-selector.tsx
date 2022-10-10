@@ -1,9 +1,10 @@
 import { VoteType } from "@prisma/client";
 import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
 
-import VoteIcon from "./vote-icon";
+import Check from "@/components/icons/check-line.svg";
+import IfNeedBe from "@/components/icons/if-need-be-line.svg";
+import X from "@/components/icons/x-line.svg";
 
 export interface VoteSelectorProps {
   value?: VoteType;
@@ -43,6 +44,22 @@ export const VoteSelector = React.forwardRef<
 ) {
   const { toggle } = useVoteState(value);
 
+  const Icon: React.ComponentType<{ className?: string }> =
+    React.useMemo(() => {
+      switch (value) {
+        case "yes":
+          return Check;
+        case "no":
+          return X;
+        case "ifNeedBe":
+          return IfNeedBe;
+      }
+    }, [value]);
+
+  if (!Icon && value) {
+    console.log("wtf", value);
+  }
+
   return (
     <button
       role="button"
@@ -52,17 +69,21 @@ export const VoteSelector = React.forwardRef<
       onBlur={onBlur}
       onKeyDown={onKeyDown}
       className={clsx(
-        "relative box-border inline-flex h-7 w-7 items-center justify-center overflow-hidden rounded border bg-white focus-visible:border-primary-500 focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:ring-offset-0 active:bg-gray-100",
+        "relative flex h-4 w-4 items-center justify-center overflow-hidden rounded border text-white focus-visible:border-primary-500 focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:ring-offset-0 active:bg-gray-100",
         className,
+        {
+          "border-green-400 bg-green-400": value === "yes",
+          "border-amber-300 bg-amber-300": value === "ifNeedBe",
+          "border-slate-300 bg-slate-300": value === "no",
+          "bg-white": !value,
+        },
       )}
       onClick={() => {
         onChange?.(toggle());
       }}
       ref={ref}
     >
-      <div className="absolute inset-0 flex items-center justify-center">
-        {value ? <VoteIcon type={value} /> : null}
-      </div>
+      {Icon ? <Icon className="absolute h-5 " /> : null}
     </button>
   );
 });

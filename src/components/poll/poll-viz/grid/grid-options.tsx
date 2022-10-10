@@ -12,7 +12,7 @@ import { ScrollSyncPane, useScrollSync } from "../../../scroll-sync";
 import { useGridContext } from "../../grid-view-poll";
 import { PollValue, PollViewOption } from "../../types";
 import VoteIcon from "../../vote-icon";
-import { useVoteState } from "../../vote-selector";
+import { useVoteState, VoteSelector } from "../../vote-selector";
 
 interface GridPollOptionProps {
   option: PollViewOption;
@@ -27,7 +27,9 @@ export const GridOption: React.VoidFunctionComponent<GridPollOptionProps> = ({
   return (
     <div className={clsx("border-r text-center")}>
       <div className="space-y-2 py-3">
-        {suffix}
+        {suffix ? (
+          <div className="flex h-7 items-center justify-center">{suffix}</div>
+        ) : null}
         <div>
           <div className="text-xs font-semibold uppercase text-slate-500/75">
             {date.format("ddd")}
@@ -129,13 +131,13 @@ const NavigationControl: React.VoidFunctionComponent<{
 type GridPollOptionListProps = {
   className?: string;
   options: PollViewOption[];
-  children?: React.ComponentType<{ option: PollViewOption }>;
+  children?: (props: { option: PollViewOption }) => JSX.Element;
 };
 
 export const GridPollOptionList = ({
   className,
   options,
-  children: Component = GridOption,
+  children,
 }: GridPollOptionListProps) => {
   const { hasOverflow, numberOfVisibleColumns, columnWidth } = useGridContext();
   return (
@@ -155,9 +157,13 @@ export const GridPollOptionList = ({
           width: numberOfVisibleColumns * columnWidth,
         }}
       >
-        {options.map((option, i) => (
-          <div key={i} className="shrink-0" style={{ width: columnWidth }}>
-            <Component option={option} />
+        {options.map((option) => (
+          <div
+            key={option.id}
+            className="shrink-0"
+            style={{ width: columnWidth }}
+          >
+            {children ? children({ option }) : <GridOption option={option} />}
           </div>
         ))}
       </ScrollSyncPane>
@@ -169,19 +175,17 @@ export const GridPollOptionsListValue: React.VoidFunctionComponent<{
   value?: PollValue;
   options: PollViewOption[];
 }> = ({ value = {}, options }) => {
-  const renderOption = React.useCallback(
-    ({ option }: GridPollOptionProps) => {
-      const vote = value[option.id];
-      return (
-        <div className="h-full">
-          <GridOption option={option} suffix={<VoteIcon type={vote} />} />
-        </div>
-      );
-    },
-    [value],
-  );
   return (
-    <GridPollOptionList options={options}>{renderOption}</GridPollOptionList>
+    <GridPollOptionList options={options}>
+      {({ option }: GridPollOptionProps) => {
+        const vote = value[option.id];
+        return (
+          <div className="h-full">
+            <GridOption option={option} suffix={<VoteIcon type={vote} />} />
+          </div>
+        );
+      }}
+    </GridPollOptionList>
   );
 };
 
@@ -191,26 +195,26 @@ export const GridPollOptionsListInput: React.VoidFunctionComponent<{
   options: PollViewOption[];
 }> = ({ value = {}, onChange, options }) => {
   const { toggle } = useVoteState();
-  const renderOption = React.useCallback(
-    ({ option }: GridPollOptionProps) => {
-      const vote = value[option.id];
-      return (
-        <div
-          role="button"
-          className="h-full hover:bg-slate-500/5 active:bg-slate-500/10"
-          onClick={() => {
-            onChange({
-              ...value,
-              [option.id]: toggle(value[option.id]),
-            });
-          }}
-        >
-          <GridOption option={option} suffix={<VoteIcon type={vote} />} />
-        </div>
-      );
-    },
-    [onChange, toggle, value],
-  );
+  const renderOption = ({ option }: GridPollOptionProps) => {
+    const vote = value[option.id];
+    return (
+      <div
+        role="button"
+        className="h-full hover:bg-slate-500/5 active:bg-slate-500/10"
+        onClick={() => {
+          onChange({
+            ...value,
+            [option.id]: toggle(value[option.id]),
+          });
+        }}
+      >
+        <GridOption
+          option={option}
+          suffix={<VoteSelector className="pointer-events-none" value={vote} />}
+        />
+      </div>
+    );
+  };
   return (
     <GridPollOptionList options={options}>{renderOption}</GridPollOptionList>
   );

@@ -44,12 +44,12 @@ const PollDemo: React.VoidFunctionComponent = () => {
       <GridContext.Provider value={props}>
         <div
           ref={ref}
-          className="rounded-lg bg-white shadow-huge"
+          className="rounded bg-white shadow-huge"
           style={{ width: 600 }}
         >
           <div className="flex border-b">
             <div
-              className="flex shrink-0 items-center py-2 pl-4 pr-2 font-medium"
+              className="flex shrink-0 items-center border-r py-2 pl-4 pr-2 font-medium"
               style={{ width: sidebarWidth }}
             >
               <div className="flex h-full grow items-end">
@@ -67,7 +67,7 @@ const PollDemo: React.VoidFunctionComponent = () => {
               return (
                 <div
                   key={i}
-                  className="shrink-0 space-y-3 py-2 pt-3 text-center transition-colors"
+                  className="shrink-0 space-y-3 border-r py-2 pt-3 text-center transition-colors"
                   style={{ width: columnWidth }}
                 >
                   <div>
