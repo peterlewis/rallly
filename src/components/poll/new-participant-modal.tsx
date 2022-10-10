@@ -1,16 +1,15 @@
 import { VoteType } from "@prisma/client";
 import { useTranslation } from "next-i18next";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { useMount } from "react-use";
 
 import Check from "@/components/icons/check.svg";
 
 import { useFormValidation } from "../../utils/form-validation";
-import { trpc } from "../../utils/trpc";
 import { Button } from "../button";
-import { useModalContext } from "../modal/modal-provider";
 import { TextInput } from "../text-input";
-import { PollValue, PollViewOption } from "./types";
+import { PollViewOption } from "./types";
 import VoteIcon from "./vote-icon";
 
 export const NewParticipantModal: React.VoidFunctionComponent<{
@@ -30,6 +29,48 @@ export const NewParticipantModal: React.VoidFunctionComponent<{
   }>({
     defaultValues: { name: "" },
   });
+
+  // const groupedVotes = React.useMemo(() => {
+  //   const res: Record<string, Array<{ label: string; vote: VoteType }>> = {};
+
+  //   options.forEach((option) => {
+  //     const vote = votes[option.id];
+  //     if (vote && vote !== "no") {
+  //       let groupName: string;
+  //       let item: { label: string; vote: VoteType };
+  //       if (option.type === "date") {
+  //         groupName = option.value.format("MMMM YYYY");
+  //         item = { label: option.value.format("dddd DD"), vote };
+  //       } else {
+  //         groupName = option.value.format("LL");
+  //         item = { label: option.value.format("LT"), vote };
+  //       }
+  //       if (res[groupName]) {
+  //         res[groupName].push(item);
+  //       } else {
+  //         res[groupName] = [item];
+  //       }
+  //     }
+  //   });
+  //   return res;
+  // }, [options, votes]);
+
+  const countByVoteType = React.useMemo(() => {
+    const res: Record<VoteType, number> = {
+      yes: 0,
+      ifNeedBe: 0,
+      no: 0,
+    };
+    options.forEach((option) => {
+      const vote = votes[option.id];
+      if (vote && vote !== "no") {
+        res[vote]++;
+      } else {
+        res.no++;
+      }
+    });
+    return res;
+  }, [options, votes]);
 
   useMount(() => {
     setFocus("name");
@@ -58,52 +99,57 @@ export const NewParticipantModal: React.VoidFunctionComponent<{
     );
   }
   return (
-    <div className="w-[390px] max-w-full space-y-8 p-4">
+    <div className="w-[380px] max-w-full space-y-8 p-4">
       <form
         onSubmit={handleSubmit(async ({ name }) => {
           await onSubmit?.({ name, votes });
         })}
       >
-        <div className="-mt-1 mb-4">
-          <div className="text-lg font-semibold">New submission</div>
+        <div className="mb-4">
+          <div className="mb-2 text-xl font-semibold">New submission</div>
+          <div className="text-slate-500">
+            Please enter your name to submit your selection.
+          </div>
         </div>
         <div className="space-y-4">
-          <fieldset>
-            <div className="mb-1 text-sm font-semibold">Name</div>
-            <div>
-              <TextInput
-                size="lg"
-                className="max-w-full"
-                placeholder={t("namePlaceholder")}
-                autoFocus={true}
-                {...register("name", {
-                  validate: requiredString(t("name")),
-                })}
-              />
-            </div>
-          </fieldset>
-          <div>
-            <div className="mb-2 text-sm font-semibold">Votes</div>
-            <div className="space-y-2 overflow-auto rounded border p-4">
-              {options.map((option) => {
-                const vote = votes[option.id];
-                if (vote && vote !== "no") {
-                  return (
-                    <div className="flex items-center space-x-3">
-                      <VoteIcon type={vote} />
-                      <div>{option.i18nDate}</div>
-                    </div>
-                  );
-                }
-                return null;
-              })}
-            </div>
+          <div className="space-y-2">
+            <fieldset>
+              <div className="mb-1 text-sm">{t("name")}</div>
+              <div>
+                <TextInput
+                  className="max-w-full"
+                  placeholder={t("namePlaceholder")}
+                  autoFocus={true}
+                  {...register("name", {
+                    validate: requiredString(t("name")),
+                  })}
+                />
+              </div>
+            </fieldset>
+            <fieldset>
+              <div className="mb-1 text-sm">{t("Summary")}</div>
+              <div className="flex h-9 items-center gap-4 rounded-md border px-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <VoteIcon type="yes" />
+                  {countByVoteType["yes"]}
+                </div>
+                <div className="flex items-center gap-2">
+                  <VoteIcon type="ifNeedBe" />
+                  {countByVoteType["ifNeedBe"]}
+                </div>
+                <div className="flex items-center gap-2">
+                  <VoteIcon type="no" />
+                  {countByVoteType["no"]}
+                </div>
+              </div>
+            </fieldset>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex flex-col gap-2">
             <Button
               loading={formState.isSubmitting}
               htmlType="submit"
               type="primary"
+              className="grow"
             >
               {t("submit")}
             </Button>
@@ -113,49 +159,4 @@ export const NewParticipantModal: React.VoidFunctionComponent<{
       </form>
     </div>
   );
-};
-
-export const useNewParticipantModal = (id: string) => {
-  const modalContext = useModalContext();
-  const openNewParticipantModal = (
-    votes: PollValue,
-    options: PollViewOption[],
-  ) => {
-    const queryClient = trpc.useContext();
-    const addParticipant = trpc.useMutation("polls.participants.add", {
-      onSuccess: (newParticipant) => {
-        queryClient.setQueryData(
-          ["polls.participants.list", { pollId: id }],
-          (participants = []) => {
-            return [...participants, newParticipant];
-          },
-        );
-      },
-    });
-
-    modalContext.render({
-      footer: null,
-      content: function NewParticipantModalContent({ close }) {
-        return (
-          <NewParticipantModal
-            votes={votes}
-            options={options}
-            onCancel={close}
-            onSubmit={async ({ name, votes }) => {
-              await addParticipant.mutateAsync({
-                pollId: id,
-                votes: options.map((option) => ({
-                  optionId: option.id,
-                  type: votes[option.id] ?? "no",
-                })),
-                name,
-              });
-            }}
-          />
-        );
-      },
-    });
-  };
-
-  return { openNewParticipantModal };
 };

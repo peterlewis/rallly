@@ -84,7 +84,6 @@ const usePollState = (config: PollConfig): PollStateContextValue => {
     createParticipant: (votes) => {
       modalContext.render({
         footer: null,
-        showClose: true,
         content: function Content({ close }) {
           return (
             <NewParticipantModal
@@ -248,6 +247,7 @@ export const ConnectedPollViz: React.VoidFunctionComponent = () => {
           }
           return {
             id: option.id,
+            value: startTime,
             type: "time",
             i18nDate: startTime.format("LLL"),
             index,
@@ -257,10 +257,12 @@ export const ConnectedPollViz: React.VoidFunctionComponent = () => {
           };
         }
 
+        const value = dayjs(parsedOption.date);
         return {
           id: option.id,
+          value,
           type: "date",
-          i18nDate: dayjs(parsedOption.date).format("LL"),
+          i18nDate: value.format("LL"),
           index,
           date: parsedOption.date,
           score,

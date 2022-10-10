@@ -1,4 +1,5 @@
 import { VoteType } from "@prisma/client";
+import { Dayjs } from "dayjs";
 
 export interface ParticipantForm {
   name: string;
@@ -8,6 +9,7 @@ export interface ParticipantForm {
 export type PollViewOption = {
   id: string;
   score: number;
+  value: Dayjs;
   i18nDate: string;
 } & (
   | {
