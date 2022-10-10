@@ -2,9 +2,8 @@ import { Participant, Vote, VoteType } from "@prisma/client";
 import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
-import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { useMeasure, useMount } from "react-use";
+import { useMeasure } from "react-use";
 
 import ArrowLeft from "@/components/icons/arrow-left.svg";
 import ArrowRight from "@/components/icons/arrow-right.svg";
@@ -22,7 +21,6 @@ import { CustomScrollbar } from "../custom-scrollbar";
 import ModalProvider, { useModalContext } from "../modal/modal-provider";
 import { ScrollSync, ScrollSyncPane, useScrollSync } from "../scroll-sync";
 import { Sticky } from "../sticky";
-import { TextInput } from "../text-input";
 import { useRequiredContext } from "../use-required-context";
 import { useUser } from "../user-provider";
 import { ChangeNameModal } from "./change-name-modal";
@@ -194,8 +192,7 @@ const GridPollHeader: React.VoidFunctionComponent<{
   suffix?: React.ReactNode;
   children: React.ReactNode;
 }> = ({ sidebar, suffix, children }) => {
-  const { sidebarWidth, numberOfVisibleColumns, columnWidth } =
-    useGridContext();
+  const { sidebarWidth } = useGridContext();
   return (
     <Sticky
       top={47}

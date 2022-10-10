@@ -376,40 +376,37 @@ export const ConnectedPollViz: React.VoidFunctionComponent = () => {
   }, [poll.admin, poll.closed, pollParticipants]);
 
   return (
-    <div>
-      <div>Toolbar goes here</div>
-      <PollViz
-        style={preferences.style}
-        defaultState={defaultState}
-        options={pollOptions}
-        participants={pollParticipants}
-        onAddParticipant={async (name, votes) => {
-          const participant = await addParticipant.mutateAsync({
-            pollId: poll.id,
-            name,
-            votes: normalizeVotes(votes, pollOptions),
-          });
+    <PollViz
+      style={preferences.style}
+      defaultState={defaultState}
+      options={pollOptions}
+      participants={pollParticipants}
+      onAddParticipant={async (name, votes) => {
+        const participant = await addParticipant.mutateAsync({
+          pollId: poll.id,
+          name,
+          votes: normalizeVotes(votes, pollOptions),
+        });
 
-          return participant.id;
-        }}
-        onChangeName={async (participantId, newName) => {
-          await changeName.mutateAsync({
-            pollId,
-            name: newName,
-            participantId,
-          });
-        }}
-        onUpdateParticipant={async (participantId, votes) => {
-          await updateParticipant.mutateAsync({
-            pollId,
-            participantId,
-            votes: normalizeVotes(votes, pollOptions),
-          });
-        }}
-        onDeleteParticipant={async (participantId) => {
-          await deleteParticipant.mutateAsync({ pollId, participantId });
-        }}
-      />
-    </div>
+        return participant.id;
+      }}
+      onChangeName={async (participantId, newName) => {
+        await changeName.mutateAsync({
+          pollId,
+          name: newName,
+          participantId,
+        });
+      }}
+      onUpdateParticipant={async (participantId, votes) => {
+        await updateParticipant.mutateAsync({
+          pollId,
+          participantId,
+          votes: normalizeVotes(votes, pollOptions),
+        });
+      }}
+      onDeleteParticipant={async (participantId) => {
+        await deleteParticipant.mutateAsync({ pollId, participantId });
+      }}
+    />
   );
 };

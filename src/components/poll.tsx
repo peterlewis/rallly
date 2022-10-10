@@ -140,7 +140,7 @@ const AdminPanel = () => {
   const { openLoginModal } = useLoginModal();
   const { user } = useUser();
   return (
-    <div className="rounded-md border bg-white p-6 shadow-sm">
+    <div className="rounded-md border bg-white p-4 shadow-sm">
       <div className="justify flex justify-between font-bold">
         <div className="flex text-sm sm:text-lg">
           {t("administrationPanel")}
@@ -244,7 +244,7 @@ const PollPage: NextPage = () => {
         <div className="max-w-full sm:space-y-4">
           <LayoutGroup>
             {poll.closed ? (
-              <div className="mobile:edge-4 flex bg-blue-300/10 px-4  py-3 text-blue-800/75 sm:rounded-md">
+              <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
                 <div className="mr-2 rounded-md">
                   <LockClosed className="w-6" />
                 </div>
@@ -253,7 +253,7 @@ const PollPage: NextPage = () => {
             ) : null}
             {poll.admin ? <AdminPanel /> : null}
             <motion.div layout="position" initial={false} className="space-y-4">
-              <div className="card space-y-4">
+              <div className="card space-y-4 p-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
                   description={<PollSubheader />}
