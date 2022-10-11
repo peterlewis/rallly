@@ -128,7 +128,7 @@ const usePollState = (config: PollConfig): PollStateContextValue => {
     },
     selectParticipant: (participantId: string | null) => {
       if (participantId === null) {
-        setState(config.defaultState);
+        setState({ type: "read" });
       } else {
         setState({
           type: "select",
@@ -253,8 +253,8 @@ export const ConnectedPollViz: React.VoidFunctionComponent = () => {
             type: "time",
             i18nDate: startTime.format("LLL"),
             index,
-            start: startTime.format("YYYY-MM-DDTHH:mm"),
-            end: endTime.format("YYYY-MM-DDTHH:mm"),
+            start: startTime,
+            end: endTime,
             score,
           };
         }
@@ -266,7 +266,7 @@ export const ConnectedPollViz: React.VoidFunctionComponent = () => {
           type: "date",
           i18nDate: value.format("LL"),
           index,
-          date: parsedOption.date,
+          date: value,
           score,
         };
       }),

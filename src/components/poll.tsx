@@ -251,7 +251,7 @@ const PollPage: NextPage = () => {
                 <div>{t("pollHasBeenLocked")}</div>
               </div>
             ) : null}
-            {poll.admin ? <AdminPanel /> : null}
+            {/* {poll.admin ? <AdminPanel /> : null} */}
             <motion.div layout="position" initial={false} className="space-y-4">
               <div className="card space-y-4 p-4">
                 <AppLayoutHeading

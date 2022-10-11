@@ -126,25 +126,11 @@ export const NewParticipantModal: React.VoidFunctionComponent<{
                 />
               </div>
             </fieldset>
-            <fieldset>
-              <div className="mb-1 text-sm">{t("Summary")}</div>
-              <div className="flex h-9 items-center gap-4 rounded-md border px-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <VoteIcon type="yes" />
-                  {countByVoteType["yes"]}
-                </div>
-                <div className="flex items-center gap-2">
-                  <VoteIcon type="ifNeedBe" />
-                  {countByVoteType["ifNeedBe"]}
-                </div>
-                <div className="flex items-center gap-2">
-                  <VoteIcon type="no" />
-                  {countByVoteType["no"]}
-                </div>
-              </div>
-            </fieldset>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <Button className="grow" onClick={onCancel}>
+              {t("cancel")}
+            </Button>
             <Button
               loading={formState.isSubmitting}
               htmlType="submit"
@@ -153,7 +139,6 @@ export const NewParticipantModal: React.VoidFunctionComponent<{
             >
               {t("submit")}
             </Button>
-            <Button onClick={onCancel}>{t("cancel")}</Button>
           </div>
         </div>
       </form>

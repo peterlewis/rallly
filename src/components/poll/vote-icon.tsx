@@ -58,10 +58,7 @@ const VoteIcon: React.VoidFunctionComponent<{
   };
 
   return (
-    <span className={clsx("relative inline-block h-5 w-5", className)}>
-      {type !== undefined ? (
-        <span className="absolute left-1/2 top-1/2 -z-10 h-3 w-3 -translate-y-1/2 -translate-x-1/2 rounded-full bg-white" />
-      ) : null}
+    <span className={clsx("inline-block h-5 w-5", className)}>
       {renderIcon()}
     </span>
   );

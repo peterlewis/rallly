@@ -118,7 +118,7 @@
   "allDay": "All-day",
   "deleteParticipantDialog": "Delete “{{name}}”",
   "currentName": "Current name",
-  "pleaseChoose": "Please choose your preferred dates:",
+  "pleaseChoose": "Please vote:",
   "optionCount": "{{count}} option",
   "changeName": "Change name",
   "editVotes": "Edit votes",

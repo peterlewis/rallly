@@ -9,17 +9,16 @@ export interface ParticipantForm {
 export type PollViewOption = {
   id: string;
   score: number;
-  value: Dayjs;
   i18nDate: string;
 } & (
   | {
       type: "date";
-      date: string;
+      date: Dayjs;
     }
   | {
       type: "time";
-      start: string;
-      end: string;
+      start: Dayjs;
+      end: Dayjs;
     }
 );
 
