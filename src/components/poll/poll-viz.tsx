@@ -15,6 +15,7 @@ import { ChangeNameModal } from "./change-name-modal";
 import { PollState } from "./grid-view-poll";
 import { NewParticipantModal } from "./new-participant-modal";
 import { PollVizGrid } from "./poll-viz/grid";
+import { PollVizList } from "./poll-viz/list";
 import { PollValue, PollViewOption, PollViewParticipant } from "./types";
 
 // this config should be in the url
@@ -196,9 +197,10 @@ export const usePollStateContext = (): PollStateContextValue => {
 export const PollViz: React.VoidFunctionComponent<PollConfig> = (props) => {
   const context = usePollState(props);
 
+  const Component = props.style === "grid" ? PollVizGrid : PollVizList;
   return (
     <PollStateContext.Provider value={context}>
-      <PollVizGrid />
+      <Component />
     </PollStateContext.Provider>
   );
 };
@@ -212,7 +214,7 @@ const normalizeVotes = (votes: PollValue, options: PollViewOption[]) => {
 
 export const ConnectedPollViz: React.VoidFunctionComponent = () => {
   const [preferences, setPreferences] = React.useState<PollVizConfig>({
-    style: "grid",
+    style: "list",
     targetTimezone: getBrowserTimeZone(),
   });
 
