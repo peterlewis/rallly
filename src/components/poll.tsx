@@ -84,7 +84,7 @@ const ClipboardLink: React.VoidFunctionComponent<{
               initial={{ opacity: 0, y: 10, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 1.2 }}
-              className="text-xs text-slate-400"
+              className="text-xs text-gray-400"
             >
               {t("copied")}
             </motion.span>
@@ -102,7 +102,7 @@ const ClipboardLink: React.VoidFunctionComponent<{
           readOnly={true}
           value={url}
           className={clsx(
-            "grow py-2 pl-2 text-sm text-slate-700 transition-opacity sm:text-base",
+            "grow py-2 pl-2 text-slate-700 transition-opacity sm:text-base",
             {
               "bg-slate-500/5": didCopy,
             },
@@ -129,72 +129,76 @@ const ClipboardLink: React.VoidFunctionComponent<{
           )}
         </button>
       </div>
-      <div className="text-sm text-slate-400">{description}</div>
+      <div className="text-gray-400">{description}</div>
     </div>
   );
 };
 
-const AdminPanel = () => {
-  const { poll } = usePoll();
-  const { t } = useTranslation("app");
-  const { openLoginModal } = useLoginModal();
-  const { user } = useUser();
-  return (
-    <div className="rounded-md border bg-white p-4 shadow-sm">
-      <div className="justify flex justify-between font-bold">
-        <div className="flex text-sm sm:text-lg">
-          {t("administrationPanel")}
-        </div>
-        <div className="flex space-x-2">
-          <NotificationsToggle />
-          <Link href={`/admin/${poll.adminUrlId}/manage`}>
-            <a className="btn-default">{t("manage")} &rarr;</a>
-          </Link>
-        </div>
-      </div>
-      <div className="space-y-4 pt-4">
-        {!poll.user && user.isGuest ? (
-          <div className="flex rounded-md bg-amber-500/5 p-2">
-            <Exclamation className="mr-2 h-5 text-amber-600/75" />
-            <div className="text-sm text-amber-600/75">
-              <Trans
-                t={t}
-                i18nKey="guestPollWarning"
-                components={{
-                  a: (
-                    <LinkText
-                      href="/login"
-                      className="text-amber-600/75 underline hover:text-amber-600 active:text-amber-600/50"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        openLoginModal();
-                      }}
-                    />
-                  ),
-                  b: <strong />,
-                }}
+const AdminPanel: React.VoidFunctionComponent<{ children?: React.ReactNode }> =
+  ({ children }) => {
+    const { poll } = usePoll();
+    const { t } = useTranslation("app");
+    const { openLoginModal } = useLoginModal();
+    const { user } = useUser();
+    if (!poll.admin) {
+      return <>{children}</>;
+    }
+    return (
+      <div className="">
+        <div className="py-4 sm:mb-4 sm:py-2 sm:px-3">
+          <div className="justify flex flex-col justify-between gap-2 font-bold">
+            <div className="flex space-x-2">
+              <NotificationsToggle />
+              <Link href={`/admin/${poll.adminUrlId}/manage`}>
+                <a className="btn-default">{t("manage")} &rarr;</a>
+              </Link>
+            </div>
+          </div>
+          <div className="space-y-4 pt-4">
+            {!poll.user && user.isGuest ? (
+              <div className="flex rounded-md bg-amber-500/5 p-2">
+                <Exclamation className="mr-2 h-5 text-amber-600/75" />
+                <div className="text-sm text-amber-600/75">
+                  <Trans
+                    t={t}
+                    i18nKey="guestPollWarning"
+                    components={{
+                      a: (
+                        <LinkText
+                          href="/login"
+                          className="text-amber-600/75 underline hover:text-amber-600 active:text-amber-600/50"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            openLoginModal();
+                          }}
+                        />
+                      ),
+                      b: <strong />,
+                    }}
+                  />
+                </div>
+              </div>
+            ) : null}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <ClipboardLink
+                title={t("adminLink")}
+                icon={Key}
+                url={`${window.location.origin}/admin/${poll.adminUrlId}`}
+                description={t("adminLinkDescription")}
+              />
+              <ClipboardLink
+                icon={UserGroup}
+                title={t("participantLink")}
+                url={`${window.location.origin}/p/${poll.participantUrlId}`}
+                description={t("participantLinkDescription")}
               />
             </div>
           </div>
-        ) : null}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <ClipboardLink
-            title={t("adminLink")}
-            icon={Key}
-            url={`${window.location.origin}/admin/${poll.adminUrlId}`}
-            description={t("adminLinkDescription")}
-          />
-          <ClipboardLink
-            icon={UserGroup}
-            title={t("participantLink")}
-            url={`${window.location.origin}/p/${poll.participantUrlId}`}
-            description={t("participantLinkDescription")}
-          />
         </div>
+        {children}
       </div>
-    </div>
-  );
-};
+    );
+  };
 const PollPage: NextPage = () => {
   const { poll, urlId } = usePoll();
   const { participants } = useParticipants();
@@ -250,37 +254,40 @@ const PollPage: NextPage = () => {
               <div>{t("pollHasBeenLocked")}</div>
             </div>
           ) : null}
-          {/* {poll.admin ? <AdminPanel /> : null} */}
-          <div className="sm:space-y-4">
-            <div className="space-y-4 py-4 sm:px-4">
-              <AppLayoutHeading
-                title={preventWidows(poll.title)}
-                description={<PollSubheader />}
-              />
-              {poll.description ? (
-                <div className="border-primary whitespace-pre-line md:text-lg">
-                  <TruncatedLinkify>
-                    {preventWidows(poll.description)}
-                  </TruncatedLinkify>
-                </div>
-              ) : null}
-              {poll.location ? (
+          <AdminPanel>
+            <div className="sm:space-y-4">
+              <div className="sm:card space-y-4 bg-white py-4 sm:px-6">
+                <AppLayoutHeading
+                  title={preventWidows(poll.title)}
+                  description={<PollSubheader />}
+                />
+                {poll.description ? (
+                  <div className="border-primary whitespace-pre-line md:text-lg">
+                    <TruncatedLinkify>
+                      {preventWidows(poll.description)}
+                    </TruncatedLinkify>
+                  </div>
+                ) : null}
+                {poll.location ? (
+                  <div className="lg:text-lg">
+                    <div className="text-sm text-slate-500">
+                      {t("location")}
+                    </div>
+                    <TruncatedLinkify>{poll.location}</TruncatedLinkify>
+                  </div>
+                ) : null}
                 <div className="lg:text-lg">
-                  <div className="text-sm text-slate-500">{t("location")}</div>
-                  <TruncatedLinkify>{poll.location}</TruncatedLinkify>
+                  <div className="text-sm text-slate-500">
+                    {t("possibleAnswers")}
+                  </div>
+                  <Legend />
                 </div>
-              ) : null}
-              <div className="lg:text-lg">
-                <div className="text-sm text-slate-500">
-                  {t("possibleAnswers")}
-                </div>
-                <Legend />
+              </div>
+              <div className="mobile:backdrop">
+                {participants ? <ConnectedPollViz /> : null}
               </div>
             </div>
-            <div className="mobile:backdrop">
-              {participants ? <ConnectedPollViz /> : null}
-            </div>
-          </div>
+          </AdminPanel>
           {/* <Discussion /> */}
         </div>
       </UserAvatarProvider>

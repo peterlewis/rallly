@@ -154,15 +154,6 @@ export const GridPollOptionList = ({
   const { hasOverflow, numberOfVisibleColumns, columnWidth } = useGridContext();
   return (
     <div className={clsx("divide-y", className)}>
-      {hasOverflow ? (
-        <div className="flex h-8 items-center">
-          <NavigationControl
-            step={columnWidth}
-            maxValue={(options.length - numberOfVisibleColumns) * columnWidth}
-            count={options.length}
-          />
-        </div>
-      ) : null}
       <ScrollSyncPane
         className="no-scrollbar flex overflow-y-auto"
         style={{
@@ -179,6 +170,15 @@ export const GridPollOptionList = ({
           </div>
         ))}
       </ScrollSyncPane>
+      {hasOverflow ? (
+        <div className="flex h-8 items-center">
+          <NavigationControl
+            step={columnWidth}
+            maxValue={(options.length - numberOfVisibleColumns) * columnWidth}
+            count={options.length}
+          />
+        </div>
+      ) : null}
     </div>
   );
 };

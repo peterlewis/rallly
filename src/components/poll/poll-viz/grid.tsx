@@ -1,6 +1,6 @@
 import { useTranslation } from "next-i18next";
 
-import Plus from "@/components/icons/plus-sm.svg";
+import Plus from "@/components/icons/plus.svg";
 
 import { Button } from "../../button";
 import CompactButton from "../../compact-button";
@@ -39,9 +39,7 @@ const GridHeader: React.VoidFunctionComponent = () => {
               key="create"
               className="flex items-center justify-between rounded-t-md bg-white py-2 pl-4 pr-2 font-medium"
             >
-              <div>
-                <UserAvatar name={t("you")} showName={true} />
-              </div>
+              <div>{t("pleaseChoose")}</div>
               <div className="flex items-center justify-end space-x-2">
                 <Button
                   onClick={() => {
@@ -61,7 +59,7 @@ const GridHeader: React.VoidFunctionComponent = () => {
               </div>
             </div>
           }
-          sidebar={t("pleaseChoose")}
+          sidebar={<UserAvatar name={t("you")} showName={true} />}
         >
           <GridPollOptionsListInput
             value={state.votes}
@@ -217,7 +215,10 @@ export const PollVizGrid: React.VoidFunctionComponent = () => {
   return (
     <GridContext.Provider value={props}>
       <ScrollSync>
-        <div className="max-w-full rounded-md bg-white" ref={ref}>
+        <div
+          className="max-w-full rounded-md border bg-white shadow-sm"
+          ref={ref}
+        >
           <GridHeader />
           <GridBody
             className="overflow-hidden rounded-b-md border-x"

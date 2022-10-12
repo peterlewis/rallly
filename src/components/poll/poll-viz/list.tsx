@@ -93,7 +93,7 @@ const TimeOption: React.VoidFunctionComponent<{ start: Dayjs; end: Dayjs }> = ({
   return (
     <div className="flex items-center gap-2 font-semibold leading-none sm:text-lg">
       <div>
-        <Clock className="h-6 text-slate-400" />
+        <Clock className="h-6 text-gray-300" />
       </div>
       <div>{`${start.format("LT")} - ${end.format("LT")}`}</div>
     </div>
@@ -225,7 +225,7 @@ const OptionList: React.VoidFunctionComponent<OptionListProps> = ({
                           <ScoreSummary yesScore={option.score} />
                         </div>
                       </div>
-                      <ParticipantSummary optionId={option.id} />
+                      {/* <ParticipantSummary optionId={option.id} /> */}
                     </div>
                   </div>
                 );

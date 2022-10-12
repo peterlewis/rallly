@@ -25,7 +25,7 @@ const CompactButton: React.VoidFunctionComponent<CompactButtonProps> = ({
       disabled={disabled}
       type="button"
       className={clsx(
-        "hover:bg-slate-500/15 inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-500/10 text-slate-400 transition-colors active:bg-slate-500/20",
+        "hover:bg-slate-500/15 inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:bg-slate-500/10 hover:text-slate-500 active:bg-slate-500/20",
         className,
       )}
       onClick={onClick}
