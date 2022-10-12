@@ -4,6 +4,7 @@ import { Dayjs } from "dayjs";
 import { useTranslation } from "next-i18next";
 import React from "react";
 
+import Clock from "@/components/icons/clock.svg";
 import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
 import Plus from "@/components/icons/plus-sm.svg";
 
@@ -56,7 +57,7 @@ const ParticipantSummary: React.VoidFunctionComponent<{ optionId: string }> = ({
     return null;
   }
   return (
-    <div className="grid grid-cols-2 gap-x-4">
+    <div className="grid grid-cols-2 gap-x-4 py-3">
       <div className="col-span-1 space-y-2">
         {group.yes.map(({ id, name }) => (
           <ParticipantSummaryItem key={id} name={name} vote="yes" />
@@ -90,10 +91,11 @@ const TimeOption: React.VoidFunctionComponent<{ start: Dayjs; end: Dayjs }> = ({
   end,
 }) => {
   return (
-    <div className="flex items-center gap-1 text-xl font-semibold leading-none">
-      <span>{start.format("LT")}</span>
-      <span className="">-</span>
-      <span className="">{end.format("LT")}</span>
+    <div className="flex items-center gap-2 font-semibold leading-none sm:text-lg">
+      <div>
+        <Clock className="h-6 text-slate-400" />
+      </div>
+      <div>{`${start.format("LT")} - ${end.format("LT")}`}</div>
     </div>
   );
 };
@@ -111,7 +113,6 @@ const ParticipantSelector = () => {
       value={selectedParticipantId}
       className="input h-9 w-full pl-3 pr-8 font-medium"
       onChange={(e) => {
-        console.log(e.target.value ? e.target.value : null);
         selectParticipant(e.target.value ? e.target.value : null);
       }}
     >
@@ -162,34 +163,39 @@ const OptionList: React.VoidFunctionComponent<OptionListProps> = ({
   return (
     <div className="divide-y">
       {Object.entries(groups).map(([group, options]) => {
+        const day =
+          options[0].type === "date" ? options[0].date : options[0].start;
         return (
           <div key={group}>
             <Sticky
               top={100}
               className={(isPinned) =>
-                clsx("z-20 border-b bg-gray-100/90 py-2 px-4 font-medium", {
-                  "backdrop-blur-sm": isPinned,
+                clsx("z-20 border-b bg-gray-100/80 py-2 px-4 font-semibold", {
+                  "backdrop-blur-md": isPinned,
                 })
               }
             >
-              {group}
+              {options[0].type === "date" ? (
+                group
+              ) : (
+                <div className="flex justify-between space-x-2">
+                  <div className="">{day.format("LL")}</div>
+                </div>
+              )}
             </Sticky>
-            <div className="space-y-2 bg-gray-100/75 p-2">
+            <div className="divide-y bg-gray-100/75">
               {options.map((option) => {
                 const vote = value?.[option.id];
                 return (
                   <div
                     key={option.id}
-                    className={clsx(
-                      "space-y-4 rounded-md border bg-white p-4",
-                      {
-                        "select-none active:bg-slate-500/5": onChange,
-                        "ring-1 ring-inset": !!vote,
-                        "border-green-400  ring-green-400": vote === "yes",
-                        "border-amber-300  ring-amber-300": vote === "ifNeedBe",
-                        "border-slate-300  ring-slate-300": vote === "no",
-                      },
-                    )}
+                    className={clsx("flex gap-4 bg-white p-4", {
+                      "select-none border-l-4 active:bg-slate-500/5": onChange,
+                      "border-l-transparent": !vote,
+                      "border-l-green-400  ": vote === "yes",
+                      "border-l-amber-300  ": vote === "ifNeedBe",
+                      "border-l-slate-300 ": vote === "no",
+                    })}
                     role={onChange ? "button" : undefined}
                     onClick={
                       onChange
@@ -201,20 +207,26 @@ const OptionList: React.VoidFunctionComponent<OptionListProps> = ({
                         : undefined
                     }
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="h-5 grow space-y-3">
-                        {option.type === "date" ? (
-                          <DateOption date={option.date} />
-                        ) : (
-                          <TimeOption start={option.start} end={option.end} />
-                        )}
+                    {onChange ? (
+                      <div className="flex h-6 items-center">
+                        <VoteSelector value={vote} />
                       </div>
-                      <div className="flex items-center gap-6">
-                        <ScoreSummary yesScore={option.score} />
-                        {onChange ? <VoteSelector value={vote} /> : null}
+                    ) : null}
+                    <div className="grow space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="grow">
+                          {option.type === "date" ? (
+                            <DateOption date={option.date} />
+                          ) : (
+                            <TimeOption start={option.start} end={option.end} />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-6">
+                          <ScoreSummary yesScore={option.score} />
+                        </div>
                       </div>
+                      <ParticipantSummary optionId={option.id} />
                     </div>
-                    <ParticipantSummary optionId={option.id} />
                   </div>
                 );
               })}
@@ -225,9 +237,15 @@ const OptionList: React.VoidFunctionComponent<OptionListProps> = ({
     </div>
   );
 };
+const VoteSummary: React.VoidFunctionComponent<{
+  options: PollViewOption[];
+  value: PollValue;
+}> = ({ options, value }) => {
+  return <div></div>;
+};
 
 const Footer = () => {
-  const { state, setState, updateParticipant, createParticipant } =
+  const { state, setState, options, updateParticipant, createParticipant } =
     usePollStateContext();
   const { t } = useTranslation("app");
 
@@ -237,22 +255,25 @@ const Footer = () => {
       return null;
     case "create":
       return (
-        <div className="flex justify-end gap-2 rounded-b-md bg-gray-100 p-2">
-          <Button
-            onClick={() => {
-              setState({ type: "read" });
-            }}
-          >
-            {t("cancel")}
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              createParticipant(state.votes);
-            }}
-          >
-            {t("continue")}
-          </Button>
+        <div className="flex justify-between bg-gray-100">
+          <VoteSummary options={options} value={state.votes} />
+          <div className="flex justify-end gap-2  p-2 sm:rounded-b-md">
+            <Button
+              onClick={() => {
+                setState({ type: "read" });
+              }}
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                createParticipant(state.votes);
+              }}
+            >
+              {t("continue")}
+            </Button>
+          </div>
         </div>
       );
     case "edit":
@@ -278,7 +299,7 @@ const Footer = () => {
   }
 };
 
-const Header = () => {
+export const Header = () => {
   const {
     state,
     setState,
@@ -386,13 +407,13 @@ export const PollVizList = () => {
     }
   }, [getParticipant, setState, state]);
   return (
-    <div className="divide-y rounded-md border bg-white shadow-sm">
+    <div className="smshadow-sm divide-y border-y bg-white sm:rounded-md sm:border">
       <Sticky
         top={47}
         className={(isPinned) =>
-          clsx("z-30 bg-gray-100/90 p-2", {
-            "rounded-t-md": !isPinned,
-            "border-b backdrop-blur-sm": isPinned,
+          clsx("z-30 bg-gray-100/80 p-2", {
+            "sm:rounded-t-md": !isPinned,
+            "border-b backdrop-blur-md": isPinned,
           })
         }
       >

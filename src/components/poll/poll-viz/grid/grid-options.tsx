@@ -18,6 +18,26 @@ interface GridPollOptionProps {
   option: PollViewOption;
   suffix?: React.ReactNode;
 }
+
+export const TimeRange: React.VoidFunctionComponent<{
+  className?: string;
+  start: string;
+  end: string;
+}> = ({ className, start, end }) => {
+  return (
+    <div
+      className={clsx(
+        "relative mt-2 -mr-2 inline-block pr-2 text-right",
+        className,
+      )}
+    >
+      <div className="absolute top-3 right-0 h-4 w-1 border-t border-r border-b border-slate-300 content-['']" />
+      <div className="text-sm text-slate-700">{start}</div>
+      <div className="text-sm text-slate-700/50">{end}</div>
+    </div>
+  );
+};
+
 export const GridOption: React.VoidFunctionComponent<GridPollOptionProps> = ({
   option,
   suffix,
@@ -41,18 +61,10 @@ export const GridOption: React.VoidFunctionComponent<GridPollOptionProps> = ({
             {date.format("MMM")}
           </div>
           {option.type === "time" ? (
-            <div
-              className={
-                "relative mt-2 -mr-2 inline-block pr-2 text-right  after:absolute after:top-3 after:right-0 after:h-4 after:w-1 after:border-t after:border-r after:border-b after:border-slate-300 after:content-['']"
-              }
-            >
-              <div className="text-sm text-slate-700">
-                {dayjs(option.start).format("LT")}
-              </div>
-              <div className="text-sm text-slate-700/50">
-                {dayjs(option.end).format("LT")}
-              </div>
-            </div>
+            <TimeRange
+              start={option.start.format("LT")}
+              end={option.end.format("LT")}
+            />
           ) : null}
         </div>
       </div>
@@ -200,7 +212,15 @@ export const GridPollOptionsListInput: React.VoidFunctionComponent<{
     return (
       <div
         role="button"
-        className="h-full hover:bg-slate-500/5 active:bg-slate-500/10"
+        className={clsx(
+          "h-full border-t-4 hover:bg-slate-500/5 active:bg-slate-500/10",
+          {
+            "border-t-transparent": !vote,
+            "border-t-green-400  ": vote === "yes",
+            "border-t-amber-300  ": vote === "ifNeedBe",
+            "border-t-slate-300 ": vote === "no",
+          },
+        )}
         onClick={() => {
           onChange({
             ...value,

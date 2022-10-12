@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { getBrowserTimeZone, parseValue } from "../../utils/date-time-utils";
 import { useDayjs } from "../../utils/dayjs";
 import { trpc } from "../../utils/trpc";
+import { useWideScreen } from "../../utils/use-wide-screen";
 import ModalProvider, { useModalContext } from "../modal/modal-provider";
 import { useParticipants } from "../participants-provider";
 import { usePoll } from "../poll-provider";
@@ -214,9 +215,13 @@ const normalizeVotes = (votes: PollValue, options: PollViewOption[]) => {
 
 export const ConnectedPollViz: React.VoidFunctionComponent = () => {
   const [preferences, setPreferences] = React.useState<PollVizConfig>({
-    style: "list",
+    style: "grid",
     targetTimezone: getBrowserTimeZone(),
   });
+
+  const isWideScreen = useWideScreen();
+
+  const style = isWideScreen ? "grid" : "list";
 
   const { t } = useTranslation("app");
   const { participants } = useParticipants();
@@ -379,7 +384,7 @@ export const ConnectedPollViz: React.VoidFunctionComponent = () => {
 
   return (
     <PollViz
-      style={preferences.style}
+      style={style}
       defaultState={defaultState}
       options={pollOptions}
       participants={pollParticipants}

@@ -1,4 +1,6 @@
+import { Disclosure } from "@headlessui/react";
 import { VoteType } from "@prisma/client";
+import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -11,6 +13,25 @@ import { Button } from "../button";
 import { TextInput } from "../text-input";
 import { PollViewOption } from "./types";
 import VoteIcon from "./vote-icon";
+
+const VoteGroup: React.VoidFunctionComponent<{
+  vote: VoteType;
+  options: PollViewOption[];
+}> = ({ vote, options }) => {
+  const { t } = useTranslation("app");
+  if (options.length === 0) {
+    return null;
+  }
+  return (
+    <div className="flex w-full items-end gap-2 py-1">
+      <span className="flex grow items-center gap-2 text-sm">
+        <VoteIcon type={vote} />
+        {t(vote)}
+      </span>
+      <span className="flex text-sm font-bold">{options.length}</span>
+    </div>
+  );
+};
 
 export const NewParticipantModal: React.VoidFunctionComponent<{
   onCancel?: () => void;
@@ -56,17 +77,17 @@ export const NewParticipantModal: React.VoidFunctionComponent<{
   // }, [options, votes]);
 
   const countByVoteType = React.useMemo(() => {
-    const res: Record<VoteType, number> = {
-      yes: 0,
-      ifNeedBe: 0,
-      no: 0,
+    const res: Record<VoteType, PollViewOption[]> = {
+      yes: [],
+      ifNeedBe: [],
+      no: [],
     };
     options.forEach((option) => {
       const vote = votes[option.id];
       if (vote && vote !== "no") {
-        res[vote]++;
+        res[vote].push(option);
       } else {
-        res.no++;
+        res.no.push(option);
       }
     });
     return res;
@@ -99,7 +120,7 @@ export const NewParticipantModal: React.VoidFunctionComponent<{
     );
   }
   return (
-    <div className="w-[380px] max-w-full space-y-8 p-4">
+    <div className="w-[340px] max-w-full space-y-8 p-4">
       <form
         onSubmit={handleSubmit(async ({ name }) => {
           await onSubmit?.({ name, votes });
@@ -112,7 +133,7 @@ export const NewParticipantModal: React.VoidFunctionComponent<{
           </div>
         </div>
         <div className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-4">
             <fieldset>
               <div className="mb-1 text-sm">{t("name")}</div>
               <div>
@@ -124,6 +145,16 @@ export const NewParticipantModal: React.VoidFunctionComponent<{
                     validate: requiredString(t("name")),
                   })}
                 />
+              </div>
+            </fieldset>
+            <fieldset>
+              <div className="mb-1 text-sm">
+                From <strong>{options.length}</strong> options you voted:
+              </div>
+              <div className="py-2">
+                <VoteGroup vote="yes" options={countByVoteType.yes} />
+                <VoteGroup vote="ifNeedBe" options={countByVoteType.ifNeedBe} />
+                <VoteGroup vote="no" options={countByVoteType.no} />
               </div>
             </fieldset>
           </div>

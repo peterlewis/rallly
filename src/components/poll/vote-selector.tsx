@@ -69,10 +69,10 @@ export const VoteSelector = React.forwardRef<
       onBlur={onBlur}
       onKeyDown={onKeyDown}
       className={clsx(
-        "relative flex h-4 w-4 items-center justify-center overflow-hidden rounded border text-white focus-visible:border-primary-500 focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:ring-offset-0 active:bg-gray-100",
+        "relative flex h-4 w-4 items-center justify-center overflow-hidden rounded border text-white ring-4 ring-gray-300/30  active:bg-gray-100",
         className,
         {
-          "border-green-400 bg-green-400": value === "yes",
+          "border-green-400 bg-green-400 focus:ring-green-200": value === "yes",
           "border-amber-300 bg-amber-300": value === "ifNeedBe",
           "border-slate-300 bg-slate-300": value === "no",
           "bg-white": !value,

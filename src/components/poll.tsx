@@ -242,48 +242,46 @@ const PollPage: NextPage = () => {
           <meta name="robots" content="noindex,nofollow" />
         </Head>
         <div className="max-w-full sm:space-y-4">
-          <LayoutGroup>
-            {poll.closed ? (
-              <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
-                <div className="mr-2 rounded-md">
-                  <LockClosed className="w-6" />
-                </div>
-                <div>{t("pollHasBeenLocked")}</div>
+          {poll.closed ? (
+            <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
+              <div className="mr-2 rounded-md">
+                <LockClosed className="w-6" />
               </div>
-            ) : null}
-            {/* {poll.admin ? <AdminPanel /> : null} */}
-            <motion.div layout="position" initial={false} className="space-y-4">
-              <div className="card space-y-4 p-4">
-                <AppLayoutHeading
-                  title={preventWidows(poll.title)}
-                  description={<PollSubheader />}
-                />
-                {poll.description ? (
-                  <div className="border-primary whitespace-pre-line md:text-lg">
-                    <TruncatedLinkify>
-                      {preventWidows(poll.description)}
-                    </TruncatedLinkify>
-                  </div>
-                ) : null}
-                {poll.location ? (
-                  <div className="lg:text-lg">
-                    <div className="text-sm text-slate-500">
-                      {t("location")}
-                    </div>
-                    <TruncatedLinkify>{poll.location}</TruncatedLinkify>
-                  </div>
-                ) : null}
+              <div>{t("pollHasBeenLocked")}</div>
+            </div>
+          ) : null}
+          {/* {poll.admin ? <AdminPanel /> : null} */}
+          <div className="sm:space-y-4">
+            <div className="space-y-4 py-4 sm:px-4">
+              <AppLayoutHeading
+                title={preventWidows(poll.title)}
+                description={<PollSubheader />}
+              />
+              {poll.description ? (
+                <div className="border-primary whitespace-pre-line md:text-lg">
+                  <TruncatedLinkify>
+                    {preventWidows(poll.description)}
+                  </TruncatedLinkify>
+                </div>
+              ) : null}
+              {poll.location ? (
                 <div className="lg:text-lg">
-                  <div className="text-sm text-slate-500">
-                    {t("possibleAnswers")}
-                  </div>
-                  <Legend />
+                  <div className="text-sm text-slate-500">{t("location")}</div>
+                  <TruncatedLinkify>{poll.location}</TruncatedLinkify>
                 </div>
+              ) : null}
+              <div className="lg:text-lg">
+                <div className="text-sm text-slate-500">
+                  {t("possibleAnswers")}
+                </div>
+                <Legend />
               </div>
+            </div>
+            <div className="mobile:backdrop">
               {participants ? <ConnectedPollViz /> : null}
-            </motion.div>
-            <Discussion />
-          </LayoutGroup>
+            </div>
+          </div>
+          {/* <Discussion /> */}
         </div>
       </UserAvatarProvider>
     </AppLayout>

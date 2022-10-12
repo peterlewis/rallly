@@ -39,7 +39,9 @@ const GridHeader: React.VoidFunctionComponent = () => {
               key="create"
               className="flex items-center justify-between rounded-t-md bg-white py-2 pl-4 pr-2 font-medium"
             >
-              <div>{t("pleaseChoose")}</div>
+              <div>
+                <UserAvatar name={t("you")} showName={true} />
+              </div>
               <div className="flex items-center justify-end space-x-2">
                 <Button
                   onClick={() => {
@@ -59,7 +61,7 @@ const GridHeader: React.VoidFunctionComponent = () => {
               </div>
             </div>
           }
-          sidebar={<UserAvatar name={t("you")} showName={true} />}
+          sidebar={t("pleaseChoose")}
         >
           <GridPollOptionsListInput
             value={state.votes}
@@ -215,10 +217,10 @@ export const PollVizGrid: React.VoidFunctionComponent = () => {
   return (
     <GridContext.Provider value={props}>
       <ScrollSync>
-        <div className="max-w-full rounded-md bg-white shadow-sm" ref={ref}>
+        <div className="max-w-full rounded-md bg-white" ref={ref}>
           <GridHeader />
           <GridBody
-            className="overflow-hidden border-x"
+            className="overflow-hidden rounded-b-md border-x"
             participants={participants}
             selectedParticipantId={
               state.type === "select" || state.type === "edit"

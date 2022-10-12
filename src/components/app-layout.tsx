@@ -279,7 +279,12 @@ const MobileNavigation: React.VoidFunctionComponent<{
   const { user } = useUser();
   return (
     <>
-      <div className="sticky top-0 z-40 w-full bg-white md:hidden">
+      <div
+        className={clsx("sticky top-0 z-40 w-full md:hidden", {
+          "bg-white": visible,
+          "bg-gray-100/80 backdrop-blur-md": !visible,
+        })}
+      >
         <div className="flex items-center justify-between border-b py-2 px-4">
           <Link href="/">
             <a>
@@ -302,13 +307,7 @@ const MobileNavigation: React.VoidFunctionComponent<{
         </div>
         <AnimatePresence>
           {visible ? (
-            <motion.div
-              transition={{ duration: 0.2 }}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute top-12 z-40 h-[calc(100vh-4px)] w-full divide-y overflow-auto bg-white"
-            >
+            <div className="absolute top-12 z-40 h-[calc(100vh-4px)] w-full divide-y overflow-auto bg-white backdrop-blur-md">
               <ul className="space-y-8 p-4">
                 <li>
                   <div className="mb-4 text-lg font-semibold text-slate-700">
@@ -366,7 +365,7 @@ const MobileNavigation: React.VoidFunctionComponent<{
                   <span>{t("app:donate")}</span>
                 </a>
               </div>
-            </motion.div>
+            </div>
           ) : null}
         </AnimatePresence>
       </div>
