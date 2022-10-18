@@ -48,13 +48,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         type={htmlType}
         className={clsx(
           {
-            "btn-default": type === "default",
             "btn-primary": type === "primary",
             "btn-danger": type === "danger",
             "btn border-green-600 bg-green-500 text-white focus-visible:ring-green-500 hover:bg-green-600":
               type === "success",
             "btn-link": type === "link",
-            "h-9 rounded-lg bg-blue-700/5 px-4 font-medium ": type === "ghost",
+            "inline-flex h-9 items-center justify-center rounded-md px-3 font-medium text-slate-500/90 hover:bg-slate-500/10 active:bg-slate-500/20 ":
+              type === "ghost" || type === "default",
             "btn-disabled": disabled,
             "h-auto rounded-full p-2": rounded,
             "h-12 px-6": size === "lg",

@@ -27,13 +27,13 @@ export const TimeRange: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "relative mt-2 -mr-2 inline-block pr-2 text-right",
+        "relative mt-2 -mr-2 inline-block pr-2 text-right font-semibold",
         className,
       )}
     >
       <div className="absolute top-3 right-0 h-4 w-1 border-t border-r border-b border-slate-300 content-['']" />
-      <div className="text-sm text-slate-700">{start}</div>
-      <div className="text-sm text-slate-700/50">{end}</div>
+      <div className="text-sm text-primary-500/90">{start}</div>
+      <div className="text-sm text-slate-400">{end}</div>
     </div>
   );
 };
@@ -45,16 +45,16 @@ export const GridOption: React.VoidFunctionComponent<GridPollOptionProps> = ({
   const { dayjs } = useDayjs();
   const date = dayjs(option.type === "date" ? option.date : option.start);
   return (
-    <div className={clsx("border-r text-center")}>
+    <div className={clsx("text-center")}>
       <div className="space-y-2 py-3">
         {suffix ? (
           <div className="flex h-7 items-center justify-center">{suffix}</div>
         ) : null}
         <div>
-          <div className="text-xs font-semibold uppercase text-slate-500/75">
+          <div className="text-xs font-semibold uppercase text-slate-500/90">
             {date.format("ddd")}
           </div>
-          <div className="text-xl font-semibold text-slate-700">
+          <div className="text-xl font-semibold text-slate-600">
             {date.format("D")}
           </div>
           <div className="text-xs font-medium uppercase text-slate-500/75">
@@ -82,7 +82,7 @@ const NavigationControl: React.VoidFunctionComponent<{
   const hasReachedEnd = left >= maxValue;
   const didNotScroll = left === 0;
   return (
-    <div className="flex h-full grow touch-none select-none items-center">
+    <div className="flex h-full grow touch-none select-none items-center border-b border-white bg-gray-200/30 p-2">
       <div className="grow px-3">
         <CustomScrollbar
           value={left}
@@ -153,7 +153,16 @@ export const GridPollOptionList = ({
 }: GridPollOptionListProps) => {
   const { hasOverflow, numberOfVisibleColumns, columnWidth } = useGridContext();
   return (
-    <div className={clsx("divide-y", className)}>
+    <div className={clsx(className)}>
+      {hasOverflow ? (
+        <div className="flex items-center">
+          <NavigationControl
+            step={columnWidth}
+            maxValue={(options.length - numberOfVisibleColumns) * columnWidth}
+            count={options.length}
+          />
+        </div>
+      ) : null}
       <ScrollSyncPane
         className="no-scrollbar flex overflow-y-auto"
         style={{
@@ -170,15 +179,6 @@ export const GridPollOptionList = ({
           </div>
         ))}
       </ScrollSyncPane>
-      {hasOverflow ? (
-        <div className="flex h-8 items-center">
-          <NavigationControl
-            step={columnWidth}
-            maxValue={(options.length - numberOfVisibleColumns) * columnWidth}
-            count={options.length}
-          />
-        </div>
-      ) : null}
     </div>
   );
 };
@@ -212,15 +212,12 @@ export const GridPollOptionsListInput: React.VoidFunctionComponent<{
     return (
       <div
         role="button"
-        className={clsx(
-          "h-full border-t-4 hover:bg-slate-500/5 active:bg-slate-500/10",
-          {
-            "border-t-transparent": !vote,
-            "border-t-green-400  ": vote === "yes",
-            "border-t-amber-300  ": vote === "ifNeedBe",
-            "border-t-slate-300 ": vote === "no",
-          },
-        )}
+        className={clsx("h-full hover:bg-slate-500/5 active:bg-slate-500/10", {
+          "border-t-transparent": !vote,
+          // "bg-green-100/50": vote === "yes",
+          // "bg-amber-100  ": vote === "ifNeedBe",
+          // "border-t-slate-300 ": vote === "no",
+        })}
         onClick={() => {
           onChange({
             ...value,

@@ -11,7 +11,9 @@ import { trpc } from "../../utils/trpc";
 import { Button } from "../button";
 import CompactButton from "../compact-button";
 import Dropdown, { DropdownItem } from "../dropdown";
+import Chat from "../icons/chat.svg";
 import DotsHorizontal from "../icons/dots-horizontal.svg";
+import Plus from "../icons/plus.svg";
 import Trash from "../icons/trash.svg";
 import { NameInput } from "../name-input";
 import TruncatedLinkify from "../poll/truncated-linkify";
@@ -81,32 +83,25 @@ const Discussion: React.VoidFunctionComponent = () => {
   }
 
   return (
-    <div className="card p-4">
-      <div className="edge-4 -mt-4 border-b py-3 mobile:px-4">
-        <div className="font-medium">{t("comments")}</div>
+    <div className="py-6">
+      <div className="flex items-center justify-between border-slate-300/75 py-3 font-medium text-slate-500">
+        <div className="inline-flex items-center gap-2">
+          <Chat className="h-5" />
+          {t("comments", { count: comments.length })}
+        </div>
+        <Button icon={<Plus />} type="ghost">
+          {t("leaveAComment")}
+        </Button>
       </div>
-      <div className="space-y-3 py-3">
-        <AnimatePresence initial={false}>
+      {comments.length ? (
+        <div className="mb-4 space-y-4 rounded-md bg-gray-100 p-4">
           {comments.map((comment) => {
             const canDelete =
               poll.admin || !comment.userId || comment.userId === user.id;
 
             return (
-              <motion.div
-                transition={{ duration: 0.2 }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex"
-                key={comment.id}
-              >
-                <motion.div
-                  initial={{ scale: 0.8, y: 10 }}
-                  animate={{ scale: 1, y: 0 }}
-                  exit={{ scale: 0.8 }}
-                  data-testid="comment"
-                  className="w-fit rounded-md border bg-white px-3 py-2 shadow-sm"
-                >
+              <div className="flex" key={comment.id}>
+                <div data-testid="comment" className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <UserAvatar
                       name={comment.authorName}
@@ -136,44 +131,39 @@ const Discussion: React.VoidFunctionComponent = () => {
                       />
                     </Dropdown>
                   </div>
-                  <div className="w-fit whitespace-pre-wrap">
+                  <div className=" w-fit whitespace-pre-wrap rounded-xl bg-white px-3 py-2">
                     <TruncatedLinkify>{comment.content}</TruncatedLinkify>
                   </div>
-                </motion.div>
-              </motion.div>
+                </div>
+              </div>
             );
           })}
-        </AnimatePresence>
-      </div>
-      <form
+        </div>
+      ) : null}
+      {/* <form
         onSubmit={handleSubmit(async ({ authorName, content }) => {
           await addComment.mutateAsync({ authorName, content, pollId });
           reset({ authorName, content: "" });
         })}
+        className="relative rounded-md border bg-white p-4 shadow-sm"
       >
         <textarea
           id="comment"
-          rows={3}
+          rows={2}
           placeholder={t("commentPlaceholder")}
-          className="input w-full py-2 pl-3 pr-4"
+          className="w-full scroll-pb-16 rounded-md border border-gray-200 p-3 pb-16 shadow-sm placeholder:text-slate-500/75 focus:ring-indigo-500"
           {...register("content", { validate: requiredString })}
         />
-        <div className="mt-1 flex space-x-3">
-          <div>
-            <Controller
-              name="authorName"
-              control={control}
-              rules={{ validate: requiredString }}
-              render={({ field }) => (
-                <NameInput {...field} className="w-full" />
-              )}
-            />
-          </div>
-          <Button htmlType="submit" loading={formState.isSubmitting}>
+        <div className="bottom- absolute left-3 flex w-full">
+          <Button
+            htmlType="submit"
+            type="primary"
+            loading={formState.isSubmitting}
+          >
             {t("comment")}
           </Button>
         </div>
-      </form>
+      </form> */}
     </div>
   );
 };

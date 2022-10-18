@@ -1,9 +1,14 @@
-import { VoteType } from "@prisma/client";
 import clsx from "clsx";
+import { useTranslation } from "next-i18next";
 
 import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
+import Pencil from "@/components/icons/pencil.svg";
+import Tag from "@/components/icons/tag.svg";
+import Trash from "@/components/icons/trash.svg";
+import User from "@/components/icons/user.svg";
 
 import CompactButton from "../../../compact-button";
+import Dropdown, { DropdownItem } from "../../../dropdown";
 import { ScrollSyncPane } from "../../../scroll-sync";
 import { useGridContext } from "../../grid-view-poll";
 import { usePollStateContext } from "../../poll-viz";
@@ -12,34 +17,37 @@ import UserAvatar from "../../user-avatar";
 import VoteIcon from "../../vote-icon";
 
 export const GridBodyRow: React.VoidFunctionComponent<{
-  name: string;
+  participant: PollViewParticipant;
   color?: string;
-  votes: Array<VoteType | undefined>;
   className?: string;
   selected?: boolean;
   disabled?: boolean;
-  you?: boolean;
-  onSelect?: () => void;
-}> = ({ name, votes, color, disabled, you, selected, className, onSelect }) => {
+}> = ({ participant, color, disabled, selected, className }) => {
+  const { name, votes, you } = participant;
+  const {
+    setState,
+    renameParticipant,
+    selectParticipant,
+    editParticipant,
+    deleteParticipant,
+  } = usePollStateContext();
   const { sidebarWidth, columnWidth, numberOfVisibleColumns } =
     useGridContext();
+  const { t } = useTranslation("app");
   return (
     <div
-      role={!disabled ? "button" : "container"}
       data-testid="participant-row"
-      onClick={!disabled ? onSelect : undefined}
       className={clsx(
-        "flex h-14 select-none border-black/5",
+        "flex h-14 select-none border-white",
         {
           "bg-white/50": selected,
-          "hover:bg-slate-500/5 active:bg-slate-500/10": !disabled,
         },
         className,
       )}
     >
       <div
         className={clsx(
-          "flex h-full shrink-0 items-center justify-between  space-x-2 border-l-4 border-r pr-4 pl-4",
+          "flex h-full shrink-0 items-center justify-between  space-x-2 border-l-4 border-r border-white pr-4 pl-4",
           {
             "border-l-primary-500": selected,
             "border-l-transparent": !selected,
@@ -48,6 +56,35 @@ export const GridBodyRow: React.VoidFunctionComponent<{
         style={{ width: sidebarWidth }}
       >
         <UserAvatar name={name} showName={true} color={color} isYou={you} />
+        <Dropdown
+          placement="bottom-start"
+          trigger={<CompactButton icon={DotsHorizontal} />}
+        >
+          <DropdownItem
+            disabled={!participant.editable}
+            label={t("editVotes")}
+            icon={Pencil}
+            onClick={() => {
+              editParticipant(participant.id);
+            }}
+          />
+          <DropdownItem
+            disabled={!participant.editable}
+            icon={Tag}
+            label={t("changeName")}
+            onClick={() => {
+              renameParticipant(participant.id);
+            }}
+          />
+          <DropdownItem
+            disabled={!participant.editable}
+            label={t("delete")}
+            icon={Trash}
+            onClick={() => {
+              deleteParticipant(participant.id);
+            }}
+          />
+        </Dropdown>
       </div>
       <ScrollSyncPane
         className="no-scrollbar flex overflow-x-auto overflow-y-hidden"
@@ -58,7 +95,7 @@ export const GridBodyRow: React.VoidFunctionComponent<{
             <div
               key={i}
               className={clsx(
-                "relative flex h-14 shrink-0 items-center justify-center border-r bg-white/30",
+                "relative flex h-14 shrink-0 items-center justify-center border-r border-white bg-white/30",
               )}
               style={{ width: columnWidth }}
             >
@@ -74,23 +111,17 @@ export const GridBodyRow: React.VoidFunctionComponent<{
 export const GridBody: React.VoidFunctionComponent<{
   participants: PollViewParticipant[];
   selectedParticipantId: string | null;
-  onChange: (participantId: string | null) => void;
   className?: string;
-}> = ({ className, participants, selectedParticipantId, onChange }) => {
+}> = ({ participants, selectedParticipantId }) => {
   return (
-    <div className="overflow-hidden rounded-b-md bg-slate-500/5">
+    <div className="overflow-hidden bg-slate-500/5">
       <div className="divide-y">
-        {participants.map((entry) => {
+        {participants.map((participant) => {
           return (
             <GridBodyRow
-              key={entry.id}
-              selected={selectedParticipantId === entry.id}
-              name={entry.name}
-              you={entry.you}
-              votes={entry.votes}
-              onSelect={() => {
-                onChange(entry.id);
-              }}
+              key={participant.id}
+              participant={participant}
+              selected={selectedParticipantId === participant.id}
             />
           );
         })}

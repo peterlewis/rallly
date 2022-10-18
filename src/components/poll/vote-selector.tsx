@@ -67,23 +67,31 @@ export const VoteSelector = React.forwardRef<
       type="button"
       onFocus={onFocus}
       onBlur={onBlur}
-      onKeyDown={onKeyDown}
       className={clsx(
-        "relative flex h-4 w-4 items-center justify-center overflow-hidden rounded border text-white ring-4 ring-gray-300/30  active:bg-gray-100",
+        "rounded-md border border-black/10 bg-white/30 p-1",
         className,
-        {
-          "border-green-400 bg-green-400 focus:ring-green-200": value === "yes",
-          "border-amber-300 bg-amber-300": value === "ifNeedBe",
-          "border-slate-300 bg-slate-300": value === "no",
-          "bg-white": !value,
-        },
       )}
+      onKeyDown={onKeyDown}
       onClick={() => {
         onChange?.(toggle());
       }}
       ref={ref}
     >
-      {Icon ? <Icon className="absolute h-5 " /> : null}
+      <div
+        className={clsx(
+          "relative flex h-4 w-4 items-center justify-center overflow-hidden rounded border text-white  active:bg-gray-100",
+          {
+            "border-green-400 bg-green-400 text-green-100 focus:ring-green-200":
+              value === "yes",
+            "border-amber-300 bg-amber-300 text-amber-100":
+              value === "ifNeedBe",
+            "border-slate-300 bg-slate-300 text-slate-100": value === "no",
+            "bg-white": !value,
+          },
+        )}
+      >
+        {Icon ? <Icon className="absolute h-5 " /> : null}
+      </div>
     </button>
   );
 });

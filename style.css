@@ -10,7 +10,7 @@
     @apply overflow-x-hidden;
   }
   body {
-    @apply bg-white text-slate-700 sm:bg-gray-100/75;
+    @apply bg-white text-slate-700;
   }
   p {
     @apply mb-4;
@@ -74,7 +74,7 @@
     @apply h-4 w-4 rounded border-slate-300 text-primary-500 shadow-sm focus:ring-primary-500;
   }
   .btn {
-    @apply inline-flex h-9 select-none items-center justify-center whitespace-nowrap rounded border px-3 font-medium shadow-sm transition-all;
+    @apply inline-flex h-9 select-none items-center justify-center whitespace-nowrap rounded px-3 font-medium shadow-sm;
   }
   a.btn {
     @apply cursor-pointer hover:no-underline;
@@ -99,7 +99,7 @@
   }
   .btn-primary {
     text-shadow: rgb(0 0 0 / 20%) 0px 1px 1px;
-    @apply btn border-primary-600 bg-primary-500 text-white focus-visible:ring-primary-500 hover:bg-opacity-90 active:bg-primary-600;
+    @apply btn bg-primary-500 text-white focus-visible:ring-primary-500 hover:bg-opacity-90 active:bg-opacity-75;
   }
 
   a.btn-primary {
@@ -156,6 +156,9 @@
   .text {
     @apply text-lg leading-relaxed text-slate-500;
   }
+  .action-group {
+    @apply flex items-center gap-2;
+  }
 }
 
 @layer utilities {
@@ -178,7 +181,7 @@
     @apply edge -ml-6 px-6;
   }
   .backdrop {
-    @apply -ml-4 w-[calc(100vw)];
+    @apply relative left-1/2 w-[calc(100vw)] -translate-x-1/2 px-8;
   }
   .bg-pattern {
     background-color: #f9fafb;

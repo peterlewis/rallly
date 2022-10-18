@@ -18,7 +18,7 @@ import { stopPropagation } from "@/utils/stop-propagation";
 const MotionMenuItems = motion(Menu.Items);
 
 export interface DropdownProps {
-  trigger?: React.ReactNode;
+  trigger: JSX.Element;
   children?: React.ReactNode;
   className?: string;
   placement?: Placement;
@@ -52,7 +52,9 @@ const Dropdown: React.VoidFunctionComponent<DropdownProps> = ({
       {({ open }) => (
         <>
           <Menu.Button as="div" className={className} ref={reference}>
-            {trigger}
+            {React.cloneElement(trigger, {
+              active: open,
+            })}
           </Menu.Button>
           <FloatingPortal>
             {open ? (
@@ -127,7 +129,7 @@ export const DropdownItem: React.VoidFunctionComponent<{
             "group flex h-9 w-full items-center rounded pl-2 pr-4",
             {
               "bg-primary-500 text-white": active,
-              "text-gray-700": !active,
+              "text-slate-500": !active,
               "pointer-events-none opacity-50": disabled,
             },
           )}
@@ -136,8 +138,8 @@ export const DropdownItem: React.VoidFunctionComponent<{
             <Icon
               className={clsx("mr-2 h-5 w-5", {
                 "text-white": active,
-                "text-primary-500": !active,
-                "text-gray-500": disabled,
+                "text-slate-500/75": !active,
+                // "text-gray-500": disabled,
               })}
             />
           )}

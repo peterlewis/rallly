@@ -5,6 +5,7 @@ import * as React from "react";
 import X from "@/components/icons/x.svg";
 
 import { Button, ButtonProps } from "../button";
+import CompactButton from "../compact-button";
 
 export interface ModalProps {
   description?: React.ReactNode;
@@ -69,12 +70,11 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
             >
               <div className="mx-4 max-w-full overflow-hidden rounded-md bg-white shadow-xl">
                 {showClose ? (
-                  <button
-                    className="absolute right-6 top-2 z-10 inline-flex h-8 w-8 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-500/10 hover:text-slate-500 active:bg-slate-500/20"
+                  <CompactButton
+                    icon={X}
                     onClick={onCancel}
-                  >
-                    <X className="h-4" />
-                  </button>
+                    className="absolute right-6 top-2 z-10"
+                  />
                 ) : null}
                 {content ?? (
                   <div className="max-w-md p-6">

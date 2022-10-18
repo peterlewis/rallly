@@ -42,6 +42,7 @@ const GridHeader: React.VoidFunctionComponent = () => {
               <div>{t("pleaseChoose")}</div>
               <div className="flex items-center justify-end space-x-2">
                 <Button
+                  type="ghost"
                   onClick={() => {
                     setState({ type: "read" });
                   }}
@@ -70,75 +71,75 @@ const GridHeader: React.VoidFunctionComponent = () => {
           />
         </GridHeaderLayout>
       );
-    case "select":
-      const participant = getParticipant(state.participantId);
-      return (
-        <GridHeaderLayout
-          topbar={
-            <div
-              key="select"
-              className="flex items-center justify-between rounded-t-md bg-white py-2 px-2 font-medium"
-            >
-              {participant.editable ? (
-                <>
-                  <div className=" flex items-center justify-end space-x-2">
-                    <Button
-                      type="danger"
-                      onClick={() => {
-                        deleteParticipant(state.participantId);
-                      }}
-                    >
-                      {t("delete")}
-                    </Button>
-                  </div>
-                  <div className="space-x-2">
-                    <SegmentedButtonGroup>
-                      <SegmentedButton
-                        onClick={() => {
-                          renameParticipant(state.participantId);
-                        }}
-                      >
-                        {t("changeName")}
-                      </SegmentedButton>
-                      <SegmentedButton
-                        onClick={() => {
-                          setState({
-                            type: "edit",
-                            name: participant.name,
-                            votes: participant.voteByOptionId,
-                            participantId: participant.id,
-                          });
-                        }}
-                      >
-                        {t("editVotes")}
-                      </SegmentedButton>
-                    </SegmentedButtonGroup>
-                  </div>
-                </>
-              ) : (
-                <div className="pl-2">
-                  You don't have permission to edit this participant
-                </div>
-              )}
-              <div>
-                <Button
-                  onClick={() => {
-                    setState({ type: "read" });
-                  }}
-                >
-                  {t("cancel")}
-                </Button>
-              </div>
-            </div>
-          }
-          sidebar={<UserAvatar name={participant.name} showName={true} />}
-        >
-          <GridPollOptionsListValue
-            options={options}
-            value={participant.voteByOptionId}
-          />
-        </GridHeaderLayout>
-      );
+    // case "select":
+    //   const participant = getParticipant(state.participantId);
+    //   return (
+    //     <GridHeaderLayout
+    //       topbar={
+    //         <div
+    //           key="select"
+    //           className="flex items-center justify-between rounded-t-md bg-white py-2 px-2 font-medium"
+    //         >
+    //           {participant.editable ? (
+    //             <>
+    //               <div className=" flex items-center justify-end space-x-2">
+    //                 <Button
+    //                   type="danger"
+    //                   onClick={() => {
+    //                     deleteParticipant(state.participantId);
+    //                   }}
+    //                 >
+    //                   {t("delete")}
+    //                 </Button>
+    //               </div>
+    //               <div className="space-x-2">
+    //                 <SegmentedButtonGroup>
+    //                   <SegmentedButton
+    //                     onClick={() => {
+    //                       renameParticipant(state.participantId);
+    //                     }}
+    //                   >
+    //                     {t("changeName")}
+    //                   </SegmentedButton>
+    //                   <SegmentedButton
+    //                     onClick={() => {
+    //                       setState({
+    //                         type: "edit",
+    //                         name: participant.name,
+    //                         votes: participant.voteByOptionId,
+    //                         participantId: participant.id,
+    //                       });
+    //                     }}
+    //                   >
+    //                     {t("editVotes")}
+    //                   </SegmentedButton>
+    //                 </SegmentedButtonGroup>
+    //               </div>
+    //             </>
+    //           ) : (
+    //             <div className="pl-2">
+    //               You don't have permission to edit this participant
+    //             </div>
+    //           )}
+    //           <div>
+    //             <Button
+    //               onClick={() => {
+    //                 setState({ type: "read" });
+    //               }}
+    //             >
+    //               {t("cancel")}
+    //             </Button>
+    //           </div>
+    //         </div>
+    //       }
+    //       sidebar={<UserAvatar name={participant.name} showName={true} />}
+    //     >
+    //       <GridPollOptionsListValue
+    //         options={options}
+    //         value={participant.voteByOptionId}
+    //       />
+    //     </GridHeaderLayout>
+    //   );
     case "edit":
       return (
         <GridHeaderLayout
@@ -181,6 +182,7 @@ const GridHeader: React.VoidFunctionComponent = () => {
           />
         </GridHeaderLayout>
       );
+    case "select":
     case "read":
       return (
         <GridHeaderLayout
@@ -209,16 +211,12 @@ const GridHeader: React.VoidFunctionComponent = () => {
 };
 
 export const PollVizGrid: React.VoidFunctionComponent = () => {
-  const { state, participants, options, selectParticipant } =
-    usePollStateContext();
+  const { state, participants, options } = usePollStateContext();
   const { ref, props } = useGrid<HTMLDivElement>(options.length);
   return (
     <GridContext.Provider value={props}>
       <ScrollSync>
-        <div
-          className="max-w-full rounded-md border bg-white shadow-sm"
-          ref={ref}
-        >
+        <div className="max-w-full rounded-md bg-gray-50" ref={ref}>
           <GridHeader />
           <GridBody
             className="overflow-hidden rounded-b-md border-x"
@@ -228,9 +226,6 @@ export const PollVizGrid: React.VoidFunctionComponent = () => {
                 ? state.participantId
                 : null
             }
-            onChange={(participantId) => {
-              selectParticipant(participantId);
-            }}
           />
         </div>
       </ScrollSync>

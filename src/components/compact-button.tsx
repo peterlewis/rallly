@@ -11,6 +11,7 @@ export interface CompactButtonProps {
   children?: React.ReactNode;
   disabled?: boolean;
   onClick?: () => void;
+  active?: boolean;
 }
 
 const CompactButton: React.VoidFunctionComponent<CompactButtonProps> = ({
@@ -19,14 +20,18 @@ const CompactButton: React.VoidFunctionComponent<CompactButtonProps> = ({
   onClick,
   disabled,
   className,
+  active,
 }) => {
   return (
     <button
       disabled={disabled}
       type="button"
       className={clsx(
-        "hover:bg-slate-500/15 inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:bg-slate-500/10 hover:text-slate-500 active:bg-slate-500/20",
+        "inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:bg-slate-500/10 hover:text-slate-500 active:bg-slate-500/20",
         className,
+        {
+          "bg-slate-500/10": active,
+        },
       )}
       onClick={onClick}
     >

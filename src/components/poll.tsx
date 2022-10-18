@@ -1,8 +1,8 @@
+import { Switch } from "@headlessui/react";
 import clsx from "clsx";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import { usePlausible } from "next-plausible";
@@ -11,16 +11,24 @@ import toast from "react-hot-toast";
 import { useCopyToClipboard } from "react-use";
 
 import Discussion from "@/components/discussion";
+import Bell from "@/components/icons/bell.svg";
+import Calendar from "@/components/icons/calendar.svg";
+import Chart from "@/components/icons/chart.svg";
 import ClipboardCheck from "@/components/icons/clipboard-check.svg";
 import ClipboardCopy from "@/components/icons/clipboard-copy.svg";
 import Exclamation from "@/components/icons/exclamation.svg";
-import Key from "@/components/icons/key.svg";
+import LinkIcon from "@/components/icons/link.svg";
 import LockClosed from "@/components/icons/lock-closed.svg";
+import Pencil from "@/components/icons/pencil.svg";
+import Share from "@/components/icons/share.svg";
 import UserGroup from "@/components/icons/user-group.svg";
+import X from "@/components/icons/x.svg";
 import { preventWidows } from "@/utils/prevent-widows";
 
 import { AppLayout, AppLayoutHeading } from "./app-layout";
 import { useLoginModal } from "./auth/login-modal";
+import { Button } from "./button";
+import CompactButton from "./compact-button";
 import { LinkText } from "./link-text";
 import { useParticipants } from "./participants-provider";
 import { ConnectedPoll } from "./poll/grid-view-poll";
@@ -32,6 +40,8 @@ import { useTouchBeacon } from "./poll/use-touch-beacon";
 import { UserAvatarProvider } from "./poll/user-avatar";
 import VoteIcon from "./poll/vote-icon";
 import { usePoll } from "./poll-provider";
+import { FormField } from "./settings";
+import { TextInput } from "./text-input";
 import { usePollMutations } from "./use-poll-mutations";
 import { useUser } from "./user-provider";
 
@@ -51,6 +61,46 @@ const Legend = () => {
         <VoteIcon type="no" />
         <span className="text-sm text-slate-500">{t("no")}</span>
       </span>
+    </div>
+  );
+};
+
+interface SectionHeadingProps {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  active?: boolean;
+  actions?: React.ReactNode;
+}
+
+const SectionHeading: React.VoidFunctionComponent<SectionHeadingProps> = ({
+  title,
+  icon: Icon,
+  actions,
+}) => {
+  return (
+    <div className="flex h-9 items-start justify-between">
+      <div className="inline-flex items-center gap-2 font-medium text-primary-500">
+        <Icon className="h-5" />
+        {title}
+      </div>
+      {actions}
+    </div>
+  );
+};
+
+const Section: React.VoidFunctionComponent<
+  React.PropsWithChildren<{
+    title: string;
+    icon: React.ComponentType<{ className?: string }>;
+    bordered?: boolean;
+    actions?: React.ReactNode;
+    className?: string;
+  }>
+> = ({ bordered, className, title, icon, actions, children }) => {
+  return (
+    <div className={className}>
+      <SectionHeading title={title} icon={icon} actions={actions} />
+      {children}
     </div>
   );
 };
@@ -134,6 +184,58 @@ const ClipboardLink: React.VoidFunctionComponent<{
   );
 };
 
+const DetailsSection = () => {
+  const [isEditing, setEditing] = React.useState(false);
+  const { poll } = usePoll();
+  const { t } = useTranslation("app");
+  return (
+    <Section
+      title="Details"
+      icon={Calendar}
+      bordered={isEditing}
+      actions={
+        isEditing ? null : (
+          <Button
+            onClick={() => {
+              setEditing(true);
+            }}
+            icon={<Pencil />}
+          >
+            Edit details
+          </Button>
+        )
+      }
+    >
+      <div className="divide-y">
+        <FormField name={t("title")}>
+          <TextInput defaultValue={poll.title} />
+        </FormField>
+        <FormField name={t("location")}>
+          <TextInput
+            defaultValue={poll.location ?? ""}
+            placeholder={t("No location")}
+          />
+        </FormField>
+        <FormField name={t("description")}>
+          <textarea className="input w-full">{poll.description}</textarea>
+        </FormField>
+      </div>
+      {isEditing ? (
+        <div className="action-group mt-4 justify-end">
+          <Button
+            onClick={() => {
+              setEditing(false);
+            }}
+          >
+            {t("cancel")}
+          </Button>
+          <Button type="primary">{t("save")}</Button>
+        </div>
+      ) : null}
+    </Section>
+  );
+};
+
 const AdminPanel: React.VoidFunctionComponent<{ children?: React.ReactNode }> =
   ({ children }) => {
     const { poll } = usePoll();
@@ -145,7 +247,7 @@ const AdminPanel: React.VoidFunctionComponent<{ children?: React.ReactNode }> =
     }
     return (
       <div className="">
-        <div className="py-4 sm:mb-4 sm:py-2 sm:px-3">
+        {/* <div className="py-4 sm:mb-4 sm:py-2 sm:px-3">
           <div className="justify flex flex-col justify-between gap-2 font-bold">
             <div className="flex space-x-2">
               <NotificationsToggle />
@@ -194,8 +296,16 @@ const AdminPanel: React.VoidFunctionComponent<{ children?: React.ReactNode }> =
               />
             </div>
           </div>
+        </div> */}
+        <div className="mb-6 flex justify-between gap-2 border-b border-dashed py-3">
+          <Button type="ghost">&larr; Events</Button>
+          <div className="flex gap-2">
+            <Button icon={<Share />} type="ghost">
+              {t("share")}
+            </Button>
+          </div>
         </div>
-        {children}
+        <div>{children}</div>
       </div>
     );
   };
@@ -246,17 +356,23 @@ const PollPage: NextPage = () => {
           <meta name="robots" content="noindex,nofollow" />
         </Head>
         <div className="max-w-full sm:space-y-4">
-          {poll.closed ? (
-            <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
-              <div className="mr-2 rounded-md">
-                <LockClosed className="w-6" />
-              </div>
-              <div>{t("pollHasBeenLocked")}</div>
-            </div>
-          ) : null}
           <AdminPanel>
-            <div className="sm:space-y-4">
-              <div className="sm:card space-y-4 bg-white py-4 sm:px-6">
+            {poll.closed ? (
+              <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
+                <div className="mr-2 rounded-md">
+                  <LockClosed className="w-6" />
+                </div>
+                <div>{t("pollHasBeenLocked")}</div>
+              </div>
+            ) : null}
+            <div className="space-y-6">
+              <Section
+                title={t("Participant Link")}
+                icon={LinkIcon}
+                actions={<Button>{t("copyLink")}</Button>}
+              />
+              <DetailsSection />
+              {/* <div className="space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
                   description={<PollSubheader />}
@@ -282,13 +398,28 @@ const PollPage: NextPage = () => {
                   </div>
                   <Legend />
                 </div>
-              </div>
-              <div className="mobile:backdrop">
+              </div> */}
+              <Section
+                title={t("Poll")}
+                icon={Chart}
+                actions={
+                  <div className="action-group">
+                    <Button icon={<Pencil />}>Edit dates</Button>
+                  </div>
+                }
+              >
                 {participants ? <ConnectedPollViz /> : null}
-              </div>
+              </Section>
+              <Section
+                title={t("notifications")}
+                icon={Bell}
+                actions={<Button icon={<Bell />}>Turn notifications on</Button>}
+              >
+                You need to login to turn on notifications.
+              </Section>
+              <Discussion />
             </div>
           </AdminPanel>
-          {/* <Discussion /> */}
         </div>
       </UserAvatarProvider>
     </AppLayout>

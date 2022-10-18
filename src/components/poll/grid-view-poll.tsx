@@ -52,7 +52,7 @@ export const useGrid = <T extends HTMLElement>(columns: number) => {
   const [ref, { width }] = useMeasure<T>();
   const availableSpace = width - minSidebarWidth - 2;
 
-  const columnWidth = Math.min(Math.max(90, availableSpace / columns), 100);
+  const columnWidth = Math.max(90, availableSpace / columns);
 
   const numberOfVisibleColumns = Math.min(
     columns,
