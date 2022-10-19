@@ -128,6 +128,7 @@
   "changeName": "Change name",
   "editVotes": "Edit votes",
   "poll": "Poll",
+  "editTitle": "Edit title",
   "pollCount_other": "{{count}} polls",
   "selectAvailability": "Select availability",
   "pollCount": "{{count}} poll",

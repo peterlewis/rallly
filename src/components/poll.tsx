@@ -16,12 +16,15 @@ import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
 import LocationMarker from "@/components/icons/location-marker.svg";
 import LockClosed from "@/components/icons/lock-closed.svg";
 import Pencil from "@/components/icons/pencil.svg";
+import Trash from "@/components/icons/trash.svg";
 
 import { DayjsProvider } from "../utils/dayjs";
+import { useFormValidation } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
 import { NewLayout } from "./app-layout";
 import { Button } from "./button";
-import ModalProvider from "./modal/modal-provider";
+import Dropdown, { DropdownItem } from "./dropdown";
+import { createModalHook, withModal } from "./modal/modal-provider";
 import { useParticipants } from "./participants-provider";
 import NotificationsToggle from "./poll/notifications-toggle";
 import { ConnectedPollViz } from "./poll/poll-viz";
@@ -185,6 +188,7 @@ const DescriptionForm: React.VoidFunctionComponent<{ onDone: () => void }> = ({
         autoFocus={true}
         rows={3}
         readOnly={formState.isSubmitting}
+        placeholder={t("notSpecified")}
         className="input w-full text-lg"
         {...register("description")}
       />
@@ -301,6 +305,71 @@ const LocationForm: React.VoidFunctionComponent<{ onClose: () => void }> = ({
   );
 };
 
+const useTitleDialog = createModalHook(
+  "titleDialog",
+  function TitleDialog({ onDone }) {
+    const { t } = useTranslation("app");
+    const { poll } = usePoll();
+    const { register, handleSubmit, formState } = useForm<{ title: string }>({
+      defaultValues: {
+        title: poll.title,
+      },
+    });
+
+    const queryClient = trpc.useContext();
+
+    const updateTitle = trpc.useMutation("polls.updateTitle", {
+      onSuccess: ({ title }) => {
+        queryClient.setQueryData(
+          ["polls.get", { urlId: poll.adminUrlId, admin: true }],
+          (poll) => {
+            if (!poll) {
+              throw new Error("Poll should be defined");
+            }
+            return { ...poll, title };
+          },
+        );
+      },
+    });
+
+    const { requiredString } = useFormValidation();
+    return (
+      <form
+        onSubmit={handleSubmit(async ({ title }) => {
+          // update title
+          await updateTitle.mutateAsync({ urlId: poll.adminUrlId, title });
+          onDone();
+        })}
+      >
+        <h3>{t("editTitle")}</h3>
+        <fieldset className="mb-4">
+          <label>{t("title")}</label>
+          <TextInput
+            autoFocus={true}
+            {...register("title", {
+              validate: requiredString(t("title")),
+            })}
+          />
+        </fieldset>
+        <div className="action-group ">
+          <Button
+            loading={formState.isSubmitting}
+            type="primary"
+            htmlType="submit"
+          >
+            {t("save")}
+          </Button>
+          <Button onClick={onDone}>{t("cancel")}</Button>
+        </div>
+      </form>
+    );
+  },
+  {
+    showClose: true,
+    size: "sm",
+  },
+);
+
 const LocationSection = () => {
   const { t } = useTranslation("app");
   const { poll } = usePoll();
@@ -342,6 +411,8 @@ const PollPage: NextPage = () => {
 
   const { updatePoll } = usePollMutations();
 
+  const titleDialog = useTitleDialog();
+
   React.useEffect(() => {
     if (router.query.unsubscribe) {
       updatePoll.mutate(
@@ -366,33 +437,44 @@ const PollPage: NextPage = () => {
 
   return (
     <DayjsProvider>
-      <ModalProvider>
-        <NewLayout
-          title={poll.title}
-          actions={
-            <div className="action-group">
-              <NotificationsToggle />
-              <Button icon={<DotsHorizontal />} />
-            </div>
-          }
-          backHref="/polls"
-        >
-          <UserAvatarProvider seed={poll.id} names={names}>
-            <Head>
-              <title>{poll.title}</title>
-              <meta name="robots" content="noindex,nofollow" />
-            </Head>
-            <div className="mx-auto max-w-4xl sm:space-y-4">
-              {poll.closed ? (
-                <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
-                  <div className="mr-2 rounded-md">
-                    <LockClosed className="w-6" />
-                  </div>
-                  <div>{t("pollHasBeenLocked")}</div>
+      <NewLayout
+        title={poll.title}
+        actions={
+          <div className="action-group">
+            <NotificationsToggle />
+            <Dropdown
+              placement="bottom-end"
+              trigger={<Button icon={<DotsHorizontal />} />}
+            >
+              <DropdownItem
+                label={t("editTitle")}
+                icon={Pencil}
+                onClick={() => {
+                  titleDialog.show();
+                }}
+              />
+              <DropdownItem label={t("delete")} icon={Trash} />
+            </Dropdown>
+          </div>
+        }
+        backHref="/polls"
+      >
+        <UserAvatarProvider seed={poll.id} names={names}>
+          <Head>
+            <title>{poll.title}</title>
+            <meta name="robots" content="noindex,nofollow" />
+          </Head>
+          <div className="mx-auto max-w-4xl sm:space-y-4">
+            {poll.closed ? (
+              <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
+                <div className="mr-2 rounded-md">
+                  <LockClosed className="w-6" />
                 </div>
-              ) : null}
-              <div className="space-y-6 py-6">
-                {/* <div className="space-y-4">
+                <div>{t("pollHasBeenLocked")}</div>
+              </div>
+            ) : null}
+            <div className="space-y-6 py-6">
+              {/* <div className="space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
                   description={<PollSubheader />}
@@ -419,38 +501,37 @@ const PollPage: NextPage = () => {
                   <Legend />
                 </div>
               </div> */}
-                <div className="-mx-3 flex items-center justify-center rounded-md border">
-                  <div className="px-4 font-medium text-slate-500">
-                    {t("participantLink")}
-                  </div>
-                  <div className="grow font-mono">
-                    {`${window.location.origin}/p/${poll.participantUrlId}`}
-                  </div>
-                  <div className="ml-2 p-2">
-                    <Button icon={<ClipboardCopy />}>{t("copyLink")}</Button>
-                  </div>
+              <div className="-mx-3 flex items-center justify-center rounded-md border">
+                <div className="px-4 font-medium text-slate-500">
+                  {t("participantLink")}
                 </div>
-                <DescriptionSection />
-                <LocationSection />
-                <Section
-                  title={t("poll")}
-                  icon={Chart}
-                  actions={
-                    <div className="action-group">
-                      <Button icon={<Pencil />}>{t("editOptions")}</Button>
-                    </div>
-                  }
-                >
-                  {participants ? <ConnectedPollViz /> : null}
-                </Section>
-                <Discussion />
+                <div className="grow font-mono">
+                  {`${window.location.origin}/p/${poll.participantUrlId}`}
+                </div>
+                <div className="ml-2 p-2">
+                  <Button icon={<ClipboardCopy />}>{t("copyLink")}</Button>
+                </div>
               </div>
+              <DescriptionSection />
+              <LocationSection />
+              <Section
+                title={t("poll")}
+                icon={Chart}
+                actions={
+                  <div className="action-group">
+                    <Button icon={<Pencil />}>{t("editOptions")}</Button>
+                  </div>
+                }
+              >
+                {participants ? <ConnectedPollViz /> : null}
+              </Section>
+              <Discussion />
             </div>
-          </UserAvatarProvider>
-        </NewLayout>
-      </ModalProvider>
+          </div>
+        </UserAvatarProvider>
+      </NewLayout>
     </DayjsProvider>
   );
 };
 
-export default PollPage;
+export default withModal(PollPage);

@@ -5,50 +5,15 @@ import { useForm } from "react-hook-form";
 import { useFormValidation } from "../../utils/form-validation";
 import { trpc } from "../../utils/trpc";
 import { Button } from "../button";
-import { ModalProps } from "../modal/modal";
-import { useModalContext } from "../modal/modal-provider";
-import { useParticipants } from "../participants-provider";
+import { createModalHook } from "../modal/modal-provider";
 import { usePoll } from "../poll-provider";
-import { useUser } from "../user-provider";
 
-type Props = Record<string, unknown>;
-
-const createModalHook = <P extends Props>(
-  id: string,
-  Component: React.ComponentType<P>,
-  modalProps: ModalProps,
-) => {
-  const useModalHook = () => {
-    const modalContext = useModalContext();
-
-    return {
-      show: (props: P) => {
-        modalContext.add(id, {
-          content: (
-            <div className="p-4">
-              <Component {...props} />
-            </div>
-          ),
-          footer: null,
-          ...modalProps,
-        });
-      },
-      close: () => {
-        modalContext.remove(id);
-      },
-    };
-  };
-
-  return useModalHook;
-};
-
-export const Composer: React.VoidFunctionComponent<{ onHide?: () => void }> = ({
-  onHide,
+export const Composer: React.VoidFunctionComponent<{ onDone: () => void }> = ({
+  onDone,
 }) => {
   const { poll } = usePoll();
   const pollId = poll.id;
 
-  const { user } = useUser();
   const queryClient = trpc.useContext();
   const addComment = trpc.useMutation("polls.comments.add", {
     onSuccess: (newComment) => {
@@ -74,7 +39,7 @@ export const Composer: React.VoidFunctionComponent<{ onHide?: () => void }> = ({
   const submit = handleSubmit(async ({ content }) => {
     // create comment
     await addComment.mutateAsync({ pollId, content });
-    onHide?.();
+    onDone();
   });
 
   const { t } = useTranslation("app");
@@ -100,8 +65,7 @@ export const Composer: React.VoidFunctionComponent<{ onHide?: () => void }> = ({
             onChange: () => trigger("content"),
           })}
         />
-        <div className="action-group justify-end">
-          <Button onClick={onHide}>{t("cancel")}</Button>
+        <div className="action-group">
           <Button
             htmlType="submit"
             disabled={!formState.isValid}
@@ -110,6 +74,7 @@ export const Composer: React.VoidFunctionComponent<{ onHide?: () => void }> = ({
           >
             {t("comment")}
           </Button>
+          <Button onClick={onDone}>{t("cancel")}</Button>
         </div>
       </form>
     </div>
@@ -118,4 +83,5 @@ export const Composer: React.VoidFunctionComponent<{ onHide?: () => void }> = ({
 
 export const useComposer = createModalHook("composer", Composer, {
   showClose: true,
+  size: "md",
 });

@@ -195,6 +195,8 @@ export const polls = createRouter()
           description: input.description,
         },
       });
+
+      return { description: input.description };
     },
   })
   .mutation("updateLocation", {
@@ -211,6 +213,26 @@ export const polls = createRouter()
           location: input.location,
         },
       });
+
+      return { location: input.location };
+    },
+  })
+  .mutation("updateTitle", {
+    input: z.object({
+      urlId: z.string(),
+      title: z.string(),
+    }),
+    resolve: async ({ input }) => {
+      await prisma.poll.update({
+        where: {
+          adminUrlId: input.urlId,
+        },
+        data: {
+          title: input.title,
+        },
+      });
+
+      return { title: input.title };
     },
   })
   .mutation("update", {

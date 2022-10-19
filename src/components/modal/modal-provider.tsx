@@ -1,4 +1,5 @@
 import { remove } from "js-cookie";
+import { noop } from "lodash";
 import * as React from "react";
 import { useList } from "react-use";
 
@@ -124,4 +125,37 @@ export const withModal = <P extends Record<string, unknown> = {}>(
     );
   };
   return WithModal;
+};
+
+export const createModalHook = (
+  id: string,
+  Component: React.ComponentType<{ onDone: () => void }>,
+  modalProps: ModalProps,
+) => {
+  const useModalHook = () => {
+    const modalContext = useModalContext();
+
+    return {
+      show: () => {
+        modalContext.add(id, {
+          content: (
+            <div className="p-4">
+              <Component
+                onDone={() => {
+                  modalContext.remove(id);
+                }}
+              />
+            </div>
+          ),
+          footer: null,
+          ...modalProps,
+        });
+      },
+      close: () => {
+        modalContext.remove(id);
+      },
+    };
+  };
+
+  return useModalHook;
 };

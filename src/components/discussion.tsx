@@ -26,11 +26,6 @@ import { withModal } from "./modal/modal-provider";
 import { useParticipants } from "./participants-provider";
 import { Section } from "./section";
 
-interface CommentForm {
-  authorName: string;
-  content: string;
-}
-
 const Discussion: React.VoidFunctionComponent = () => {
   const { dayjs } = useDayjs();
   const queryClient = trpc.useContext();
@@ -49,7 +44,7 @@ const Discussion: React.VoidFunctionComponent = () => {
   const composer = useComposer();
 
   const { getParticipantsForUser } = useParticipants();
-  const { user, getAlias } = useUser();
+  const { user } = useUser();
   const plausible = usePlausible();
 
   const deleteComment = trpc.useMutation("polls.comments.delete", {
