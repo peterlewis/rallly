@@ -50,7 +50,7 @@ export const Composer: React.VoidFunctionComponent<{ onDone: () => void }> = ({
       </div>
       <form className="grow space-y-2" onSubmit={submit}>
         <textarea
-          autoFocus={true}
+          data-autoFocus={true}
           readOnly={formState.isSubmitting}
           rows={3}
           onKeyPress={(e) => {

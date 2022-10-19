@@ -16,7 +16,7 @@ import { useUser } from "@/components/user-provider";
 import { useDayjs } from "@/utils/dayjs";
 import { trpc } from "@/utils/trpc";
 
-import { useComposer } from "./discussion/composer";
+import { Composer, useComposer } from "./discussion/composer";
 import { withModal } from "./modal/modal-provider";
 import { useParticipants } from "./participants-provider";
 import { Section } from "./section";

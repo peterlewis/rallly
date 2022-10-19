@@ -325,7 +325,7 @@ const useTitleDialog = createModalHook(
         <fieldset className="mb-4">
           <label>{t("title")}</label>
           <TextInput
-            autoFocus={true}
+            data-autofocus={true}
             {...register("title", {
               validate: requiredString(t("title")),
             })}

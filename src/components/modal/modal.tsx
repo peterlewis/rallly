@@ -2,6 +2,7 @@ import { Dialog } from "@headlessui/react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
+import { useMount } from "react-use";
 
 import X from "@/components/icons/x.svg";
 
@@ -39,7 +40,19 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
   visible,
   showClose,
 }) => {
-  const initialFocusRef = React.useRef<HTMLButtonElement>(null);
+  const initialFocusRef = React.useRef<HTMLElement>(null);
+
+  const modalRef = React.useRef<HTMLDivElement>(null);
+  useMount(() => {
+    if (modalRef.current) {
+      const el =
+        modalRef.current.querySelector<HTMLElement>("[data-autofocus]");
+      if (el) {
+        el.focus();
+      }
+    }
+  });
+
   const [loading, setLoading] = React.useState(false);
   return (
     <AnimatePresence>
@@ -72,6 +85,7 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
               className="relative z-50 my-8 inline-block max-w-full transform text-left align-middle"
             >
               <div
+                ref={modalRef}
                 className={clsx(
                   "max-w-full overflow-hidden rounded-md bg-white shadow-xl",
                   {
@@ -118,7 +132,6 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
                     {okText ? (
                       <Button
                         loading={loading}
-                        ref={initialFocusRef}
                         type="primary"
                         onClick={async () => {
                           setLoading(true);
