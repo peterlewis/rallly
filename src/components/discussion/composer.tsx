@@ -82,7 +82,4 @@ export const Composer: React.VoidFunctionComponent<{ onDone: () => void }> = ({
   );
 };
 
-export const useComposer = createModalHook("composer", Composer, {
-  showClose: true,
-  size: "md",
-});
+export const useComposer = createModalHook("composer", Composer);

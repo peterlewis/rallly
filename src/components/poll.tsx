@@ -344,10 +344,6 @@ const useTitleDialog = createModalHook(
       </form>
     );
   },
-  {
-    showClose: true,
-    size: "sm",
-  },
 );
 
 const useDeleteDialog = createModalHook(
@@ -388,10 +384,6 @@ const useDeleteDialog = createModalHook(
         </div>
       </div>
     );
-  },
-  {
-    showClose: true,
-    size: "sm",
   },
 );
 const LocationSection = () => {
@@ -476,14 +468,20 @@ const PollPage: NextPage = () => {
                 label={t("editTitle")}
                 icon={Pencil}
                 onClick={() => {
-                  titleDialog.show();
+                  titleDialog.show({
+                    showClose: true,
+                    size: "sm",
+                  });
                 }}
               />
               <DropdownItem
                 label={t("delete")}
                 icon={Trash}
                 onClick={() => {
-                  deleteDialog.show();
+                  deleteDialog.show({
+                    showClose: true,
+                    size: "sm",
+                  });
                 }}
               />
             </Dropdown>

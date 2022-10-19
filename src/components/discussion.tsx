@@ -1,9 +1,6 @@
-import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import { usePlausible } from "next-plausible";
 import * as React from "react";
-import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/button";
 import CompactButton from "@/components/compact-button";
@@ -12,16 +9,14 @@ import Chat from "@/components/icons/chat.svg";
 import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
 import Plus from "@/components/icons/plus.svg";
 import Trash from "@/components/icons/trash.svg";
-import { NameInput } from "@/components/name-input";
 import TruncatedLinkify from "@/components/poll/truncated-linkify";
 import UserAvatar from "@/components/poll/user-avatar";
 import { usePoll } from "@/components/poll-provider";
 import { useUser } from "@/components/user-provider";
 import { useDayjs } from "@/utils/dayjs";
-import { requiredString } from "@/utils/form-validation";
 import { trpc } from "@/utils/trpc";
 
-import { Composer, useComposer } from "./discussion/composer";
+import { useComposer } from "./discussion/composer";
 import { withModal } from "./modal/modal-provider";
 import { useParticipants } from "./participants-provider";
 import { Section } from "./section";
@@ -77,7 +72,10 @@ const Discussion: React.VoidFunctionComponent = () => {
         <Button
           icon={<Plus />}
           onClick={() => {
-            composer.show({ onHide: () => composer.close() });
+            composer.show({
+              showClose: true,
+              size: "md",
+            });
           }}
         >
           {t("leaveAComment")}
@@ -159,33 +157,9 @@ const Discussion: React.VoidFunctionComponent = () => {
         </div>
       ) : (
         <div className="rounded-md p-4 text-center text-slate-400">
-          No comments
+          {t("noComments")}
         </div>
       )}
-      {/* <form
-        onSubmit={handleSubmit(async ({ authorName, content }) => {
-          await addComment.mutateAsync({ authorName, content, pollId });
-          reset({ authorName, content: "" });
-        })}
-        className="relative rounded-md border bg-white p-4 shadow-sm"
-      >
-        <textarea
-          id="comment"
-          rows={2}
-          placeholder={t("commentPlaceholder")}
-          className="w-full scroll-pb-16 rounded-md border border-gray-200 p-3 pb-16 shadow-sm placeholder:text-slate-500/75 focus:ring-indigo-500"
-          {...register("content", { validate: requiredString })}
-        />
-        <div className="bottom- absolute left-3 flex w-full">
-          <Button
-            htmlType="submit"
-            type="primary"
-            loading={formState.isSubmitting}
-          >
-            {t("comment")}
-          </Button>
-        </div>
-      </form> */}
     </Section>
   );
 };

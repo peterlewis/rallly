@@ -19,7 +19,7 @@ interface ModalConfig extends ModalProps {
 const ModalContext =
   React.createContext<{
     render: (el: ModalConfig) => void;
-    add: (id: string, el: ModalConfig) => void;
+    add: (id: string, el: React.ReactNode, config?: ModalConfig) => void;
     remove: (id: string) => void;
   } | null>(null);
 
@@ -34,9 +34,9 @@ const ModalProvider: React.VoidFunctionComponent<ModalProviderProps> = ({
 }) => {
   const [modals, { push, removeAt, updateAt }] = useList<ModalConfig>([]);
 
-  const [modalById, setModalById] = React.useState<Record<string, ModalConfig>>(
-    {},
-  );
+  const [modalById, setModalById] = React.useState<
+    Record<string, { content: React.ReactNode; config?: ModalConfig }>
+  >({});
 
   const removeModalAt = (index: number) => {
     updateAt(index, { ...modals[index], visible: false });
@@ -60,29 +60,21 @@ const ModalProvider: React.VoidFunctionComponent<ModalProviderProps> = ({
         render: (props) => {
           push(props);
         },
-        add: (id: string, props: ModalConfig) => {
-          setModalById({ ...modalById, [id]: props });
+        add: (id: string, content: React.ReactNode, config?: ModalConfig) => {
+          setModalById({ ...modalById, [id]: { content, config } });
         },
         remove,
       }}
     >
       {children}
-      {Object.entries(modalById).map(([id, props]) => (
+      {Object.entries(modalById).map(([id, modal]) => (
         <Modal
           key={id}
           visible={true}
-          {...props}
-          content={
-            typeof props.content === "function"
-              ? props.content({ close: () => remove(id) })
-              : props.content
-          }
-          onOk={() => {
-            props.onOk?.();
-            remove(id);
-          }}
+          {...modal.config}
+          content={modal.content}
+          footer={null}
           onCancel={() => {
-            props.onCancel?.();
             remove(id);
           }}
         />
@@ -130,26 +122,23 @@ export const withModal = <P extends Record<string, unknown> = {}>(
 export const createModalHook = (
   id: string,
   Component: React.ComponentType<{ onDone: () => void }>,
-  modalProps?: ModalProps,
 ) => {
   const useModalHook = () => {
     const modalContext = useModalContext();
 
     return {
-      show: () => {
-        modalContext.add(id, {
-          content: (
-            <div className="p-4">
-              <Component
-                onDone={() => {
-                  modalContext.remove(id);
-                }}
-              />
-            </div>
-          ),
-          footer: null,
-          ...modalProps,
-        });
+      show: (config?: ModalProps) => {
+        modalContext.add(
+          id,
+          <div className="p-4">
+            <Component
+              onDone={() => {
+                modalContext.remove(id);
+              }}
+            />
+          </div>,
+          config,
+        );
       },
       close: () => {
         modalContext.remove(id);
