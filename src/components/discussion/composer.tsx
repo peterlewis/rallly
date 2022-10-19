@@ -50,6 +50,7 @@ export const Composer: React.VoidFunctionComponent<{ onDone: () => void }> = ({
       </div>
       <form className="grow space-y-2" onSubmit={submit}>
         <textarea
+          autoFocus={true}
           readOnly={formState.isSubmitting}
           rows={3}
           onKeyPress={(e) => {
@@ -65,7 +66,8 @@ export const Composer: React.VoidFunctionComponent<{ onDone: () => void }> = ({
             onChange: () => trigger("content"),
           })}
         />
-        <div className="action-group">
+        <div className="action-group justify-end">
+          <Button onClick={onDone}>{t("cancel")}</Button>
           <Button
             htmlType="submit"
             disabled={!formState.isValid}
@@ -74,7 +76,6 @@ export const Composer: React.VoidFunctionComponent<{ onDone: () => void }> = ({
           >
             {t("comment")}
           </Button>
-          <Button onClick={onDone}>{t("cancel")}</Button>
         </div>
       </form>
     </div>

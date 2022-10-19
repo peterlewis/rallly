@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "next-i18next";
 import { usePlausible } from "next-plausible";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -244,25 +244,15 @@ const LocationForm: React.VoidFunctionComponent<{ onClose: () => void }> = ({
   onClose,
 }) => {
   const { t } = useTranslation("app");
-  const { poll } = usePoll();
+  const { poll, updatePoll } = usePoll();
   const { register, handleSubmit, formState } = useForm<{
     location: string;
   }>({
     defaultValues: { location: poll.location ?? "" },
   });
-  const queryClient = trpc.useContext();
   const updateLocation = trpc.useMutation("polls.updateLocation", {
     onMutate: ({ location }) => {
-      queryClient.setQueryData(
-        ["polls.get", { urlId: poll.adminUrlId, admin: true }],
-        (poll) => {
-          if (!poll) {
-            throw new Error("Expected poll to be set");
-          }
-
-          return { ...poll, location };
-        },
-      );
+      updatePoll({ ...poll, location });
     },
   });
 
@@ -309,26 +299,16 @@ const useTitleDialog = createModalHook(
   "titleDialog",
   function TitleDialog({ onDone }) {
     const { t } = useTranslation("app");
-    const { poll } = usePoll();
+    const { poll, updatePoll } = usePoll();
     const { register, handleSubmit, formState } = useForm<{ title: string }>({
       defaultValues: {
         title: poll.title,
       },
     });
 
-    const queryClient = trpc.useContext();
-
     const updateTitle = trpc.useMutation("polls.updateTitle", {
       onSuccess: ({ title }) => {
-        queryClient.setQueryData(
-          ["polls.get", { urlId: poll.adminUrlId, admin: true }],
-          (poll) => {
-            if (!poll) {
-              throw new Error("Poll should be defined");
-            }
-            return { ...poll, title };
-          },
-        );
+        updatePoll({ ...poll, title });
       },
     });
 
@@ -370,6 +350,50 @@ const useTitleDialog = createModalHook(
   },
 );
 
+const useDeleteDialog = createModalHook(
+  "deleteDialog",
+  function DeleteDialog({ onDone }) {
+    const { t } = useTranslation("app");
+    const { poll, updatePoll } = usePoll();
+    const deletePoll = trpc.useMutation("polls.delete", {
+      onSuccess: () => {
+        onDone();
+        updatePoll({ ...poll, deleted: true });
+      },
+    });
+
+    return (
+      <div>
+        <h3>{t("areYouSure")}</h3>
+        <p>
+          <Trans
+            t={t}
+            i18nKey="deletePollConfirm"
+            values={{ title: poll.title }}
+            components={{ b: <strong /> }}
+          />
+        </p>
+        <div className="action-group">
+          <Button
+            type="danger"
+            loading={deletePoll.isLoading}
+            onClick={() => {
+              deletePoll.mutate({ urlId: poll.adminUrlId });
+            }}
+            htmlType="submit"
+          >
+            {t("delete")}
+          </Button>
+          <Button onClick={onDone}>{t("cancel")}</Button>
+        </div>
+      </div>
+    );
+  },
+  {
+    showClose: true,
+    size: "sm",
+  },
+);
 const LocationSection = () => {
   const { t } = useTranslation("app");
   const { poll } = usePoll();
@@ -413,6 +437,8 @@ const PollPage: NextPage = () => {
 
   const titleDialog = useTitleDialog();
 
+  const deleteDialog = useDeleteDialog();
+
   React.useEffect(() => {
     if (router.query.unsubscribe) {
       updatePoll.mutate(
@@ -453,7 +479,13 @@ const PollPage: NextPage = () => {
                   titleDialog.show();
                 }}
               />
-              <DropdownItem label={t("delete")} icon={Trash} />
+              <DropdownItem
+                label={t("delete")}
+                icon={Trash}
+                onClick={() => {
+                  deleteDialog.show();
+                }}
+              />
             </Dropdown>
           </div>
         }

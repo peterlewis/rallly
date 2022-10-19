@@ -129,6 +129,7 @@
   "editVotes": "Edit votes",
   "poll": "Poll",
   "editTitle": "Edit title",
+  "deletePollConfirm": "All data related to this poll will be deleted.",
   "pollCount_other": "{{count}} polls",
   "selectAvailability": "Select availability",
   "pollCount": "{{count}} poll",

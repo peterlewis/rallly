@@ -13,7 +13,7 @@ export interface ModalProps {
   title?: React.ReactNode;
   okText?: string;
   cancelText?: string;
-  size?: "sm" | "md" | "lg" | "auto";
+  size?: "xs" | "sm" | "md" | "lg" | "auto";
   okButtonProps?: ButtonProps;
   onOk?: () => void | Promise<void>;
   onCancel?: () => void;
@@ -76,6 +76,7 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
                   "max-w-full overflow-hidden rounded-md bg-white shadow-xl",
                   {
                     "w-fit": size === "auto",
+                    "w-[300px]": size === "xs",
                     "w-[400px]": size === "sm",
                     "w-[600px]": size === "md",
                     "w-[800px]": size === "lg",

@@ -130,7 +130,7 @@ export const withModal = <P extends Record<string, unknown> = {}>(
 export const createModalHook = (
   id: string,
   Component: React.ComponentType<{ onDone: () => void }>,
-  modalProps: ModalProps,
+  modalProps?: ModalProps,
 ) => {
   const useModalHook = () => {
     const modalContext = useModalContext();

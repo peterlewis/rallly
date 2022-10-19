@@ -14,6 +14,7 @@ import { useRequiredContext } from "./use-required-context";
 
 type PollContextValue = {
   poll: GetPollApiResponse;
+  updatePoll: (poll: GetPollApiResponse) => void;
   urlId: string;
   targetTimeZone: string;
   setTargetTimeZone: (timeZone: string) => void;
@@ -38,6 +39,7 @@ export const PollContextProvider: React.VoidFunctionComponent<{
 
   const admin = /^\/admin/.test(asPath);
 
+  const queryClient = trpc.useContext();
   const pollQuery = trpc.useQuery(["polls.get", { urlId, admin }], {
     onError: () => {
       setNotFound(true);
@@ -73,6 +75,9 @@ export const PollContextProvider: React.VoidFunctionComponent<{
       value={{
         poll,
         urlId,
+        updatePoll: (newPoll) => {
+          queryClient.setQueryData(["polls.get", { urlId, admin }], newPoll);
+        },
         targetTimeZone,
         setTargetTimeZone,
       }}
