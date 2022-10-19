@@ -83,18 +83,9 @@ const Discussion: React.VoidFunctionComponent = () => {
   }
 
   return (
-    <div className="py-6">
-      <div className="flex items-center justify-between border-slate-300/75 py-3 font-medium text-slate-500">
-        <div className="inline-flex items-center gap-2">
-          <Chat className="h-5" />
-          {t("comments", { count: comments.length })}
-        </div>
-        <Button icon={<Plus />} type="ghost">
-          {t("leaveAComment")}
-        </Button>
-      </div>
+    <div className="">
       {comments.length ? (
-        <div className="mb-4 space-y-4 rounded-md bg-gray-100 p-4">
+        <div className="mb-4 space-y-4">
           {comments.map((comment) => {
             const canDelete =
               poll.admin || !comment.userId || comment.userId === user.id;
@@ -131,7 +122,7 @@ const Discussion: React.VoidFunctionComponent = () => {
                       />
                     </Dropdown>
                   </div>
-                  <div className=" w-fit whitespace-pre-wrap rounded-xl bg-white px-3 py-2">
+                  <div className=" w-fit whitespace-pre-wrap rounded-xl bg-gray-100 px-3 py-2">
                     <TruncatedLinkify>{comment.content}</TruncatedLinkify>
                   </div>
                 </div>
@@ -139,7 +130,11 @@ const Discussion: React.VoidFunctionComponent = () => {
             );
           })}
         </div>
-      ) : null}
+      ) : (
+        <div className="rounded-md p-4 text-center text-slate-400">
+          No comments
+        </div>
+      )}
       {/* <form
         onSubmit={handleSubmit(async ({ authorName, content }) => {
           await addComment.mutateAsync({ authorName, content, pollId });

@@ -71,7 +71,9 @@ const NotificationsToggle: React.VoidFunctionComponent = () => {
             openLoginModal();
           }
         }}
-      />
+      >
+        {t("notifications")}
+      </Button>
     </Tooltip>
   );
 };

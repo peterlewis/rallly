@@ -14,22 +14,29 @@ import Discussion from "@/components/discussion";
 import Bell from "@/components/icons/bell.svg";
 import Calendar from "@/components/icons/calendar.svg";
 import Chart from "@/components/icons/chart.svg";
+import Chat from "@/components/icons/chat.svg";
 import ClipboardCheck from "@/components/icons/clipboard-check.svg";
 import ClipboardCopy from "@/components/icons/clipboard-copy.svg";
-import Exclamation from "@/components/icons/exclamation.svg";
+import DocumentText from "@/components/icons/document-text.svg";
+import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
 import LinkIcon from "@/components/icons/link.svg";
+import LocationMarker from "@/components/icons/location-marker.svg";
 import LockClosed from "@/components/icons/lock-closed.svg";
 import Pencil from "@/components/icons/pencil.svg";
+import Plus from "@/components/icons/plus.svg";
 import Share from "@/components/icons/share.svg";
 import UserGroup from "@/components/icons/user-group.svg";
 import X from "@/components/icons/x.svg";
 import { preventWidows } from "@/utils/prevent-widows";
 
-import { AppLayout, AppLayoutHeading } from "./app-layout";
+import poll from "../pages/poll";
+import { DayjsProvider } from "../utils/dayjs";
+import { AppLayout, AppLayoutHeading, NewLayout } from "./app-layout";
 import { useLoginModal } from "./auth/login-modal";
 import { Button } from "./button";
 import CompactButton from "./compact-button";
 import { LinkText } from "./link-text";
+import ModalProvider from "./modal/modal-provider";
 import { useParticipants } from "./participants-provider";
 import { ConnectedPoll } from "./poll/grid-view-poll";
 import NotificationsToggle from "./poll/notifications-toggle";
@@ -78,9 +85,9 @@ const SectionHeading: React.VoidFunctionComponent<SectionHeadingProps> = ({
   actions,
 }) => {
   return (
-    <div className="flex h-9 items-start justify-between">
-      <div className="inline-flex items-center gap-2 font-medium text-primary-500">
-        <Icon className="h-5" />
+    <div className="mb-2 flex h-9 items-start justify-between">
+      <div className="inline-flex items-center gap-2 text-lg text-primary-500">
+        <Icon className="h-6" />
         {title}
       </div>
       {actions}
@@ -88,17 +95,23 @@ const SectionHeading: React.VoidFunctionComponent<SectionHeadingProps> = ({
   );
 };
 
-const Section: React.VoidFunctionComponent<
-  React.PropsWithChildren<{
-    title: string;
-    icon: React.ComponentType<{ className?: string }>;
-    bordered?: boolean;
-    actions?: React.ReactNode;
-    className?: string;
-  }>
-> = ({ bordered, className, title, icon, actions, children }) => {
+type SectionProps = React.PropsWithChildren<{
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  bordered?: boolean;
+  actions?: React.ReactNode;
+  className?: string;
+}>;
+const Section: React.VoidFunctionComponent<SectionProps> = ({
+  bordered,
+  className,
+  title,
+  icon,
+  actions,
+  children,
+}) => {
   return (
-    <div className={className}>
+    <div className={clsx("py-4", className)}>
       <SectionHeading title={title} icon={icon} actions={actions} />
       {children}
     </div>
@@ -184,15 +197,15 @@ const ClipboardLink: React.VoidFunctionComponent<{
   );
 };
 
-const DetailsSection = () => {
+const EditableSection: React.VoidFunctionComponent<SectionProps> = ({
+  children,
+  ...props
+}) => {
   const [isEditing, setEditing] = React.useState(false);
-  const { poll } = usePoll();
   const { t } = useTranslation("app");
   return (
     <Section
-      title="Details"
-      icon={Calendar}
-      bordered={isEditing}
+      {...props}
       actions={
         isEditing ? null : (
           <Button
@@ -201,27 +214,15 @@ const DetailsSection = () => {
             }}
             icon={<Pencil />}
           >
-            Edit details
+            Edit
           </Button>
         )
       }
     >
-      <div className="divide-y">
-        <FormField name={t("title")}>
-          <TextInput defaultValue={poll.title} />
-        </FormField>
-        <FormField name={t("location")}>
-          <TextInput
-            defaultValue={poll.location ?? ""}
-            placeholder={t("No location")}
-          />
-        </FormField>
-        <FormField name={t("description")}>
-          <textarea className="input w-full">{poll.description}</textarea>
-        </FormField>
-      </div>
+      {children}
       {isEditing ? (
-        <div className="action-group mt-4 justify-end">
+        <div className="action-group mt-4">
+          <Button type="primary">{t("save")}</Button>
           <Button
             onClick={() => {
               setEditing(false);
@@ -229,10 +230,41 @@ const DetailsSection = () => {
           >
             {t("cancel")}
           </Button>
-          <Button type="primary">{t("save")}</Button>
         </div>
       ) : null}
     </Section>
+  );
+};
+
+const DescriptionSection = () => {
+  const { t } = useTranslation("app");
+  const { poll } = usePoll();
+  return (
+    <EditableSection icon={DocumentText} title={t("description")}>
+      <div
+        className={clsx("text-lg", {
+          "text-slate-400": !poll.description,
+        })}
+      >
+        {poll.description || "Not specified"}
+      </div>
+    </EditableSection>
+  );
+};
+
+const LocationSection = () => {
+  const { t } = useTranslation("app");
+  const { poll } = usePoll();
+  return (
+    <EditableSection icon={LocationMarker} title={t("location")}>
+      <div
+        className={clsx("text-lg", {
+          "text-slate-400": !poll.location,
+        })}
+      >
+        {poll.location || "Not specified"}
+      </div>
+    </EditableSection>
   );
 };
 
@@ -297,14 +329,6 @@ const AdminPanel: React.VoidFunctionComponent<{ children?: React.ReactNode }> =
             </div>
           </div>
         </div> */}
-        <div className="mb-6 flex justify-between gap-2 border-b border-dashed py-3">
-          <Button type="ghost">&larr; Events</Button>
-          <div className="flex gap-2">
-            <Button icon={<Share />} type="ghost">
-              {t("share")}
-            </Button>
-          </div>
-        </div>
         <div>{children}</div>
       </div>
     );
@@ -345,34 +369,35 @@ const PollPage: NextPage = () => {
   );
 
   return (
-    <AppLayout
-      hideBreadcrumbs={!poll.admin}
-      breadcrumbs={[{ title: <>&larr; {t("meetingPolls")}</>, href: "/polls" }]}
-      title={poll.title}
-    >
-      <UserAvatarProvider seed={poll.id} names={names}>
-        <Head>
-          <title>{poll.title}</title>
-          <meta name="robots" content="noindex,nofollow" />
-        </Head>
-        <div className="max-w-full sm:space-y-4">
-          <AdminPanel>
-            {poll.closed ? (
-              <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
-                <div className="mr-2 rounded-md">
-                  <LockClosed className="w-6" />
-                </div>
-                <div>{t("pollHasBeenLocked")}</div>
-              </div>
-            ) : null}
-            <div className="space-y-6">
-              <Section
-                title={t("Participant Link")}
-                icon={LinkIcon}
-                actions={<Button>{t("copyLink")}</Button>}
-              />
-              <DetailsSection />
-              {/* <div className="space-y-4">
+    <DayjsProvider>
+      <ModalProvider>
+        <NewLayout
+          title={poll.title}
+          actions={
+            <div className="action-group">
+              <NotificationsToggle />
+              <Button icon={<DotsHorizontal />} />
+            </div>
+          }
+          backHref="/polls"
+        >
+          <UserAvatarProvider seed={poll.id} names={names}>
+            <Head>
+              <title>{poll.title}</title>
+              <meta name="robots" content="noindex,nofollow" />
+            </Head>
+            <div className="mx-auto max-w-4xl sm:space-y-4">
+              <AdminPanel>
+                {poll.closed ? (
+                  <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
+                    <div className="mr-2 rounded-md">
+                      <LockClosed className="w-6" />
+                    </div>
+                    <div>{t("pollHasBeenLocked")}</div>
+                  </div>
+                ) : null}
+                <div className="">
+                  {/* <div className="space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
                   description={<PollSubheader />}
@@ -399,30 +424,42 @@ const PollPage: NextPage = () => {
                   <Legend />
                 </div>
               </div> */}
-              <Section
-                title={t("Poll")}
-                icon={Chart}
-                actions={
-                  <div className="action-group">
-                    <Button icon={<Pencil />}>Edit dates</Button>
+                  <div className="my-3 flex items-center gap-2">
+                    <div className="font-medium">Participant link:</div>
+                    <div className="grow rounded p-2 font-mono text-primary-500">{`${window.location.origin}/p/${poll.participantUrlId}`}</div>
+                    <Button icon={<ClipboardCopy />}>{t("copyLink")}</Button>
                   </div>
-                }
-              >
-                {participants ? <ConnectedPollViz /> : null}
-              </Section>
-              <Section
-                title={t("notifications")}
-                icon={Bell}
-                actions={<Button icon={<Bell />}>Turn notifications on</Button>}
-              >
-                You need to login to turn on notifications.
-              </Section>
-              <Discussion />
+                  <DescriptionSection />
+                  <LocationSection />
+                  <Section
+                    title={t("Poll")}
+                    icon={Chart}
+                    actions={
+                      <div className="action-group">
+                        <Button icon={<Pencil />}>Edit dates</Button>
+                      </div>
+                    }
+                  >
+                    {participants ? <ConnectedPollViz /> : null}
+                  </Section>
+                  <Section
+                    icon={Chat}
+                    title={t("comments")}
+                    actions={
+                      <Button icon={<Plus />} type="ghost">
+                        {t("leaveAComment")}
+                      </Button>
+                    }
+                  >
+                    <Discussion />
+                  </Section>
+                </div>
+              </AdminPanel>
             </div>
-          </AdminPanel>
-        </div>
-      </UserAvatarProvider>
-    </AppLayout>
+          </UserAvatarProvider>
+        </NewLayout>
+      </ModalProvider>
+    </DayjsProvider>
   );
 };
 

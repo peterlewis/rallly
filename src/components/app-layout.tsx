@@ -9,6 +9,7 @@ import { useScroll } from "react-use";
 
 import Adjustments from "@/components/icons/adjustments.svg";
 import Cash from "@/components/icons/cash.svg";
+import ChevronLeft from "@/components/icons/chevron-left.svg";
 import ChevronRight from "@/components/icons/chevron-right.svg";
 import Discord from "@/components/icons/discord.svg";
 import Github from "@/components/icons/github.svg";
@@ -25,10 +26,12 @@ import Logo from "~/public/logo.svg";
 
 import { DayjsProvider } from "../utils/dayjs";
 import { useLoginModal } from "./auth/login-modal";
+import { Button } from "./button";
 import Dropdown, { DropdownItem, DropdownProps } from "./dropdown";
 import ModalProvider, { useModalContext } from "./modal/modal-provider";
 import Popover from "./popover";
 import Preferences from "./preferences";
+import { Sticky } from "./sticky";
 import { IfGuest, useUser } from "./user-provider";
 
 const Footer: React.VoidFunctionComponent = () => {
@@ -153,10 +156,9 @@ export const AppLayoutHeading: React.VoidFunctionComponent<{
   );
 };
 
-const GuestSessionDropdown: React.VoidFunctionComponent<DropdownProps> = ({
-  children,
-  ...forwardProps
-}) => {
+const GuestSessionDropdown: React.VoidFunctionComponent<
+  Omit<DropdownProps, "trigger">
+> = ({ children, ...forwardProps }) => {
   const { user } = useUser();
   const { t } = useTranslation("app");
   const modalContext = useModalContext();
@@ -242,10 +244,9 @@ const GuestSessionDropdown: React.VoidFunctionComponent<DropdownProps> = ({
   );
 };
 
-const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
-  children,
-  ...forwardProps
-}) => {
+const UserDropdown: React.VoidFunctionComponent<
+  Omit<DropdownProps, "trigger">
+> = ({ children, ...forwardProps }) => {
   const { t } = useTranslation("app");
   const { user, getAlias } = useUser();
 
@@ -256,12 +257,8 @@ const UserDropdown: React.VoidFunctionComponent<DropdownProps> = ({
   return (
     <Dropdown
       {...forwardProps}
-      trigger={
-        <NavigationButton>
-          <UserCircle className="h-5 opacity-75" />
-          <span className="ml-2">{getAlias()}</span>
-        </NavigationButton>
-      }
+      placement="bottom-start"
+      trigger={<Button icon={<UserCircle />}>{getAlias()}</Button>}
     >
       {children}
       <DropdownItem href="/profile" icon={User} label={t("profile")} />
@@ -493,5 +490,38 @@ export const AppLayout: React.VFC<{
         </div>
       </ModalProvider>
     </DayjsProvider>
+  );
+};
+
+export const NewLayout: React.VoidFunctionComponent<{
+  title?: React.ReactNode;
+  backHref?: string;
+  actions?: React.ReactNode;
+  children?: React.ReactNode;
+}> = ({ title, backHref, actions, children }) => {
+  const { t } = useTranslation("app");
+  return (
+    <div>
+      <div className="bg-white/90">
+        <div className="mx-auto">
+          <div className="flex items-center justify-between px-4 py-3">
+            <Link href="/polls">
+              <a>
+                <Logo className="inline-block h-6 text-primary-500" />
+              </a>
+            </Link>
+            <div className="action-group">
+              <UserDropdown />
+              <Button icon={<Menu />} />
+            </div>
+          </div>
+          <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
+            <div className="text-3xl font-bold">{title}</div>
+            <div>{actions}</div>
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto max-w-4xl px-4">{children}</div>
+    </div>
   );
 };
