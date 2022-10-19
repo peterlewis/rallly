@@ -45,7 +45,7 @@ export const GridOption: React.VoidFunctionComponent<GridPollOptionProps> = ({
   const { dayjs } = useDayjs();
   const date = dayjs(option.type === "date" ? option.date : option.start);
   return (
-    <div className={clsx("text-center")}>
+    <div className={clsx("border-r text-center")}>
       <div className="space-y-2 py-3">
         {suffix ? (
           <div className="flex h-7 items-center justify-center">{suffix}</div>
@@ -82,7 +82,7 @@ const NavigationControl: React.VoidFunctionComponent<{
   const hasReachedEnd = left >= maxValue;
   const didNotScroll = left === 0;
   return (
-    <div className="flex h-full grow touch-none select-none items-center border-b border-white bg-gray-200/30 p-2">
+    <div className="flex h-full grow touch-none select-none items-center border-b p-2">
       <div className="grow px-3">
         <CustomScrollbar
           value={left}

@@ -5,7 +5,6 @@ import Plus from "@/components/icons/plus.svg";
 import { Button } from "../../button";
 import CompactButton from "../../compact-button";
 import { ScrollSync } from "../../scroll-sync";
-import { SegmentedButton, SegmentedButtonGroup } from "../../segmented-button";
 import { GridContext, useGrid } from "../grid-view-poll";
 import { usePollStateContext } from "../poll-viz";
 import UserAvatar from "../user-avatar";
@@ -14,7 +13,6 @@ import { GridHeaderLayout } from "./grid/grid-header-layout";
 import {
   GridPollOptionList,
   GridPollOptionsListInput,
-  GridPollOptionsListValue,
 } from "./grid/grid-options";
 
 const GridHeader: React.VoidFunctionComponent = () => {
@@ -24,10 +22,7 @@ const GridHeader: React.VoidFunctionComponent = () => {
     setState,
     options,
     createParticipant,
-    deleteParticipant,
-    renameParticipant,
     updateParticipant,
-    getParticipant,
     participants,
   } = usePollStateContext();
   switch (state.type) {
@@ -216,7 +211,10 @@ export const PollVizGrid: React.VoidFunctionComponent = () => {
   return (
     <GridContext.Provider value={props}>
       <ScrollSync>
-        <div className="max-w-full rounded-md bg-gray-50" ref={ref}>
+        <div
+          className="max-w-full rounded-md border bg-white shadow-sm"
+          ref={ref}
+        >
           <GridHeader />
           <GridBody
             className="overflow-hidden rounded-b-md border-x"
