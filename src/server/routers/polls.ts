@@ -181,6 +181,38 @@ export const polls = createRouter()
       return { ...poll, admin: input.admin };
     },
   })
+  .mutation("updateDescription", {
+    input: z.object({
+      urlId: z.string(),
+      description: z.union([z.string(), z.null()]),
+    }),
+    resolve: async ({ input }) => {
+      await prisma.poll.update({
+        where: {
+          adminUrlId: input.urlId,
+        },
+        data: {
+          description: input.description,
+        },
+      });
+    },
+  })
+  .mutation("updateLocation", {
+    input: z.object({
+      urlId: z.string(),
+      location: z.union([z.string(), z.null()]),
+    }),
+    resolve: async ({ input }) => {
+      await prisma.poll.update({
+        where: {
+          adminUrlId: input.urlId,
+        },
+        data: {
+          location: input.location,
+        },
+      });
+    },
+  })
   .mutation("update", {
     input: z.object({
       urlId: z.string(),

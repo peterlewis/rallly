@@ -1,4 +1,9 @@
 import clsx from "clsx";
+import React from "react";
+
+import Pencil from "@/components/icons/pencil.svg";
+
+import { Button } from "./button";
 
 interface SectionHeadingProps {
   title: string;
@@ -23,16 +28,14 @@ const SectionHeading: React.VoidFunctionComponent<SectionHeadingProps> = ({
   );
 };
 
-type SectionProps = React.PropsWithChildren<{
+export type SectionProps = React.PropsWithChildren<{
   title: string;
   icon: React.ComponentType<{ className?: string }>;
-  bordered?: boolean;
   actions?: React.ReactNode;
   className?: string;
 }>;
 
 export const Section: React.VoidFunctionComponent<SectionProps> = ({
-  bordered,
   className,
   title,
   icon,
@@ -44,5 +47,41 @@ export const Section: React.VoidFunctionComponent<SectionProps> = ({
       <SectionHeading title={title} icon={icon} actions={actions} />
       {children}
     </div>
+  );
+};
+
+export const EditableSection: React.VoidFunctionComponent<
+  Omit<SectionProps, "children"> & {
+    editText: string;
+    children: React.ComponentType<{
+      isEditing: boolean;
+      stopEditing: () => void;
+    }>;
+  }
+> = ({ children: Component, editText, ...props }) => {
+  const [isEditing, setEditing] = React.useState(false);
+  return (
+    <Section
+      {...props}
+      actions={
+        isEditing ? null : (
+          <Button
+            onClick={() => {
+              setEditing(true);
+            }}
+            icon={<Pencil />}
+          >
+            {editText}
+          </Button>
+        )
+      }
+    >
+      <Component
+        isEditing={isEditing}
+        stopEditing={() => {
+          setEditing(false);
+        }}
+      />
+    </Section>
   );
 };
