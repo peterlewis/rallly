@@ -40,7 +40,7 @@ export const Section: React.VoidFunctionComponent<SectionProps> = ({
   children,
 }) => {
   return (
-    <div className={clsx("py-4", className)}>
+    <div className={clsx(className)}>
       <SectionHeading title={title} icon={icon} actions={actions} />
       {children}
     </div>

@@ -351,7 +351,7 @@ const PollPage: NextPage = () => {
                     <div>{t("pollHasBeenLocked")}</div>
                   </div>
                 ) : null}
-                <div className="">
+                <div className="space-y-6 py-6">
                   {/* <div className="space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
@@ -379,19 +379,17 @@ const PollPage: NextPage = () => {
                   <Legend />
                 </div>
               </div> */}
-                  <Section
-                    title={t("participantLink")}
-                    icon={LinkIcon}
-                    actions={
+                  <div className="flex w-fit items-center rounded-md bg-primary-500/5 text-primary-500">
+                    <div className="px-4 font-medium">
+                      {t("participantLink")}
+                    </div>
+                    <div className="font-mono">
+                      {`${window.location.origin}/p/${poll.participantUrlId}`}
+                    </div>
+                    <div className="ml-2 p-2">
                       <Button icon={<ClipboardCopy />}>{t("copyLink")}</Button>
-                    }
-                  >
-                    <input
-                      className="w-full rounded-sm font-mono text-xl outline-none focus:ring-2 focus:ring-offset-2"
-                      value={`${window.location.origin}/p/${poll.participantUrlId}`}
-                      readOnly={true}
-                    />
-                  </Section>
+                    </div>
+                  </div>
                   <DescriptionSection />
                   <LocationSection />
                   <Section
