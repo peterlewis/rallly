@@ -1,4 +1,5 @@
 import { Dialog } from "@headlessui/react";
+import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
 
@@ -12,6 +13,7 @@ export interface ModalProps {
   title?: React.ReactNode;
   okText?: string;
   cancelText?: string;
+  size?: "sm" | "md" | "lg";
   okButtonProps?: ButtonProps;
   onOk?: () => void | Promise<void>;
   onCancel?: () => void;
@@ -31,6 +33,7 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
   footer,
   content,
   overlayClosable,
+  size = "md",
   onCancel,
   onOk,
   visible,
@@ -68,12 +71,21 @@ const Modal: React.VoidFunctionComponent<ModalProps> = ({
               exit={{ opacity: 0, scale: 0.9 }}
               className="relative z-50 my-8 inline-block max-w-full transform text-left align-middle"
             >
-              <div className="mx-4 max-w-full overflow-hidden rounded-md bg-white shadow-xl">
+              <div
+                className={clsx(
+                  "max-w-full overflow-hidden rounded-md bg-white shadow-xl",
+                  {
+                    "w-[400px]": size === "sm",
+                    "w-[600px]": size === "md",
+                    "w-[800px]": size === "lg",
+                  },
+                )}
+              >
                 {showClose ? (
                   <CompactButton
                     icon={X}
                     onClick={onCancel}
-                    className="absolute right-6 top-2 z-10"
+                    className="absolute right-2 top-2 z-10"
                   />
                 ) : null}
                 {content ?? (

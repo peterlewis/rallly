@@ -13,6 +13,17 @@ export const comments = createRouter()
     resolve: async ({ input: { pollId } }) => {
       return await prisma.comment.findMany({
         where: { pollId },
+        select: {
+          id: true,
+          content: true,
+          userId: true,
+          user: {
+            select: {
+              name: true,
+            },
+          },
+          createdAt: true,
+        },
         orderBy: [
           {
             createdAt: "asc",
@@ -24,7 +35,7 @@ export const comments = createRouter()
   .mutation("add", {
     input: z.object({
       pollId: z.string(),
-      authorName: z.string(),
+      authorName: z.string().optional(),
       content: z.string(),
     }),
     resolve: async ({ ctx, input: { pollId, authorName, content } }) => {
@@ -32,14 +43,25 @@ export const comments = createRouter()
         data: {
           content,
           pollId,
-          authorName,
+          authorName: authorName ?? "", // TODO (Luke Vella) [2022-10-19]: Remove authorName
           userId: ctx.user.id,
+        },
+        select: {
+          id: true,
+          content: true,
+          userId: true,
+          user: {
+            select: {
+              name: true,
+            },
+          },
+          createdAt: true,
         },
       });
 
       await sendNotification(pollId, {
         type: "newComment",
-        authorName: newComment.authorName,
+        authorName: authorName || "Guest",
         comment: newComment.content,
       });
 

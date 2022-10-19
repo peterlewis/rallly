@@ -15,6 +15,7 @@ model User {
   email     String    @unique() @db.Citext
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
+  comments  Comment[]
   polls     Poll[]
 
   @@map("users")
@@ -113,6 +114,7 @@ model Comment {
   poll       Poll      @relation(fields: [pollId], references: [id])
   pollId     String    @map("poll_id")
   authorName String    @map("author_name")
+  user       User?     @relation(fields:[userId], references: [id]) 
   userId     String?   @map("user_id")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")

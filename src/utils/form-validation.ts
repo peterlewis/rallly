@@ -15,7 +15,7 @@ export const useFormValidation = () => {
   const { t } = useTranslation("app");
 
   return {
-    requiredString: (name: string) => (value: string) => {
+    requiredString: (name?: string) => (value: string) => {
       if (!value.trim()) {
         return t("requiredString", { name });
       }

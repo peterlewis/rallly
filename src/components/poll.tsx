@@ -47,6 +47,7 @@ import { useTouchBeacon } from "./poll/use-touch-beacon";
 import { UserAvatarProvider } from "./poll/user-avatar";
 import VoteIcon from "./poll/vote-icon";
 import { usePoll } from "./poll-provider";
+import { Section } from "./section";
 import { FormField } from "./settings";
 import { TextInput } from "./text-input";
 import { usePollMutations } from "./use-poll-mutations";
@@ -68,52 +69,6 @@ const Legend = () => {
         <VoteIcon type="no" />
         <span className="text-sm text-slate-500">{t("no")}</span>
       </span>
-    </div>
-  );
-};
-
-interface SectionHeadingProps {
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  active?: boolean;
-  actions?: React.ReactNode;
-}
-
-const SectionHeading: React.VoidFunctionComponent<SectionHeadingProps> = ({
-  title,
-  icon: Icon,
-  actions,
-}) => {
-  return (
-    <div className="mb-2 flex h-9 items-start justify-between">
-      <div className="inline-flex items-center gap-2 text-lg text-primary-500">
-        <Icon className="h-6" />
-        {title}
-      </div>
-      {actions}
-    </div>
-  );
-};
-
-type SectionProps = React.PropsWithChildren<{
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  bordered?: boolean;
-  actions?: React.ReactNode;
-  className?: string;
-}>;
-const Section: React.VoidFunctionComponent<SectionProps> = ({
-  bordered,
-  className,
-  title,
-  icon,
-  actions,
-  children,
-}) => {
-  return (
-    <div className={clsx("py-4", className)}>
-      <SectionHeading title={title} icon={icon} actions={actions} />
-      {children}
     </div>
   );
 };
@@ -424,11 +379,19 @@ const PollPage: NextPage = () => {
                   <Legend />
                 </div>
               </div> */}
-                  <div className="my-3 flex items-center gap-2">
-                    <div className="font-medium">Participant link:</div>
-                    <div className="grow rounded p-2 font-mono text-primary-500">{`${window.location.origin}/p/${poll.participantUrlId}`}</div>
-                    <Button icon={<ClipboardCopy />}>{t("copyLink")}</Button>
-                  </div>
+                  <Section
+                    title={t("participantLink")}
+                    icon={LinkIcon}
+                    actions={
+                      <Button icon={<ClipboardCopy />}>{t("copyLink")}</Button>
+                    }
+                  >
+                    <input
+                      className="w-full rounded-sm font-mono text-xl outline-none focus:ring-2 focus:ring-offset-2"
+                      value={`${window.location.origin}/p/${poll.participantUrlId}`}
+                      readOnly={true}
+                    />
+                  </Section>
                   <DescriptionSection />
                   <LocationSection />
                   <Section
@@ -442,17 +405,7 @@ const PollPage: NextPage = () => {
                   >
                     {participants ? <ConnectedPollViz /> : null}
                   </Section>
-                  <Section
-                    icon={Chat}
-                    title={t("comments")}
-                    actions={
-                      <Button icon={<Plus />} type="ghost">
-                        {t("leaveAComment")}
-                      </Button>
-                    }
-                  >
-                    <Discussion />
-                  </Section>
+                  <Discussion />
                 </div>
               </AdminPanel>
             </div>

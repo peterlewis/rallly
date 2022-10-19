@@ -5,21 +5,26 @@ import { usePlausible } from "next-plausible";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 
-import { useDayjs } from "../../utils/dayjs";
-import { requiredString } from "../../utils/form-validation";
-import { trpc } from "../../utils/trpc";
-import { Button } from "../button";
-import CompactButton from "../compact-button";
-import Dropdown, { DropdownItem } from "../dropdown";
-import Chat from "../icons/chat.svg";
-import DotsHorizontal from "../icons/dots-horizontal.svg";
-import Plus from "../icons/plus.svg";
-import Trash from "../icons/trash.svg";
-import { NameInput } from "../name-input";
-import TruncatedLinkify from "../poll/truncated-linkify";
-import UserAvatar from "../poll/user-avatar";
-import { usePoll } from "../poll-provider";
-import { useUser } from "../user-provider";
+import { Button } from "@/components/button";
+import CompactButton from "@/components/compact-button";
+import Dropdown, { DropdownItem } from "@/components/dropdown";
+import Chat from "@/components/icons/chat.svg";
+import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
+import Plus from "@/components/icons/plus.svg";
+import Trash from "@/components/icons/trash.svg";
+import { NameInput } from "@/components/name-input";
+import TruncatedLinkify from "@/components/poll/truncated-linkify";
+import UserAvatar from "@/components/poll/user-avatar";
+import { usePoll } from "@/components/poll-provider";
+import { useUser } from "@/components/user-provider";
+import { useDayjs } from "@/utils/dayjs";
+import { requiredString } from "@/utils/form-validation";
+import { trpc } from "@/utils/trpc";
+
+import { Composer, useComposer } from "./discussion/composer";
+import { withModal } from "./modal/modal-provider";
+import { useParticipants } from "./participants-provider";
+import { Section } from "./section";
 
 interface CommentForm {
   authorName: string;
@@ -41,20 +46,11 @@ const Discussion: React.VoidFunctionComponent = () => {
     },
   );
 
-  const { user } = useUser();
-  const plausible = usePlausible();
+  const composer = useComposer();
 
-  const addComment = trpc.useMutation("polls.comments.add", {
-    onSuccess: (newComment) => {
-      queryClient.setQueryData(
-        ["polls.comments.list", { pollId }],
-        (existingComments = []) => {
-          return [...existingComments, newComment];
-        },
-      );
-      plausible("Created comment");
-    },
-  });
+  const { getParticipantsForUser } = useParticipants();
+  const { user, getAlias } = useUser();
+  const plausible = usePlausible();
 
   const deleteComment = trpc.useMutation("polls.comments.delete", {
     onMutate: ({ commentId }) => {
@@ -70,36 +66,72 @@ const Discussion: React.VoidFunctionComponent = () => {
     },
   });
 
-  const { register, reset, control, handleSubmit, formState } =
-    useForm<CommentForm>({
-      defaultValues: {
-        authorName: "",
-        content: "",
-      },
-    });
-
   if (!comments) {
     return null;
   }
 
   return (
-    <div className="">
+    <Section
+      icon={Chat}
+      title={
+        comments.length > 0
+          ? t("commentCount", { count: comments.length })
+          : t("comments")
+      }
+      actions={
+        <Button
+          icon={<Plus />}
+          onClick={() => {
+            composer.show({ onHide: () => composer.close() });
+          }}
+        >
+          {t("leaveAComment")}
+        </Button>
+      }
+    >
       {comments.length ? (
         <div className="mb-4 space-y-4">
           {comments.map((comment) => {
             const canDelete =
               poll.admin || !comment.userId || comment.userId === user.id;
 
+            const participants = comment.userId
+              ? getParticipantsForUser(comment.userId)
+              : [];
+
             return (
               <div className="flex" key={comment.id}>
                 <div data-testid="comment" className="space-y-2">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <UserAvatar
-                      name={comment.authorName}
+                      name={
+                        comment.user?.name ??
+                        `${t("guest")} ${comment.userId?.substring(6, 11)}`
+                      }
                       showName={true}
                       isYou={user.id === comment.userId}
+                      color="bg-slate-400"
                     />
                     <div className="mb-1">
+                      <span className="mr-1 text-gray-400">&bull;</span>
+                      <span className="mr-1 rounded px-2 py-1 text-sm text-slate-500">
+                        {participants.length > 1 ? (
+                          participants.map(({ name }) => (
+                            <UserAvatar
+                              className="-ml-1 ring-2 ring-white"
+                              key={name}
+                              name={name}
+                            />
+                          ))
+                        ) : participants.length > 0 ? (
+                          <UserAvatar
+                            name={participants[0].name}
+                            showName={true}
+                          />
+                        ) : (
+                          "Not voted yet"
+                        )}
+                      </span>
                       <span className="mr-1 text-slate-400">&bull;</span>
                       <span className="text-sm text-slate-500">
                         {dayjs(new Date(comment.createdAt)).fromNow()}
@@ -111,7 +143,7 @@ const Discussion: React.VoidFunctionComponent = () => {
                     >
                       <DropdownItem
                         icon={Trash}
-                        label={t("deleteComment")}
+                        label={t("delete")}
                         disabled={!canDelete}
                         onClick={() => {
                           deleteComment.mutate({
@@ -122,7 +154,7 @@ const Discussion: React.VoidFunctionComponent = () => {
                       />
                     </Dropdown>
                   </div>
-                  <div className=" w-fit whitespace-pre-wrap rounded-xl bg-gray-100 px-3 py-2">
+                  <div className=" ml-5 w-fit whitespace-pre-wrap rounded-xl bg-gray-100 px-3 py-2">
                     <TruncatedLinkify>{comment.content}</TruncatedLinkify>
                   </div>
                 </div>
@@ -159,8 +191,8 @@ const Discussion: React.VoidFunctionComponent = () => {
           </Button>
         </div>
       </form> */}
-    </div>
+    </Section>
   );
 };
 
-export default React.memo(Discussion);
+export default withModal(Discussion);

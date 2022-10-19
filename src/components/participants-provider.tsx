@@ -11,6 +11,7 @@ const ParticipantsContext =
   React.createContext<{
     participants: Array<Participant & { votes: Vote[] }>;
     getParticipants: (optionId: string, voteType: VoteType) => Participant[];
+    getParticipantsForUser: (userId: string) => Participant[];
   } | null>(null);
 
 export const useParticipants = () => {
@@ -43,12 +44,18 @@ export const ParticipantsProvider: React.VoidFunctionComponent<{
     });
   };
 
+  const getParticipantsForUser = (userId: string): Participant[] => {
+    return participants?.filter((p) => p.userId === userId) ?? [];
+  };
+
   if (!participants) {
     return <FullPageLoader>{t("loadingParticipants")}</FullPageLoader>;
   }
 
   return (
-    <ParticipantsContext.Provider value={{ participants, getParticipants }}>
+    <ParticipantsContext.Provider
+      value={{ participants, getParticipants, getParticipantsForUser }}
+    >
       {children}
     </ParticipantsContext.Provider>
   );
