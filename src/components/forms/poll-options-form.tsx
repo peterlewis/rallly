@@ -30,7 +30,6 @@ const PollOptionsForm: React.VoidFunctionComponent<
   PollFormProps<PollOptionsData> & { title?: string }
 > = ({ formId, defaultValues, onSubmit, onChange, title }) => {
   const { t } = useTranslation("app");
-  const isWideScreen = useWideScreen();
   const { handleSubmit, watch, setValue, formState } = useForm<PollOptionsData>(
     {
       defaultValues,
@@ -55,18 +54,15 @@ const PollOptionsForm: React.VoidFunctionComponent<
         value: "month",
         Component: MonthCalendar,
       },
-    ];
-
-    if (isWideScreen) {
-      res.push({
+      {
         label: t("weekView"),
         value: "week",
         Component: WeekCalendar,
-      });
-    }
+      },
+    ];
 
     return res;
-  }, [isWideScreen, t]);
+  }, [t]);
 
   const watchView = watch("view");
 

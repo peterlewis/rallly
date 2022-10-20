@@ -4,7 +4,6 @@ import { Dayjs } from "dayjs";
 import { useTranslation } from "next-i18next";
 import React from "react";
 
-import Clock from "@/components/icons/clock.svg";
 import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
 import Plus from "@/components/icons/plus-sm.svg";
 
@@ -92,9 +91,6 @@ const TimeOption: React.VoidFunctionComponent<{ start: Dayjs; end: Dayjs }> = ({
 }) => {
   return (
     <div className="flex items-center gap-2 font-semibold leading-none sm:text-lg">
-      <div>
-        <Clock className="h-6 text-gray-300" />
-      </div>
       <div>{`${start.format("LT")} - ${end.format("LT")}`}</div>
     </div>
   );
@@ -161,18 +157,21 @@ const OptionList: React.VoidFunctionComponent<OptionListProps> = ({
   const { toggle } = useVoteState();
 
   return (
-    <div className="divide-y">
+    <div className="relative divide-y overflow-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-400/75">
       {Object.entries(groups).map(([group, options]) => {
         const day =
           options[0].type === "date" ? options[0].date : options[0].start;
         return (
-          <div key={group}>
+          <div key={group} className="bg-gray-100">
             <Sticky
-              top={100}
+              top={0}
               className={(isPinned) =>
-                clsx("z-20 border-b bg-gray-100/80 py-2 px-4 font-semibold", {
-                  "backdrop-blur-md": isPinned,
-                })
+                clsx(
+                  "z-20 border-b bg-gray-100/80 py-2 px-4 font-semibold backdrop-blur-md ",
+                  {
+                    "": isPinned,
+                  },
+                )
               }
             >
               {options[0].type === "date" ? (
@@ -183,53 +182,59 @@ const OptionList: React.VoidFunctionComponent<OptionListProps> = ({
                 </div>
               )}
             </Sticky>
-            <div className="divide-y bg-gray-100/75">
-              {options.map((option) => {
-                const vote = value?.[option.id];
-                return (
-                  <div
-                    key={option.id}
-                    className={clsx("flex gap-4 bg-white p-4", {
-                      "select-none border-l-4 active:bg-slate-500/5": onChange,
-                      "border-l-transparent": !vote,
-                      "border-l-green-400  ": vote === "yes",
-                      "border-l-amber-300  ": vote === "ifNeedBe",
-                      "border-l-slate-300 ": vote === "no",
-                    })}
-                    role={onChange ? "button" : undefined}
-                    onClick={
-                      onChange
-                        ? () => {
-                            const newValue = { ...value };
-                            newValue[option.id] = toggle(vote);
-                            onChange(newValue);
-                          }
-                        : undefined
-                    }
-                  >
-                    {onChange ? (
-                      <div className="flex h-6 items-center">
-                        <VoteSelector value={vote} />
-                      </div>
-                    ) : null}
-                    <div className="grow space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="grow">
-                          {option.type === "date" ? (
-                            <DateOption date={option.date} />
-                          ) : (
-                            <TimeOption start={option.start} end={option.end} />
-                          )}
+            <div className="p-2">
+              <div className="divide-y overflow-hidden rounded-md border bg-white">
+                {options.map((option) => {
+                  const vote = value?.[option.id];
+                  return (
+                    <div
+                      key={option.id}
+                      className={clsx("flex gap-4 bg-white p-4", {
+                        "select-none border-l-4 active:bg-slate-500/5":
+                          onChange,
+                        "border-l-transparent": !vote,
+                        "border-l-green-400  ": vote === "yes",
+                        "border-l-amber-300  ": vote === "ifNeedBe",
+                        "border-l-slate-300 ": vote === "no",
+                      })}
+                      role={onChange ? "button" : undefined}
+                      onClick={
+                        onChange
+                          ? () => {
+                              const newValue = { ...value };
+                              newValue[option.id] = toggle(vote);
+                              onChange(newValue);
+                            }
+                          : undefined
+                      }
+                    >
+                      {onChange ? (
+                        <div className="flex h-6 items-center">
+                          <VoteSelector value={vote} />
                         </div>
-                        <div className="flex items-center gap-6">
-                          <ScoreSummary yesScore={option.score} />
+                      ) : null}
+                      <div className="grow space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="grow">
+                            {option.type === "date" ? (
+                              <DateOption date={option.date} />
+                            ) : (
+                              <TimeOption
+                                start={option.start}
+                                end={option.end}
+                              />
+                            )}
+                          </div>
+                          <div className="flex items-center gap-6">
+                            <ScoreSummary yesScore={option.score} />
+                          </div>
                         </div>
+                        {/* <ParticipantSummary optionId={option.id} /> */}
                       </div>
-                      {/* <ParticipantSummary optionId={option.id} /> */}
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         );

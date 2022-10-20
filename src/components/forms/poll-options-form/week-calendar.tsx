@@ -6,6 +6,7 @@ import { useMount } from "react-use";
 
 import { getDuration } from "../../../utils/date-time-utils";
 import { useDayjs } from "../../../utils/dayjs";
+import { useWideScreen } from "../../../utils/use-wide-screen";
 import DateNavigationToolbar from "./date-navigation-toolbar";
 import dayjsLocalizer from "./dayjs-localizer";
 import { DateTimeOption, DateTimePickerProps } from "./types";
@@ -30,6 +31,8 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
     setScrollToTime(dayjs(date).add(-60, "minutes").toDate());
   });
 
+  const isWidescreen = useWideScreen();
+
   return (
     <Calendar
       key={timeFormat}
@@ -48,8 +51,8 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
       onNavigate={onNavigate}
       date={date}
       className="w-full"
-      defaultView="week"
-      views={["week"]}
+      view={isWidescreen ? "week" : "day"}
+      views={["day", "week"]}
       selectable={true}
       localizer={localizer}
       onSelectEvent={(event) => {
