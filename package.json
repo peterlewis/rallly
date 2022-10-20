@@ -51,6 +51,7 @@
     "react-i18next": "^11.16.9",
     "react-linkify": "^1.0.0-alpha",
     "react-query": "^3.34.12",
+    "react-textarea-autosize": "^8.3.4",
     "react-use": "^17.3.2",
     "spacetime": "^7.1.4",
     "superjson": "^1.9.1",

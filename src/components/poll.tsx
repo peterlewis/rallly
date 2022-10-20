@@ -7,6 +7,7 @@ import { usePlausible } from "next-plausible";
 import React from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import TextareaAutosize from "react-textarea-autosize";
 
 import Discussion from "@/components/discussion";
 import Chart from "@/components/icons/chart.svg";
@@ -186,12 +187,11 @@ const DescriptionForm: React.VoidFunctionComponent<{ onDone: () => void }> = ({
       })}
       className="space-y-2"
     >
-      <textarea
+      <TextareaAutosize
         autoFocus={true}
-        rows={3}
         readOnly={formState.isSubmitting}
         placeholder={t("notSpecified")}
-        className="input w-full text-lg"
+        className="input w-full resize-none text-lg"
         {...register("description")}
       />
       <div className="action-group">
