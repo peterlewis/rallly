@@ -1,6 +1,7 @@
 import { useTranslation } from "next-i18next";
 import React from "react";
 import { useForm } from "react-hook-form";
+import TextareaAutosize from "react-textarea-autosize";
 
 import { useFormValidation } from "../../utils/form-validation";
 import { trpc } from "../../utils/trpc";
@@ -49,10 +50,11 @@ export const Composer: React.VoidFunctionComponent<{ onDone: () => void }> = ({
         <div className="inline-block h-12 w-12 rounded-full bg-slate-100" />
       </div>
       <form className="grow space-y-2" onSubmit={submit}>
-        <textarea
+        <TextareaAutosize
           data-autoFocus={true}
           readOnly={formState.isSubmitting}
-          rows={3}
+          minRows={3}
+          maxRows={12}
           onKeyPress={(e) => {
             if (e.code === "Enter" && !e.shiftKey) {
               submit();
@@ -60,7 +62,7 @@ export const Composer: React.VoidFunctionComponent<{ onDone: () => void }> = ({
             }
           }}
           placeholder={t("commentPlaceholder")}
-          className="w-full rounded border-0 text-xl placeholder:text-slate-400 focus:ring-0"
+          className="w-full resize-none rounded border-0 text-xl placeholder:text-slate-400 focus:ring-0"
           {...register("content", {
             validate: requiredString("content"),
             onChange: () => trigger("content"),
