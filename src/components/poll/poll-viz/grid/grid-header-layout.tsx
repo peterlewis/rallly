@@ -16,7 +16,7 @@ export const GridHeaderLayout: React.VoidFunctionComponent<{
     <Sticky
       top={47}
       className={(isPinned) =>
-        clsx("group z-20 border-b bg-white/90", {
+        clsx("group z-20 border-b bg-gray-100/75", {
           "rounded-t-md": !isPinned,
           "rounded-b-md": participants.length === 0,
           "shadow-[0_3px_3px_0px_rgba(0,0,0,0.02)]": isPinned,

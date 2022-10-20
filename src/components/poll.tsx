@@ -15,7 +15,9 @@ import DocumentText from "@/components/icons/document-text.svg";
 import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
 import LocationMarker from "@/components/icons/location-marker.svg";
 import LockClosed from "@/components/icons/lock-closed.svg";
+import Minus from "@/components/icons/minus.svg";
 import Pencil from "@/components/icons/pencil.svg";
+import Plus from "@/components/icons/plus.svg";
 import Trash from "@/components/icons/trash.svg";
 
 import { DayjsProvider } from "../utils/dayjs";
@@ -549,7 +551,15 @@ const PollPage: NextPage = () => {
                 icon={Chart}
                 actions={
                   <div className="action-group">
-                    <Button icon={<Pencil />}>{t("editOptions")}</Button>
+                    <Dropdown
+                      placement="bottom-end"
+                      trigger={
+                        <Button icon={<Pencil />}>{t("editOptions")}</Button>
+                      }
+                    >
+                      <DropdownItem label={t("Add options")} icon={Plus} />
+                      <DropdownItem label={t("Remove options")} icon={Minus} />
+                    </Dropdown>
                   </div>
                 }
               >
