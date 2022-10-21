@@ -10,10 +10,12 @@ import Custom404 from "../pages/404";
 import { trpc } from "../utils/trpc";
 import ErrorPage from "./error-page";
 import FullPageLoader from "./full-page-loader";
+import { PollViewOption } from "./poll/types";
 import { useRequiredContext } from "./use-required-context";
 
 type PollContextValue = {
   poll: GetPollApiResponse;
+  options: PollViewOption[];
   updatePoll: (poll: GetPollApiResponse) => void;
   urlId: string;
   targetTimeZone: string;

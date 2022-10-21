@@ -95,7 +95,7 @@ export const GridBodyRow: React.VoidFunctionComponent<{
             <div
               key={i}
               className={clsx(
-                "relative flex h-14 shrink-0 items-center justify-center border-r bg-gray-50",
+                "relative flex h-14 shrink-0 items-center justify-center border-r bg-white",
               )}
               style={{ width: columnWidth }}
             >

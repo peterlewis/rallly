@@ -7,15 +7,18 @@ import { PollContextProvider } from "@/components/poll-provider";
 import { ParticipantsProvider } from "../components/participants-provider";
 import { withUserSession } from "../components/user-provider";
 import { withSessionSsr } from "../utils/auth";
+import { DayjsProvider } from "../utils/dayjs";
 import { withPageTranslations } from "../utils/with-page-translations";
 
 const PollPageLoader: NextPage = () => {
   return (
-    <PollContextProvider>
-      <ParticipantsProvider>
-        <PollPage />
-      </ParticipantsProvider>
-    </PollContextProvider>
+    <DayjsProvider>
+      <PollContextProvider>
+        <ParticipantsProvider>
+          <PollPage />
+        </ParticipantsProvider>
+      </PollContextProvider>
+    </DayjsProvider>
   );
 };
 

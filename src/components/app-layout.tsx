@@ -502,8 +502,8 @@ export const NewLayout: React.VoidFunctionComponent<{
   const { t } = useTranslation("app");
   return (
     <div>
-      <div className="bg-white/90">
-        <div className="mx-auto">
+      <Sticky top={0} className="z-30 bg-white/90 backdrop-blur-md">
+        <div className="mx-auto max-w-4xl">
           <div className="flex items-center justify-between px-4 py-3">
             <Link href="/polls">
               <a>
@@ -520,7 +520,7 @@ export const NewLayout: React.VoidFunctionComponent<{
             <div>{actions}</div>
           </div>
         </div>
-      </div>
+      </Sticky>
       <div className="mx-auto max-w-4xl px-4">{children}</div>
     </div>
   );

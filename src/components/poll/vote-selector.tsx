@@ -68,7 +68,7 @@ export const VoteSelector = React.forwardRef<
       onFocus={onFocus}
       onBlur={onBlur}
       className={clsx(
-        "rounded-md border border-black/10 bg-white/30 p-1",
+        "rounded-md border border-black/10 bg-white/50 p-1",
         className,
       )}
       onKeyDown={onKeyDown}
@@ -86,7 +86,8 @@ export const VoteSelector = React.forwardRef<
             "border-amber-300 bg-amber-300 text-amber-100":
               value === "ifNeedBe",
             "border-slate-300 bg-slate-300 text-slate-100": value === "no",
-            "bg-white": !value,
+            "border-transparent bg-transparent": !value,
+            "shadow-sm": !!value,
           },
         )}
       >

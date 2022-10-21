@@ -1,10 +1,11 @@
+import { Option } from "@prisma/client";
 import clsx from "clsx";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import { usePlausible } from "next-plausible";
-import React from "react";
+import React, { ReactText } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import TextareaAutosize from "react-textarea-autosize";
@@ -21,13 +22,19 @@ import Pencil from "@/components/icons/pencil.svg";
 import Plus from "@/components/icons/plus.svg";
 import Trash from "@/components/icons/trash.svg";
 
-import { DayjsProvider } from "../utils/dayjs";
+import { parseValue } from "../utils/date-time-utils";
+import { DayjsProvider, useDayjs } from "../utils/dayjs";
 import { useFormValidation } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
 import { NewLayout } from "./app-layout";
 import { Button } from "./button";
 import Dropdown, { DropdownItem } from "./dropdown";
 import { createModalHook, withModal } from "./modal/modal-provider";
+import {
+  OptionList,
+  OptionListMultiSelect,
+  OptionListResults,
+} from "./option-list";
 import { useParticipants } from "./participants-provider";
 import NotificationsToggle from "./poll/notifications-toggle";
 import { ConnectedPollViz } from "./poll/poll-viz";
@@ -423,6 +430,7 @@ const PollPage: NextPage = () => {
 
   useTouchBeacon(poll.id);
 
+  const { dayjs } = useDayjs();
   const { t } = useTranslation("app");
 
   const plausible = usePlausible();
@@ -456,57 +464,60 @@ const PollPage: NextPage = () => {
   );
 
   return (
-    <DayjsProvider>
-      <NewLayout
-        title={poll.title}
-        actions={
-          <div className="action-group">
-            <NotificationsToggle />
-            <Dropdown
-              placement="bottom-end"
-              trigger={<Button icon={<DotsHorizontal />} />}
-            >
-              <DropdownItem
-                label={t("editTitle")}
-                icon={Pencil}
-                onClick={() => {
-                  titleDialog.show({
-                    showClose: true,
-                    size: "sm",
-                  });
-                }}
-              />
-              <DropdownItem
-                label={t("delete")}
-                icon={Trash}
-                onClick={() => {
-                  deleteDialog.show({
-                    showClose: true,
-                    size: "sm",
-                  });
-                }}
-              />
-            </Dropdown>
+    <NewLayout
+      title={poll.title}
+      actions={
+        <div className="action-group">
+          <div className="action-group rounded-md bg-gray-100 text-sm">
+            <div className="pl-2 font-mono text-slate-500">{`${window.location.origin}/p/${poll.participantUrlId}`}</div>
+            <Button className="rounded-l-none" icon={<ClipboardCopy />} />
           </div>
-        }
-        backHref="/polls"
-      >
-        <UserAvatarProvider seed={poll.id} names={names}>
-          <Head>
-            <title>{poll.title}</title>
-            <meta name="robots" content="noindex,nofollow" />
-          </Head>
-          <div className="mx-auto max-w-4xl sm:space-y-4">
-            {poll.closed ? (
-              <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
-                <div className="mr-2 rounded-md">
-                  <LockClosed className="w-6" />
-                </div>
-                <div>{t("pollHasBeenLocked")}</div>
+          <NotificationsToggle />
+          <Dropdown
+            placement="bottom-end"
+            trigger={<Button icon={<DotsHorizontal />} />}
+          >
+            <DropdownItem
+              label={t("editTitle")}
+              icon={Pencil}
+              onClick={() => {
+                titleDialog.show({
+                  showClose: true,
+                  size: "sm",
+                });
+              }}
+            />
+            <DropdownItem
+              label={t("delete")}
+              icon={Trash}
+              onClick={() => {
+                deleteDialog.show({
+                  showClose: true,
+                  size: "sm",
+                });
+              }}
+            />
+          </Dropdown>
+        </div>
+      }
+      backHref="/polls"
+    >
+      <UserAvatarProvider seed={poll.id} names={names}>
+        <Head>
+          <title>{poll.title}</title>
+          <meta name="robots" content="noindex,nofollow" />
+        </Head>
+        <div className="mx-auto max-w-4xl sm:space-y-4">
+          {poll.closed ? (
+            <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
+              <div className="mr-2 rounded-md">
+                <LockClosed className="w-6" />
               </div>
-            ) : null}
-            <div className="space-y-6 py-6">
-              {/* <div className="space-y-4">
+              <div>{t("pollHasBeenLocked")}</div>
+            </div>
+          ) : null}
+          <div className="space-y-6 py-6">
+            {/* <div className="space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
                   description={<PollSubheader />}
@@ -533,44 +544,81 @@ const PollPage: NextPage = () => {
                   <Legend />
                 </div>
               </div> */}
-              <div className="-mx-3 flex items-center justify-center rounded-md border">
-                <div className="px-4 font-medium text-slate-500">
-                  {t("participantLink")}
+            <DescriptionSection />
+            <LocationSection />
+            <Section
+              title={t("poll")}
+              icon={Chart}
+              actions={
+                <div className="action-group">
+                  <Dropdown
+                    placement="bottom-end"
+                    trigger={
+                      <Button icon={<Pencil />}>{t("editOptions")}</Button>
+                    }
+                  >
+                    <DropdownItem label={t("Add options")} icon={Plus} />
+                    <DropdownItem label={t("Remove options")} icon={Minus} />
+                  </Dropdown>
                 </div>
-                <div className="grow font-mono">
-                  {`${window.location.origin}/p/${poll.participantUrlId}`}
-                </div>
-                <div className="ml-2 p-2">
-                  <Button icon={<ClipboardCopy />}>{t("copyLink")}</Button>
-                </div>
-              </div>
-              <DescriptionSection />
-              <LocationSection />
-              <Section
-                title={t("poll")}
-                icon={Chart}
-                actions={
-                  <div className="action-group">
-                    <Dropdown
-                      placement="bottom-end"
-                      trigger={
-                        <Button icon={<Pencil />}>{t("editOptions")}</Button>
-                      }
-                    >
-                      <DropdownItem label={t("Add options")} icon={Plus} />
-                      <DropdownItem label={t("Remove options")} icon={Minus} />
-                    </Dropdown>
-                  </div>
-                }
-              >
-                {participants ? <ConnectedPollViz /> : null}
-              </Section>
-              <Discussion />
-            </div>
+              }
+            >
+              {participants ? <ConnectedPollViz /> : null}
+            </Section>
+            <Section
+              title={t("options")}
+              icon={Chart}
+              actions={<Button icon={<Plus />}>{t("Add options")}</Button>}
+            >
+              <Test />
+            </Section>
+            <Discussion />
           </div>
-        </UserAvatarProvider>
-      </NewLayout>
-    </DayjsProvider>
+        </div>
+      </UserAvatarProvider>
+    </NewLayout>
+  );
+};
+
+const Test = () => {
+  const { poll } = usePoll();
+  const { participants } = useParticipants();
+  const [value, setValue] = React.useState<string[]>([]);
+  return (
+    <OptionListResults
+      items={poll.options.map((option) => {
+        const parsed = parseValue(option.value);
+        const yes: string[] = [];
+        const ifNeedBe: string[] = [];
+        const no: string[] = [];
+        for (let i = 0; i < participants.length; i++) {
+          for (let j = 0; j < participants[i].votes.length; j++) {
+            if (participants[i].votes[j].optionId === option.id) {
+              switch (participants[i].votes[j].type) {
+                case "yes":
+                  yes.push(participants[i].name);
+                  break;
+                case "ifNeedBe":
+                  ifNeedBe.push(participants[i].name);
+                  break;
+                case "no":
+                  no.push(participants[i].name);
+                  break;
+              }
+            }
+          }
+        }
+        return {
+          ...parsed,
+          id: option.id,
+          yes,
+          ifNeedBe,
+          no,
+        };
+      })}
+      className="rounded-md border"
+      groupBy="date"
+    />
   );
 };
 

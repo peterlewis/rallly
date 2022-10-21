@@ -53,7 +53,8 @@ export const Composer: React.VoidFunctionComponent<{ onDone: () => void }> = ({
         <TextareaAutosize
           data-autoFocus={true}
           readOnly={formState.isSubmitting}
-          minRows={3}
+          minRows={4}
+          rows={4}
           maxRows={12}
           onKeyPress={(e) => {
             if (e.code === "Enter" && !e.shiftKey) {
