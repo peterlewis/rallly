@@ -18,11 +18,8 @@ const SectionHeading: React.VoidFunctionComponent<SectionHeadingProps> = ({
   actions,
 }) => {
   return (
-    <div className="mb-2 flex h-9 items-start justify-between">
-      <div className="inline-flex items-center gap-2 text-lg text-primary-500">
-        <Icon className="h-6" />
-        {title}
-      </div>
+    <div className="mb-3 flex items-center justify-between">
+      <div className="text-xl font-medium">{title}</div>
       {actions}
     </div>
   );
@@ -43,9 +40,9 @@ export const Section: React.VoidFunctionComponent<SectionProps> = ({
   children,
 }) => {
   return (
-    <div className={clsx(className)}>
+    <div className={clsx("", className)}>
       <SectionHeading title={title} icon={icon} actions={actions} />
-      {children}
+      <div className="">{children}</div>
     </div>
   );
 };

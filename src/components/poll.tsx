@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import TextareaAutosize from "react-textarea-autosize";
 
 import Discussion from "@/components/discussion";
+import Calendar from "@/components/icons/calendar.svg";
 import Chart from "@/components/icons/chart.svg";
 import ClipboardCopy from "@/components/icons/clipboard-copy.svg";
 import DocumentText from "@/components/icons/document-text.svg";
@@ -21,6 +22,7 @@ import Minus from "@/components/icons/minus.svg";
 import Pencil from "@/components/icons/pencil.svg";
 import Plus from "@/components/icons/plus.svg";
 import Trash from "@/components/icons/trash.svg";
+import UserGroup from "@/components/icons/user-group.svg";
 
 import { parseValue } from "../utils/date-time-utils";
 import { DayjsProvider, useDayjs } from "../utils/dayjs";
@@ -28,6 +30,7 @@ import { useFormValidation } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
 import { NewLayout } from "./app-layout";
 import { Button } from "./button";
+import CompactButton from "./compact-button";
 import Dropdown, { DropdownItem } from "./dropdown";
 import { createModalHook, withModal } from "./modal/modal-provider";
 import {
@@ -39,9 +42,10 @@ import { useParticipants } from "./participants-provider";
 import NotificationsToggle from "./poll/notifications-toggle";
 import { ConnectedPollViz } from "./poll/poll-viz";
 import { useTouchBeacon } from "./poll/use-touch-beacon";
-import { UserAvatarProvider } from "./poll/user-avatar";
+import UserAvatar, { UserAvatarProvider } from "./poll/user-avatar";
 import { usePoll } from "./poll-provider";
 import { EditableSection, Section } from "./section";
+import { Sticky } from "./sticky";
 import { TextInput } from "./text-input";
 import { usePollMutations } from "./use-poll-mutations";
 
@@ -507,7 +511,7 @@ const PollPage: NextPage = () => {
           <title>{poll.title}</title>
           <meta name="robots" content="noindex,nofollow" />
         </Head>
-        <div className="mx-auto max-w-4xl sm:space-y-4">
+        <div className="mx-auto sm:space-y-4">
           {poll.closed ? (
             <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
               <div className="mr-2 rounded-md">
@@ -516,7 +520,23 @@ const PollPage: NextPage = () => {
               <div>{t("pollHasBeenLocked")}</div>
             </div>
           ) : null}
-          <div className="space-y-6 py-6">
+          <div className="flex gap-6 py-6">
+            <div className="min-w-0 grow space-y-6">
+              <Section title={t("grid")} icon={Chart}>
+                <ConnectedPollViz />
+              </Section>
+              <Section title={t("participants")} icon={UserGroup}>
+                <Participants />
+              </Section>
+              <Discussion />
+            </div>
+            <div className="w-96 space-y-6">
+              <Section title={t("list")} icon={Chart}>
+                <div className="space-y-6">
+                  <Results />
+                </div>
+              </Section>
+            </div>
             {/* <div className="space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
@@ -544,9 +564,9 @@ const PollPage: NextPage = () => {
                   <Legend />
                 </div>
               </div> */}
-            <DescriptionSection />
-            <LocationSection />
-            <Section
+            {/* <DescriptionSection />
+            <LocationSection /> */}
+            {/* <Section
               title={t("poll")}
               icon={Chart}
               actions={
@@ -564,15 +584,7 @@ const PollPage: NextPage = () => {
               }
             >
               {participants ? <ConnectedPollViz /> : null}
-            </Section>
-            <Section
-              title={t("options")}
-              icon={Chart}
-              actions={<Button icon={<Plus />}>{t("Add options")}</Button>}
-            >
-              <Test />
-            </Section>
-            <Discussion />
+            </Section> */}
           </div>
         </div>
       </UserAvatarProvider>
@@ -580,12 +592,47 @@ const PollPage: NextPage = () => {
   );
 };
 
-const Test = () => {
+const Participants = () => {
+  const { participants } = useParticipants();
+  const { t } = useTranslation("app");
+  const { dayjs } = useDayjs();
+
+  if (participants.length === 0) {
+    return <div>No participants show participant link here</div>;
+  }
+  return (
+    <div className="divide-y rounded-md border bg-white">
+      {participants.map((participant) => {
+        return (
+          <div
+            key={participant.id}
+            className="flex items-center justify-between p-4"
+          >
+            <div>
+              <UserAvatar name={participant.name} showName={true} />
+            </div>
+            <div className="flex gap-4">
+              <div className="action-group text-slate-500">
+                <div className="text-sm">{`Responded ${dayjs(
+                  participant.createdAt,
+                ).fromNow()}`}</div>
+              </div>
+              <CompactButton icon={DotsHorizontal} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const Results = () => {
   const { poll } = usePoll();
   const { participants } = useParticipants();
   const [value, setValue] = React.useState<string[]>([]);
   return (
     <OptionListResults
+      className="rounded-md bg-gray-100 p-2"
       items={poll.options.map((option) => {
         const parsed = parseValue(option.value);
         const yes: string[] = [];
@@ -616,7 +663,6 @@ const Test = () => {
           no,
         };
       })}
-      className="rounded-md border"
       groupBy="date"
     />
   );

@@ -83,7 +83,7 @@ const Discussion: React.VoidFunctionComponent = () => {
       }
     >
       {comments.length ? (
-        <div className="mb-4 space-y-4">
+        <div className="mb-4 space-y-4 py-4">
           {comments.map((comment) => {
             const canDelete =
               poll.admin || !comment.userId || comment.userId === user.id;
@@ -92,21 +92,19 @@ const Discussion: React.VoidFunctionComponent = () => {
               ? getParticipantsForUser(comment.userId)
               : [];
 
+            const mainParticipant = participants[0];
+
             return (
               <div className="flex" key={comment.id}>
                 <div data-testid="comment" className="space-y-2">
                   <div className="flex items-center gap-2">
                     <UserAvatar
-                      name={
-                        comment.user?.name ??
-                        `${t("guest")} ${comment.userId?.substring(6, 11)}`
-                      }
+                      name={mainParticipant?.name ?? `${t("guest")}`}
                       showName={true}
                       isYou={user.id === comment.userId}
-                      color="bg-slate-400"
                     />
                     <div className="mb-1">
-                      <span className="mr-1 text-gray-400">&bull;</span>
+                      {/* <span className="mr-1 text-gray-400">&bull;</span>
                       <span className="mr-1 rounded px-2 py-1 text-sm text-slate-500">
                         {participants.length > 1 ? (
                           participants.map(({ name }) => (
@@ -124,7 +122,7 @@ const Discussion: React.VoidFunctionComponent = () => {
                         ) : (
                           "Not voted yet"
                         )}
-                      </span>
+                      </span> */}
                       <span className="mr-1 text-slate-400">&bull;</span>
                       <span className="text-sm text-slate-500">
                         {dayjs(new Date(comment.createdAt)).fromNow()}
@@ -147,7 +145,7 @@ const Discussion: React.VoidFunctionComponent = () => {
                       />
                     </Dropdown>
                   </div>
-                  <div className=" ml-5 w-fit whitespace-pre-wrap rounded-xl bg-gray-100 px-3 py-2">
+                  <div className=" ml-5 w-fit whitespace-pre-wrap rounded-md bg-white p-3 shadow-sm">
                     <TruncatedLinkify>{comment.content}</TruncatedLinkify>
                   </div>
                 </div>

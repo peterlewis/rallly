@@ -501,13 +501,13 @@ export const NewLayout: React.VoidFunctionComponent<{
 }> = ({ title, backHref, actions, children }) => {
   const { t } = useTranslation("app");
   return (
-    <div>
-      <Sticky top={0} className="z-30 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto max-w-4xl">
-          <div className="flex items-center justify-between px-4 py-3">
+    <div className="mx-auto max-w-7xl">
+      <div className="z-30 backdrop-blur-md">
+        <div className="mx-auto py-2">
+          <div className="flex items-center justify-between px-8 py-3">
             <Link href="/polls">
-              <a>
-                <Logo className="inline-block h-6 text-primary-500" />
+              <a className="text-primary-500">
+                <Logo className="inline-block h-6" />
               </a>
             </Link>
             <div className="action-group">
@@ -515,13 +515,13 @@ export const NewLayout: React.VoidFunctionComponent<{
               <Button icon={<Menu />} />
             </div>
           </div>
-          <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-            <div className="text-3xl font-bold">{title}</div>
+          <div className="mx-auto flex items-center justify-between px-8 py-3">
+            <div className="text-3xl font-semibold">{title}</div>
             <div>{actions}</div>
           </div>
         </div>
-      </Sticky>
-      <div className="mx-auto max-w-4xl px-4">{children}</div>
+      </div>
+      <div className="mx-auto px-8">{children}</div>
     </div>
   );
 };

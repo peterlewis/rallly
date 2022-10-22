@@ -14,9 +14,9 @@ export const GridHeaderLayout: React.VoidFunctionComponent<{
   const { participants } = usePollStateContext();
   return (
     <Sticky
-      top={120}
+      top={0}
       className={(isPinned) =>
-        clsx("group z-20 border-y bg-gray-100/90 backdrop-blur-md", {
+        clsx("group z-20 border-y bg-white/90 backdrop-blur-md", {
           "rounded-t-md border-t-transparent": !isPinned,
           "rounded-b-md": participants.length === 0,
           "shadow-[0_3px_3px_0px_rgba(0,0,0,0.02)]": isPinned,

@@ -1,8 +1,6 @@
 import { VoteType } from "@prisma/client";
 import clsx from "clsx";
-import dayjs, { Dayjs } from "dayjs";
 import produce from "immer";
-import { groupBy } from "lodash";
 import React from "react";
 
 import ChevronDown from "@/components/icons/chevron-down.svg";
@@ -11,7 +9,6 @@ import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
 
 import { getDuration } from "../utils/date-time-utils";
 import { useDayjs } from "../utils/dayjs";
-import { Button } from "./button";
 import CompactButton from "./compact-button";
 import UserAvatar from "./poll/user-avatar";
 import VoteIcon from "./poll/vote-icon";
@@ -91,7 +88,7 @@ export const OptionList = <T extends Option>({
   const [collapsed, setCollapsed] = React.useState<string[]>([]);
 
   return (
-    <div className={clsx("relative z-20 bg-gray-100 ", className)}>
+    <div className={clsx("relative ", className)}>
       {groupProps.groupCounts.map((count, groupIndex) => {
         const groupKey = groups[groupIndex];
         const collapsedIndex = collapsed.indexOf(groupKey);
@@ -102,8 +99,12 @@ export const OptionList = <T extends Option>({
         return (
           <div key={`group-${groupIndex}`}>
             <Sticky
-              top={120}
-              className="z-20 bg-gray-100/75 p-3 backdrop-blur-md"
+              top={0}
+              className={(isPinned) =>
+                clsx("py-3", {
+                  "z-20 bg-gray-100/75 backdrop-blur-md": isPinned,
+                })
+              }
             >
               <GroupContent
                 label={groupKey}
@@ -121,14 +122,12 @@ export const OptionList = <T extends Option>({
               />
             </Sticky>
             {!collapsed.includes(groupKey) ? (
-              <div className="bg-gray-100 px-2 pb-2">
-                <div className="divide-y overflow-hidden rounded border bg-white">
-                  {[...Array(count)].map(() => {
-                    pointer++;
-                    const item = items[pointer];
-                    return <ItemContent item={item} key={`item-${pointer}`} />;
-                  })}
-                </div>
+              <div className="divide-y overflow-hidden rounded-md border bg-white shadow-sm">
+                {[...Array(count)].map(() => {
+                  pointer++;
+                  const item = items[pointer];
+                  return <ItemContent item={item} key={`item-${pointer}`} />;
+                })}
               </div>
             ) : null}
           </div>
@@ -203,9 +202,9 @@ const FormattedOption = <T extends Option = Option>({ item }: { item: T }) => {
   }
 
   return (
-    <div className="flex items-center tabular-nums">
+    <div className="flex items-center">
       <span className="font-semibold">{dayjs(item.start).format("LT")}</span>
-      <span className="text-slate-400">&ndash;</span>
+      <span className="text-slate-300">&ndash;</span>
       <span className="text-slate-400">{dayjs(item.end).format("LT")}</span>
       <span className="ml-2 inline-flex items-center rounded bg-slate-400/10 px-1 text-sm leading-6 text-slate-400/75">
         <Clock className="mr-1 h-4" />
@@ -291,16 +290,17 @@ const ParticipantSummaryItem: React.VoidFunctionComponent<{
   );
 };
 
-export const OptionListResults = (
-  props: OptionListProps<OptionWithResults>,
-) => {
+export const OptionListResults = ({
+  showParticipants = true,
+  ...forwardProps
+}: OptionListProps<OptionWithResults> & { showParticipants?: boolean }) => {
   return (
     <OptionList
-      {...props}
+      {...forwardProps}
       groupContent={OptionListGroup}
       itemContent={({ item }) => {
         return (
-          <div className="space-y-3 p-3">
+          <div className="space-y-3 p-4">
             <div className="flex items-start justify-between gap-4">
               <FormattedOption item={item} />
               <div className="flex gap-1">
@@ -324,21 +324,27 @@ export const OptionListResults = (
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-x-4 py-3">
-              <div className="col-span-1 space-y-2">
-                {item.yes.map((name, i) => (
-                  <ParticipantSummaryItem key={i} name={name} vote="yes" />
-                ))}
+            {showParticipants ? (
+              <div className="grid grid-cols-2 gap-x-4 py-3">
+                <div className="col-span-1 space-y-2">
+                  {item.yes.map((name, i) => (
+                    <ParticipantSummaryItem key={i} name={name} vote="yes" />
+                  ))}
+                </div>
+                <div className="col-span-1 space-y-2">
+                  {item.ifNeedBe.map((name, i) => (
+                    <ParticipantSummaryItem
+                      key={i}
+                      name={name}
+                      vote="ifNeedBe"
+                    />
+                  ))}
+                  {item.no.map((name, i) => (
+                    <ParticipantSummaryItem key={i} name={name} vote="no" />
+                  ))}
+                </div>
               </div>
-              <div className="col-span-1 space-y-2">
-                {item.ifNeedBe.map((name, i) => (
-                  <ParticipantSummaryItem key={i} name={name} vote="ifNeedBe" />
-                ))}
-                {item.no.map((name, i) => (
-                  <ParticipantSummaryItem key={i} name={name} vote="no" />
-                ))}
-              </div>
-            </div>
+            ) : null}
           </div>
         );
       }}

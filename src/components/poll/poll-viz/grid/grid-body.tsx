@@ -47,7 +47,7 @@ export const GridBodyRow: React.VoidFunctionComponent<{
     >
       <div
         className={clsx(
-          "flex h-full shrink-0 items-center justify-between  space-x-2 border-l-4 border-r pr-4 pl-4",
+          "flex h-full shrink-0 items-center justify-between space-x-2  border-l-4 border-r bg-gray-50 pr-4 pl-4",
           {
             "border-l-primary-500": selected,
             "border-l-transparent": !selected,
@@ -95,7 +95,7 @@ export const GridBodyRow: React.VoidFunctionComponent<{
             <div
               key={i}
               className={clsx(
-                "relative flex h-14 shrink-0 items-center justify-center border-r bg-white",
+                "relative flex h-14 shrink-0 items-center justify-center border-r bg-gray-50",
               )}
               style={{ width: columnWidth }}
             >
@@ -112,9 +112,9 @@ export const GridBody: React.VoidFunctionComponent<{
   participants: PollViewParticipant[];
   selectedParticipantId: string | null;
   className?: string;
-}> = ({ participants, selectedParticipantId }) => {
+}> = ({ participants, selectedParticipantId, className }) => {
   return (
-    <div className="overflow-hidden bg-gray-100">
+    <div className={className}>
       <div className="divide-y">
         {participants.map((participant) => {
           return (
