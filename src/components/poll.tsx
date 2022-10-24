@@ -522,9 +522,7 @@ const PollPage: NextPage = () => {
           ) : null}
           <div className="flex gap-6 py-6">
             <div className="min-w-0 grow space-y-6">
-              <Section title={t("grid")} icon={Chart}>
-                <ConnectedPollViz />
-              </Section>
+              <ConnectedPollViz />
               <Section title={t("participants")} icon={UserGroup}>
                 <Participants />
               </Section>
@@ -532,9 +530,7 @@ const PollPage: NextPage = () => {
             </div>
             <div className="w-96 space-y-6">
               <Section title={t("list")} icon={Chart}>
-                <div className="space-y-6">
-                  <Results />
-                </div>
+                <Results />
               </Section>
             </div>
             {/* <div className="space-y-4">
@@ -632,7 +628,7 @@ const Results = () => {
   const [value, setValue] = React.useState<string[]>([]);
   return (
     <OptionListResults
-      className="rounded-md bg-gray-100 p-2"
+      className="rounded-md"
       items={poll.options.map((option) => {
         const parsed = parseValue(option.value);
         const yes: string[] = [];

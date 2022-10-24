@@ -211,10 +211,13 @@ export const PollVizGrid: React.VoidFunctionComponent = () => {
   return (
     <GridContext.Provider value={props}>
       <ScrollSync>
-        <div className="max-w-full rounded-md border" ref={ref}>
+        <div
+          className="max-w-full rounded-md border border-slate-400/20"
+          ref={ref}
+        >
           <GridHeader />
           <GridBody
-            className="overflow-hidden rounded-b-md border-x"
+            className="overflow-hidden rounded-b-md"
             participants={participants}
             selectedParticipantId={
               state.type === "select" || state.type === "edit"

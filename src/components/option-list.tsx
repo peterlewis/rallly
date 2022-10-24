@@ -102,7 +102,7 @@ export const OptionList = <T extends Option>({
               top={0}
               className={(isPinned) =>
                 clsx("py-3", {
-                  "z-20 bg-gray-100/75 backdrop-blur-md": isPinned,
+                  "z-20 bg-white/90 backdrop-blur-md": isPinned,
                 })
               }
             >
@@ -303,20 +303,20 @@ export const OptionListResults = ({
           <div className="space-y-3 p-4">
             <div className="flex items-start justify-between gap-4">
               <FormattedOption item={item} />
-              <div className="flex gap-1">
-                <div className="flex items-center gap-1 pr-2">
+              <div className="flex gap-2">
+                <div className="flex items-center gap-1">
                   <VoteIcon type="yes" />
                   <div className="text-sm font-bold tabular-nums leading-none text-slate-500">
                     {item.yes.length}
                   </div>
                 </div>
-                <div className="flex items-center gap-1 pr-2">
+                <div className="flex items-center gap-1">
                   <VoteIcon type="ifNeedBe" />
                   <div className="text-sm tabular-nums leading-none text-slate-500">
                     {item.ifNeedBe.length}
                   </div>
                 </div>
-                <div className="flex items-center gap-1 pr-2">
+                <div className="flex items-center gap-1">
                   <VoteIcon type="no" />
                   <div className="text-sm tabular-nums leading-none text-slate-500">
                     {item.no.length}

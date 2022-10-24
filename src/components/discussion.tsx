@@ -145,7 +145,7 @@ const Discussion: React.VoidFunctionComponent = () => {
                       />
                     </Dropdown>
                   </div>
-                  <div className=" ml-5 w-fit whitespace-pre-wrap rounded-md bg-white p-3 shadow-sm">
+                  <div className=" ml-5 w-fit whitespace-pre-wrap rounded-md border bg-white p-3 shadow-sm">
                     <TruncatedLinkify>{comment.content}</TruncatedLinkify>
                   </div>
                 </div>
