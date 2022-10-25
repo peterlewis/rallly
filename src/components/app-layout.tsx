@@ -482,9 +482,7 @@ export const AppLayout: React.VFC<{
             </Head>
             <MobileNavigation breadcrumbs={renderBreadcrumbs()} />
             <DesktopNavigation breadcrumbs={renderBreadcrumbs()} />
-            <div className="mx-auto max-w-4xl px-4 sm:py-4 sm:pb-8">
-              {children}
-            </div>
+            <div className="mx-auto px-4 sm:py-4 sm:pb-8">{children}</div>
           </div>
           <Footer />
         </div>
@@ -501,7 +499,7 @@ export const NewLayout: React.VoidFunctionComponent<{
 }> = ({ title, backHref, actions, children }) => {
   const { t } = useTranslation("app");
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto">
       <div className="z-30 backdrop-blur-md">
         <div className="mx-auto py-2">
           <div className="flex items-center justify-between px-8 py-3">

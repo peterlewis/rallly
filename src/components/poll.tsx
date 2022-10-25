@@ -522,17 +522,16 @@ const PollPage: NextPage = () => {
           ) : null}
           <div className="flex gap-6 py-6">
             <div className="min-w-0 grow space-y-6">
-              <ConnectedPollViz />
+              <Results />
+
+              <ResultsHorizontal />
+              {/* <ConnectedPollViz /> */}
               <Section title={t("participants")} icon={UserGroup}>
                 <Participants />
               </Section>
               <Discussion />
             </div>
-            <div className="w-96 space-y-6">
-              <Section title={t("list")} icon={Chart}>
-                <Results />
-              </Section>
-            </div>
+
             {/* <div className="space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
@@ -622,13 +621,78 @@ const Participants = () => {
   );
 };
 
+const ResultsHorizontal = () => {
+  const { poll } = usePoll();
+  const { participants } = useParticipants();
+
+  return (
+    <div className="flex divide-x overflow-hidden rounded-md border">
+      {/* <div className="shrink-0">
+        <div className="h-[115px] p-4"></div>
+        <div className="p-1">
+          {participants.map((participant) => {
+            return (
+              <div key={participant.id} className="flex h-12 items-center px-3">
+                <UserAvatar name={participant.name} showName={true} />
+              </div>
+            );
+          })}
+        </div>
+      </div> */}
+      <OptionListResults
+        orientation="horizontal"
+        groupClassName="sticky left-0 z-20 bg-gray-100/90 backdrop-blur-md"
+        items={poll.options.map((option) => {
+          const parsed = parseValue(option.value);
+          const yes: string[] = [];
+          const ifNeedBe: string[] = [];
+          const no: string[] = [];
+          for (let i = 0; i < participants.length; i++) {
+            for (let j = 0; j < participants[i].votes.length; j++) {
+              if (participants[i].votes[j].optionId === option.id) {
+                switch (participants[i].votes[j].type) {
+                  case "yes":
+                    yes.push(participants[i].name);
+                    break;
+                  case "ifNeedBe":
+                    ifNeedBe.push(participants[i].name);
+                    break;
+                  case "no":
+                    no.push(participants[i].name);
+                    break;
+                }
+              }
+            }
+          }
+          return {
+            ...parsed,
+            id: option.id,
+            yes,
+            ifNeedBe,
+            no,
+            votes: participants.map((participant) => {
+              const vote = participant.votes.find(
+                ({ optionId }) => optionId === option.id,
+              );
+              return vote?.type;
+            }),
+          };
+        })}
+        groupBy="date"
+      />
+    </div>
+  );
+};
+
 const Results = () => {
   const { poll } = usePoll();
   const { participants } = useParticipants();
   const [value, setValue] = React.useState<string[]>([]);
   return (
     <OptionListResults
-      className="rounded-md"
+      className="rounded-md border"
+      orientation="vertical"
+      groupClassName="sticky bg-gray-100/90 backdrop-blur-md top-0 z-20"
       items={poll.options.map((option) => {
         const parsed = parseValue(option.value);
         const yes: string[] = [];
@@ -657,6 +721,12 @@ const Results = () => {
           yes,
           ifNeedBe,
           no,
+          votes: participants.map((participant) => {
+            const vote = participant.votes.find(
+              ({ optionId }) => optionId === option.id,
+            );
+            return vote?.type;
+          }),
         };
       })}
       groupBy="date"
