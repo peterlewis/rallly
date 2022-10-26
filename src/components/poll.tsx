@@ -32,16 +32,13 @@ import { NewLayout } from "./app-layout";
 import { Button } from "./button";
 import CompactButton from "./compact-button";
 import Dropdown, { DropdownItem } from "./dropdown";
+import { GroupedList, OptionListResultHorizontal } from "./grouped-list";
 import { createModalHook, withModal } from "./modal/modal-provider";
 import {
   OptionList,
   OptionListMultiSelect,
   OptionListResults,
 } from "./option-list";
-import {
-  GroupedList,
-  OptionListResultHorizontal,
-} from "./option-list-vertical";
 import { useParticipants } from "./participants-provider";
 import NotificationsToggle from "./poll/notifications-toggle";
 import { ConnectedPollViz } from "./poll/poll-viz";
@@ -745,8 +742,8 @@ const Results = () => {
         <GroupedList
           className="relative flex overflow-auto"
           data={data}
-          itemsClassName="flex mt-16 px-1 bg-white rounded border shadow-sm"
-          groupsClassName="flex divide-x"
+          itemsClassName="flex mb-2 mr-2 -ml-16 relative mt-16 px-1 bg-white rounded border shadow-sm"
+          groupsClassName="flex"
           groupDefs={[
             {
               groupBy: (option) =>
@@ -756,10 +753,13 @@ const Results = () => {
               className: "flex items-start",
               render({ value }) {
                 return (
-                  <div className="sticky left-0 z-20 w-12 rounded-br-md border-b border-r bg-gray-100/90 p-3 text-center text-slate-600 backdrop-blur-md">
-                    <span className="writing-mode-vertical inline-block rotate-180 whitespace-nowrap font-semibold">
-                      {dayjs(value).format("MMMM YYYY")}
-                    </span>
+                  <div className="sticky left-2 z-20 mt-2  ml-2 w-12 rounded border bg-gray-100/90 p-3 text-center text-slate-600 shadow-sm shadow-sm backdrop-blur-md">
+                    <div className="writing-mode-vertical inline-block rotate-180 whitespace-nowrap">
+                      <span>{dayjs(value).format("MMMM ")}</span>
+                      <span className="font-bold">
+                        {dayjs(value).format("YYYY")}
+                      </span>
+                    </div>
                   </div>
                 );
               },
@@ -772,13 +772,11 @@ const Results = () => {
               className: "flex items-start",
               render({ value }) {
                 return (
-                  <div className="text sticky left-12 z-10 -mr-14 w-14 rounded-br-md border-b border-r bg-gray-100/90 py-3 text-center font-semibold text-slate-600 backdrop-blur-md">
-                    <div className="mb-1 text-xl leading-none">
+                  <div className="sticky left-16 z-10 ml-2 mr-2 mt-2 w-14 items-end gap-1 rounded border bg-gray-100 px-3 py-2 text-center font-semibold text-slate-600 shadow-sm backdrop-blur-md">
+                    <div className="text-xl leading-none">
                       {dayjs(value).format("DD")}
                     </div>
-                    <div className="text-xs uppercase">
-                      {dayjs(value).format("ddd")}
-                    </div>
+                    <div className="text-sm ">{dayjs(value).format("ddd")}</div>
                   </div>
                 );
               },

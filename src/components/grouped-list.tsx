@@ -7,79 +7,10 @@ import { getDuration } from "../utils/date-time-utils";
 import { useDayjs } from "../utils/dayjs";
 import VoteIcon from "./poll/vote-icon";
 
-type Option =
-  | {
-      yesCount: number;
-      ifNeedBeCount: number;
-      noCount: number;
-    } & (
-      | {
-          type: "date";
-          date: string;
-        }
-      | {
-          type: "time";
-          start: string;
-          end: string;
-        }
-    );
-
-// const useDefineOptionGroups = (
-//   options: Option[],
-//   groupBy?: "date" | "score",
-// ): { groupDefs: GroupDefinition[] } => {
-//   const { dayjs } = useDayjs();
-//   const groupDefs: Record<string, GroupDefinition<Option>> = {};
-
-//   for (let i = 0; i < options.length; i++) {
-//     const item = options[i];
-//     // TODO (Luke Vella) [2022-10-21]: Implement group by score
-//     const groupKey =
-//       item.type === "date"
-//         ? dayjs(item.date).format("MMMM YYYY")
-//         : dayjs(item.start).format("LL");
-
-//     if (groupDefs[groupKey]) {
-//       groupDefs[groupKey].items.push(item);
-//     } else {
-//       groupDefs[groupKey] = {
-//         key: groupKey,
-//         render() {
-//           if (item.type === "date") {
-//             const date = dayjs(item.date);
-//             return <div>{date.format("LL")}</div>;
-//           }
-
-//           const date = dayjs(item.start);
-//           return <div>{date.format("LLL")}</div>;
-//         },
-//         items: [item],
-//       };
-//     }
-//   }
-//   return { groupDefs: Object.values(groupDefs) };
-// };
-
-// export const createGroupDefinitionHelper = <
-//   O extends Record<string, unknown>,
-// >() => {
-//   return <F extends keyof O>(
-//     field: F,
-//     groupDefinition: GroupDefinition<O, F>,
-//   ) => {
-//     return {
-//       field,
-//       ...groupDefinition,
-//     };
-//   };
-// };
-
-// const createGroupDefinition = createGroupDefinitionHelper<{ x: "foo"; y: 1 }>();
-
 type GroupDefinition<O extends Record<string, unknown> = {}> = {
   groupBy: (a: O) => string;
   className?: string;
-  render: (props: { value: string }) => JSX.Element;
+  render: React.ComponentType<{ value: string }>;
 };
 
 type Group<T> = {
@@ -151,7 +82,7 @@ export const GroupedList = <T extends Record<string, unknown>>({
         {group.groups ? (
           <div className={groupsClassName}>{group.groups.map(renderGroup)}</div>
         ) : (
-          <div className="p-2">
+          <div className="py-2">
             <div className={itemsClassName}>
               {group.items.map((item, i) => (
                 <Item key={i} item={item} />
@@ -165,6 +96,23 @@ export const GroupedList = <T extends Record<string, unknown>>({
 
   return <div className={className}>{groups.map(renderGroup)}</div>;
 };
+
+type Option =
+  | {
+      yesCount: number;
+      ifNeedBeCount: number;
+      noCount: number;
+    } & (
+      | {
+          type: "date";
+          date: string;
+        }
+      | {
+          type: "time";
+          start: string;
+          end: string;
+        }
+    );
 
 const FormattedOptionHorizontal = <T extends Option = Option>({
   item,
