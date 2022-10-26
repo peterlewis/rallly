@@ -38,6 +38,10 @@ import {
   OptionListMultiSelect,
   OptionListResults,
 } from "./option-list";
+import {
+  GroupedList,
+  OptionListResultHorizontal,
+} from "./option-list-vertical";
 import { useParticipants } from "./participants-provider";
 import NotificationsToggle from "./poll/notifications-toggle";
 import { ConnectedPollViz } from "./poll/poll-viz";
@@ -686,51 +690,111 @@ const ResultsHorizontal = () => {
 
 const Results = () => {
   const { poll } = usePoll();
+  const { dayjs } = useDayjs();
   const { participants } = useParticipants();
   const [value, setValue] = React.useState<string[]>([]);
-  return (
-    <OptionListResults
-      className="rounded-md border"
-      orientation="vertical"
-      groupClassName="sticky bg-gray-100/90 backdrop-blur-md top-0 z-20"
-      items={poll.options.map((option) => {
-        const parsed = parseValue(option.value);
-        const yes: string[] = [];
-        const ifNeedBe: string[] = [];
-        const no: string[] = [];
-        for (let i = 0; i < participants.length; i++) {
-          for (let j = 0; j < participants[i].votes.length; j++) {
-            if (participants[i].votes[j].optionId === option.id) {
-              switch (participants[i].votes[j].type) {
-                case "yes":
-                  yes.push(participants[i].name);
-                  break;
-                case "ifNeedBe":
-                  ifNeedBe.push(participants[i].name);
-                  break;
-                case "no":
-                  no.push(participants[i].name);
-                  break;
-              }
-            }
+  const data = poll.options.map((option) => {
+    const parsed = parseValue(option.value);
+    const yes: string[] = [];
+    const ifNeedBe: string[] = [];
+    const no: string[] = [];
+    for (let i = 0; i < participants.length; i++) {
+      for (let j = 0; j < participants[i].votes.length; j++) {
+        if (participants[i].votes[j].optionId === option.id) {
+          switch (participants[i].votes[j].type) {
+            case "yes":
+              yes.push(participants[i].name);
+              break;
+            case "ifNeedBe":
+              ifNeedBe.push(participants[i].name);
+              break;
+            case "no":
+              no.push(participants[i].name);
+              break;
           }
         }
-        return {
-          ...parsed,
-          id: option.id,
-          yes,
-          ifNeedBe,
-          no,
-          votes: participants.map((participant) => {
-            const vote = participant.votes.find(
-              ({ optionId }) => optionId === option.id,
-            );
-            return vote?.type;
-          }),
-        };
-      })}
-      groupBy="date"
-    />
+      }
+    }
+    return {
+      ...parsed,
+      id: option.id,
+      yes,
+      ifNeedBe,
+      no,
+      votes: participants.map((participant) => {
+        const vote = participant.votes.find(
+          ({ optionId }) => optionId === option.id,
+        );
+        return vote?.type;
+      }),
+    };
+  });
+  return (
+    <>
+      <div className="flex overflow-hidden rounded border bg-gray-100">
+        <div className="flex min-w-[180px] max-w-[250px] flex-col border-r bg-slate-300/5 py-2">
+          <div className="-mt-4 h-48"></div>
+          <div className="divide-y">
+            {participants.map((participant) => (
+              <div className="flex h-12 items-center px-3" key={participant.id}>
+                <UserAvatar name={participant.name} showName={true} />
+              </div>
+            ))}
+          </div>
+        </div>
+        <GroupedList
+          className="relative flex overflow-auto"
+          data={data}
+          itemsClassName="flex mt-16 px-1 bg-white rounded border shadow-sm"
+          groupsClassName="flex divide-x"
+          groupDefs={[
+            {
+              groupBy: (option) =>
+                option.type === "date"
+                  ? option.date.substring(0, 7)
+                  : option.start.substring(0, 7),
+              className: "flex items-start",
+              render({ value }) {
+                return (
+                  <div className="sticky left-0 z-20 w-12 rounded-br-md border-b border-r bg-gray-100/90 p-3 text-center text-slate-600 backdrop-blur-md">
+                    <span className="writing-mode-vertical inline-block rotate-180 whitespace-nowrap font-semibold">
+                      {dayjs(value).format("MMMM YYYY")}
+                    </span>
+                  </div>
+                );
+              },
+            },
+            {
+              groupBy: (option) =>
+                option.type === "date"
+                  ? option.date.substring(0, 7)
+                  : option.start.substring(0, 10),
+              className: "flex items-start",
+              render({ value }) {
+                return (
+                  <div className="text sticky left-12 z-10 -mr-14 w-14 rounded-br-md border-b border-r bg-gray-100/90 py-3 text-center font-semibold text-slate-600 backdrop-blur-md">
+                    <div className="mb-1 text-xl leading-none">
+                      {dayjs(value).format("DD")}
+                    </div>
+                    <div className="text-xs uppercase">
+                      {dayjs(value).format("ddd")}
+                    </div>
+                  </div>
+                );
+              },
+            },
+          ]}
+          itemRender={OptionListResultHorizontal}
+        />
+      </div>
+      <OptionListResults
+        className="rounded-md border"
+        orientation="vertical"
+        groupClassName="sticky bg-gray-100/90 backdrop-blur-md top-0 z-20"
+        items={data}
+        groupBy="date"
+      />
+    </>
   );
 };
 
