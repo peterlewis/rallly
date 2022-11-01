@@ -2,6 +2,7 @@ import { VoteType } from "@prisma/client";
 import clsx from "clsx";
 
 import { Button } from "../button";
+import UserAvatar from "../poll/user-avatar";
 import VoteIcon from "../poll/vote-icon";
 import {
   DateListHorizontalItem,
@@ -31,20 +32,19 @@ const GridColumn: React.VoidFunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children, votes, namesByVote }) => {
   return (
-    <div className="">
-      {children}
-      <div>
+    <div className="w-24 grow divide-y bg-white">
+      <div className="py-3">{children}</div>
+      <div className="divide-y bg-gray-50">
         {votes.map((vote, i) => {
           return (
             <div className="h-12" key={i}>
               <div
                 className={clsx(
-                  "flex h-full w-full items-center justify-center ring-inset",
+                  "flex h-full w-full items-center justify-center",
                   {
-                    "border-green-600/10 bg-green-400/20": vote === "yes",
-                    "border-amber-500/20 bg-amber-300/30": vote === "ifNeedBe",
-                    "border-slate-400/20 bg-slate-200/20":
-                      vote === "no" || !vote,
+                    "border-green-600/10": vote === "yes",
+                    "border-amber-500/20 ": vote === "ifNeedBe",
+                    "border-slate-400/20 ": vote === "no" || !vote,
                   },
                 )}
               >
@@ -54,12 +54,10 @@ const GridColumn: React.VoidFunctionComponent<{
           );
         })}
       </div>
-      <div className="p-1 text-center">
-        <div className="mb-3 mt-2 space-y-2 px-2">
-          <VoteScore type="yes" count={namesByVote.yes.length} />
-          <VoteScore type="ifNeedBe" count={namesByVote.ifNeedBe.length} />
-          <VoteScore type="no" count={namesByVote.no.length} />
-        </div>
+      <div className="flex h-16 items-center justify-center gap-1 text-center">
+        <VoteScore type="yes" count={namesByVote.yes.length} />
+        {/* <VoteScore type="ifNeedBe" count={namesByVote.ifNeedBe.length} />
+        <VoteScore type="no" count={namesByVote.no.length} /> */}
       </div>
     </div>
   );
@@ -97,30 +95,45 @@ export const PollGridViz = (
     | { type: "time"; data: TimeOptionResult[] }
   ),
 ) => {
-  const className = clsx("flex", props.className);
-
   return (
-    <div className="relative flex overflow-auto rounded-md border bg-gray-100">
-      {(() => {
-        switch (props.type) {
-          case "date":
+    <div
+      className={clsx(
+        "relative flex overflow-auto rounded border bg-white",
+        props.className,
+      )}
+    >
+      <div className="sticky left-0 z-20 flex w-48 shrink-0 flex-col justify-end divide-y border-r bg-white/80 backdrop-blur-md">
+        <div className="divide-y">
+          {props.participants.map((participant) => {
             return (
-              <DateOptionListHorizontal
-                className={className}
-                data={props.data}
-                itemRender={DateColumn}
-              />
+              <div className="flex h-12 items-center px-3" key={participant.id}>
+                <UserAvatar name={participant.name} showName={true} />
+              </div>
             );
-          case "time":
-            return (
-              <TimeOptionListHorizontal
-                className={className}
-                data={props.data}
-                itemRender={TimeColumn}
-              />
-            );
-        }
-      })()}
+          })}
+        </div>
+        <div className="h-16"></div>
+      </div>
+      <div className="grow">
+        {(() => {
+          switch (props.type) {
+            case "date":
+              return (
+                <DateOptionListHorizontal
+                  data={props.data}
+                  itemRender={DateColumn}
+                />
+              );
+            case "time":
+              return (
+                <TimeOptionListHorizontal
+                  data={props.data}
+                  itemRender={TimeColumn}
+                />
+              );
+          }
+        })()}
+      </div>
     </div>
   );
 };

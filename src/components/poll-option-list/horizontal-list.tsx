@@ -16,8 +16,13 @@ const GroupHeaderMonthYear: React.VoidFunctionComponent<{ value: string }> = ({
   const date = dayjs(value);
 
   return (
-    <div className="sticky left-4 z-10 mb-4 w-fit rounded rounded-t-md border bg-white/90 p-2 text-center text-lg leading-none shadow-sm">
-      <div className="">{date.format("MMMM YYYY")}</div>
+    <div className="flex h-9 items-center">
+      <div className="sticky left-48 z-10 w-fit p-3 text-center leading-none text-slate-600">
+        <div className="font-semibold">
+          <span>{date.format("MMMM ")}</span>
+          <span className="">{date.format("YYYY")}</span>
+        </div>
+      </div>
     </div>
   );
 };
@@ -28,8 +33,13 @@ const GroupHeaderDay: React.VoidFunctionComponent<{ value: string }> = ({
   const { dayjs } = useDayjs();
   const date = dayjs(value);
   return (
-    <div className="sticky left-4 z-10 mb-4 w-fit rounded rounded-t-md border bg-white/90 p-2 text-center text-lg leading-none shadow-sm">
-      <div className="font-bold">{date.format("D dddd")}</div>
+    <div className="flex h-12 items-center">
+      <div className="sticky left-48 z-10 w-24 px-3 leading-none">
+        <span className="text-xl font-bold text-slate-600">
+          {date.format("D")}
+        </span>
+        <span className="text-sm text-slate-500/90">{date.format(" ddd")}</span>
+      </div>
     </div>
   );
 };
@@ -43,10 +53,9 @@ export const TimeListHorizontalItem = <T extends TimeOption>({
   const start = dayjs(item.start);
   const end = dayjs(item.end);
   return (
-    <div className="p-4 text-center">
-      <div className="origin-center -rotate-12 whitespace-nowrap">
-        {start.format("LT")}
-      </div>
+    <div className="text-center">
+      <div className="whitespace-nowrap font-bold">{start.format("LT")}</div>
+      <div className="whitespace-nowrap">{end.format("LT")}</div>
     </div>
   );
 };
@@ -60,12 +69,8 @@ export const DateListHorizontalItem = <T extends DateOption>({
   const date = dayjs(item.date);
   return (
     <div className="p-1 text-center">
-      <div className="py-2 px-4 text-sm">
-        <div className="uppercase">{date.format("ddd")}</div>
-        <div className="text-2xl font-bold text-slate-700">
-          {date.format("DD ")}
-        </div>
-      </div>
+      <span className="text-xl font-bold">{date.format("D")}</span>
+      <span className="text-sm">{date.format(" ddd")}</span>
     </div>
   );
 };
@@ -82,17 +87,19 @@ export const TimeOptionListHorizontal = <T extends TimeOption>({
 }) => {
   return (
     <GroupedList
-      className={clsx("p-4", className)}
+      className={clsx("flex  divide-x", className)}
       data={data}
       groupDefs={[
         {
           groupBy: (option) => option.start.substring(0, 7),
-          itemsClassName: "flex gap-4",
+          itemsClassName: "flex divide-x grow",
+          className: "divide-y grow",
           render: GroupHeaderMonthYear,
         },
         {
           groupBy: (option) => option.start.substring(0, 10),
-          itemsClassName: "flex bg-white rounded shadow-sm",
+          itemsClassName: "flex divide-x grow",
+          className: "divide-y grow",
           render: GroupHeaderDay,
         },
       ]}
@@ -115,12 +122,11 @@ export const DateOptionListHorizontal = <T extends DateOption>({
     <GroupedList
       className={className}
       data={data}
-      itemsClassName="flex mx-2  relative px-1 bg-white rounded border shadow-sm"
-      groupsClassName="flex z-10"
       groupDefs={[
         {
           groupBy: (option) => option.date.substring(0, 7),
-          className: "flex items-start",
+          itemsClassName: "divide-x flex",
+          className: "divide-y",
           render: GroupHeaderMonthYear,
         },
       ]}

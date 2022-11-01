@@ -499,27 +499,30 @@ export const NewLayout: React.VoidFunctionComponent<{
 }> = ({ title, backHref, actions, children }) => {
   const { t } = useTranslation("app");
   return (
-    <div className="mx-auto">
-      <div className="z-30 backdrop-blur-md">
+    <div className="flex h-full gap-3 overflow-auto bg-gray-100 p-3">
+      <div className="sticky top-0 z-50 h-full w-16 shrink-0 rounded bg-primary-500 p-3 text-center shadow-md">
+        <Link href="/polls">
+          <a className="mt-4 inline-block h-8 w-8 rounded-lg border-4 border-white"></a>
+        </Link>
+      </div>
+      <div className="h-fit min-h-full min-w-0 grow">
+        <div className="mx-auto flex items-center justify-between gap-12 border-b p-6">
+          <div className="text-3xl font-semibold">{title}</div>
+          <div>{actions}</div>
+        </div>
+        <div className="p-6">{children}</div>
+      </div>
+      {/* <div className="z-30 backdrop-blur-md">
         <div className="mx-auto py-2">
           <div className="flex items-center justify-between px-8 py-3">
-            <Link href="/polls">
-              <a className="text-primary-500">
-                <Logo className="inline-block h-6" />
-              </a>
-            </Link>
             <div className="action-group">
               <UserDropdown />
               <Button icon={<Menu />} />
             </div>
           </div>
-          <div className="mx-auto flex items-center justify-between px-8 py-3">
-            <div className="text-3xl font-semibold">{title}</div>
-            <div>{actions}</div>
-          </div>
         </div>
       </div>
-      <div className="mx-auto max-w-7xl px-4 sm:px-8">{children}</div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-8">{children}</div> */}
     </div>
   );
 };

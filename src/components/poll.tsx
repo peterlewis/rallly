@@ -711,7 +711,7 @@ const Results = () => {
         {...pollGridProps}
       /> */}
       <div className="min-w-0 grow">
-        <PollGridViz {...pollGridProps} />
+        <PollGridViz {...pollGridProps} participants={participants} />
       </div>
     </div>
   );
