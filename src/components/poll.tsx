@@ -1,4 +1,4 @@
-import { Option } from "@prisma/client";
+import { Option, Participant, Vote } from "@prisma/client";
 import clsx from "clsx";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -24,7 +24,7 @@ import Plus from "@/components/icons/plus.svg";
 import Trash from "@/components/icons/trash.svg";
 import UserGroup from "@/components/icons/user-group.svg";
 
-import { parseValue } from "../utils/date-time-utils";
+import { parseTimeValue, parseValue } from "../utils/date-time-utils";
 import { DayjsProvider, useDayjs } from "../utils/dayjs";
 import { useFormValidation } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
@@ -34,16 +34,18 @@ import CompactButton from "./compact-button";
 import Dropdown, { DropdownItem } from "./dropdown";
 import { GroupedList, OptionListResultHorizontal } from "./grouped-list";
 import { createModalHook, withModal } from "./modal/modal-provider";
-import {
-  OptionList,
-  OptionListMultiSelect,
-  OptionListResults,
-} from "./option-list";
+import { OptionList, OptionListResults } from "./option-list";
 import { useParticipants } from "./participants-provider";
 import NotificationsToggle from "./poll/notifications-toggle";
 import { ConnectedPollViz } from "./poll/poll-viz";
 import { useTouchBeacon } from "./poll/use-touch-beacon";
 import UserAvatar, { UserAvatarProvider } from "./poll/user-avatar";
+import {
+  DateOptionResult,
+  PollGridViz,
+  TimeOptionResult,
+} from "./poll-option-list/poll-grid-viz";
+import { PollListViz } from "./poll-option-list/poll-list-viz";
 import { usePoll } from "./poll-provider";
 import { EditableSection, Section } from "./section";
 import { Sticky } from "./sticky";
@@ -524,9 +526,6 @@ const PollPage: NextPage = () => {
           <div className="flex gap-6 py-6">
             <div className="min-w-0 grow space-y-6">
               <Results />
-
-              <ResultsHorizontal />
-              {/* <ConnectedPollViz /> */}
               <Section title={t("participants")} icon={UserGroup}>
                 <Participants />
               </Section>
@@ -622,67 +621,79 @@ const Participants = () => {
   );
 };
 
-const ResultsHorizontal = () => {
-  const { poll } = usePoll();
-  const { participants } = useParticipants();
+const getNamesByVote = (
+  optionId: string,
+  participants: Array<Participant & { votes: Vote[] }>,
+) => {
+  const yes: string[] = [];
+  const ifNeedBe: string[] = [];
+  const no: string[] = [];
 
-  return (
-    <div className="flex divide-x overflow-hidden rounded-md border">
-      {/* <div className="shrink-0">
-        <div className="h-[115px] p-4"></div>
-        <div className="p-1">
-          {participants.map((participant) => {
-            return (
-              <div key={participant.id} className="flex h-12 items-center px-3">
-                <UserAvatar name={participant.name} showName={true} />
-              </div>
-            );
-          })}
-        </div>
-      </div> */}
-      <OptionListResults
-        orientation="horizontal"
-        groupClassName="sticky left-0 z-20 bg-gray-100/90 backdrop-blur-md"
-        items={poll.options.map((option) => {
-          const parsed = parseValue(option.value);
-          const yes: string[] = [];
-          const ifNeedBe: string[] = [];
-          const no: string[] = [];
-          for (let i = 0; i < participants.length; i++) {
-            for (let j = 0; j < participants[i].votes.length; j++) {
-              if (participants[i].votes[j].optionId === option.id) {
-                switch (participants[i].votes[j].type) {
-                  case "yes":
-                    yes.push(participants[i].name);
-                    break;
-                  case "ifNeedBe":
-                    ifNeedBe.push(participants[i].name);
-                    break;
-                  case "no":
-                    no.push(participants[i].name);
-                    break;
-                }
-              }
-            }
-          }
-          return {
-            ...parsed,
-            id: option.id,
-            yes,
-            ifNeedBe,
-            no,
+  for (let i = 0; i < participants.length; i++) {
+    for (let j = 0; j < participants[i].votes.length; j++) {
+      if (participants[i].votes[j].optionId === optionId) {
+        switch (participants[i].votes[j].type) {
+          case "yes":
+            yes.push(participants[i].name);
+            break;
+          case "ifNeedBe":
+            ifNeedBe.push(participants[i].name);
+            break;
+          case "no":
+            no.push(participants[i].name);
+            break;
+        }
+      }
+    }
+  }
+
+  return { yes, ifNeedBe, no };
+};
+
+const usePollOptionData = (
+  options: Option[],
+  participants: Array<Participant & { votes: Vote[] }>,
+) => {
+  return React.useMemo<
+    | {
+        type: "date";
+        data: DateOptionResult[];
+      }
+    | {
+        type: "time";
+        data: TimeOptionResult[];
+      }
+  >(() => {
+    const isTime = options[0].value.indexOf("/") !== -1;
+
+    return isTime
+      ? {
+          type: "time",
+          data: options.map((option) => ({
+            ...parseTimeValue(option.value),
             votes: participants.map((participant) => {
               const vote = participant.votes.find(
                 ({ optionId }) => optionId === option.id,
               );
               return vote?.type;
             }),
-          };
-        })}
-        groupBy="date"
-      />
-    </div>
-  );
+            namesByVote: getNamesByVote(option.id, participants),
+          })),
+        }
+      : {
+          type: "date",
+          data: options.map<DateOptionResult>((option) => ({
+            date: option.value,
+            votes: participants.map((participant) => {
+              const vote = participant.votes.find(
+                ({ optionId }) => optionId === option.id,
+              );
+              return vote?.type;
+            }),
+            namesByVote: getNamesByVote(option.id, participants),
+          })),
+        };
+  }, [options, participants]);
 };
 
 const Results = () => {
@@ -690,109 +701,19 @@ const Results = () => {
   const { dayjs } = useDayjs();
   const { participants } = useParticipants();
   const [value, setValue] = React.useState<string[]>([]);
-  const data = poll.options.map((option) => {
-    const parsed = parseValue(option.value);
-    const yes: string[] = [];
-    const ifNeedBe: string[] = [];
-    const no: string[] = [];
-    for (let i = 0; i < participants.length; i++) {
-      for (let j = 0; j < participants[i].votes.length; j++) {
-        if (participants[i].votes[j].optionId === option.id) {
-          switch (participants[i].votes[j].type) {
-            case "yes":
-              yes.push(participants[i].name);
-              break;
-            case "ifNeedBe":
-              ifNeedBe.push(participants[i].name);
-              break;
-            case "no":
-              no.push(participants[i].name);
-              break;
-          }
-        }
-      }
-    }
-    return {
-      ...parsed,
-      id: option.id,
-      yes,
-      ifNeedBe,
-      no,
-      votes: participants.map((participant) => {
-        const vote = participant.votes.find(
-          ({ optionId }) => optionId === option.id,
-        );
-        return vote?.type;
-      }),
-    };
-  });
+
+  const pollGridProps = usePollOptionData(poll.options, participants);
+
   return (
-    <>
-      <div className="flex overflow-hidden rounded border bg-gray-100">
-        <div className="flex min-w-[180px] max-w-[250px] flex-col border-r bg-slate-300/5 py-2">
-          <div className="-mt-4 h-48"></div>
-          <div className="divide-y">
-            {participants.map((participant) => (
-              <div className="flex h-12 items-center px-3" key={participant.id}>
-                <UserAvatar name={participant.name} showName={true} />
-              </div>
-            ))}
-          </div>
-        </div>
-        <GroupedList
-          className="relative flex overflow-auto"
-          data={data}
-          itemsClassName="flex mb-2 mr-2 -ml-16 relative mt-16 px-1 bg-white rounded border shadow-sm"
-          groupsClassName="flex"
-          groupDefs={[
-            {
-              groupBy: (option) =>
-                option.type === "date"
-                  ? option.date.substring(0, 7)
-                  : option.start.substring(0, 7),
-              className: "flex items-start",
-              render({ value }) {
-                return (
-                  <div className="sticky left-2 z-20 mt-2  ml-2 w-12 rounded border bg-gray-100/90 p-3 text-center text-slate-600 shadow-sm shadow-sm backdrop-blur-md">
-                    <div className="writing-mode-vertical inline-block rotate-180 whitespace-nowrap">
-                      <span>{dayjs(value).format("MMMM ")}</span>
-                      <span className="font-bold">
-                        {dayjs(value).format("YYYY")}
-                      </span>
-                    </div>
-                  </div>
-                );
-              },
-            },
-            {
-              groupBy: (option) =>
-                option.type === "date"
-                  ? option.date.substring(0, 7)
-                  : option.start.substring(0, 10),
-              className: "flex items-start",
-              render({ value }) {
-                return (
-                  <div className="sticky left-16 z-10 ml-2 mr-2 mt-2 w-14 items-end gap-1 rounded border bg-gray-100 px-3 py-2 text-center font-semibold text-slate-600 shadow-sm backdrop-blur-md">
-                    <div className="text-xl leading-none">
-                      {dayjs(value).format("DD")}
-                    </div>
-                    <div className="text-sm ">{dayjs(value).format("ddd")}</div>
-                  </div>
-                );
-              },
-            },
-          ]}
-          itemRender={OptionListResultHorizontal}
-        />
+    <div>
+      {/* <PollListViz
+        className="rounded-md border bg-white shadow-sm"
+        {...pollGridProps}
+      /> */}
+      <div className="min-w-0 grow">
+        <PollGridViz {...pollGridProps} />
       </div>
-      <OptionListResults
-        className="rounded-md border"
-        orientation="vertical"
-        groupClassName="sticky bg-gray-100/90 backdrop-blur-md top-0 z-20"
-        items={data}
-        groupBy="date"
-      />
-    </>
+    </div>
   );
 };
 

@@ -1,22 +1,18 @@
-import { VoteType } from "@prisma/client";
 import clsx from "clsx";
 
-import Clock from "@/components/icons/clock.svg";
-
-import { getDuration } from "../utils/date-time-utils";
-import { useDayjs } from "../utils/dayjs";
-import VoteIcon from "./poll/vote-icon";
-
-type GroupDefinition<O extends Record<string, unknown> = {}> = {
+export type GroupDefinition<O extends Record<string, unknown> = {}> = {
   groupBy: (a: O) => string;
   className?: string;
+  itemsClassName?: string;
   render: React.ComponentType<{ value: string }>;
 };
 
 type Group<T> = {
+  key: string;
   groups?: Group<T>[];
   render: React.ComponentType;
   className?: string;
+  itemsClassName?: string;
   items: T[];
 };
 
@@ -36,10 +32,12 @@ const useDefineGroups = <T extends Record<string, unknown>>(
         itemsByGroup[groupKey].items.push(item);
       } else {
         itemsByGroup[groupKey] = {
+          key: groupKey,
           render() {
             return <groupDef.render value={groupKey} />;
           },
           className: groupDef.className,
+          itemsClassName: groupDef.itemsClassName,
           items: [item],
         };
       }
@@ -64,12 +62,10 @@ export const GroupedList = <T extends Record<string, unknown>>({
   data,
   groupDefs,
   itemRender: Item,
-  itemsClassName,
   groupsClassName,
 }: {
   data: T[];
   className?: string;
-  itemsClassName?: string;
   groupsClassName?: string;
   groupDefs: Array<GroupDefinition<T>>;
   itemRender: React.ComponentType<{ item: T }>;
@@ -77,132 +73,16 @@ export const GroupedList = <T extends Record<string, unknown>>({
   const groups = useDefineGroups(data, groupDefs);
   const renderGroup = (group: Group<T>) => {
     return (
-      <div className={group.className}>
+      <div key={group.key} className={clsx(groupsClassName, group.className)}>
         <group.render />
-        {group.groups ? (
-          <div className={groupsClassName}>{group.groups.map(renderGroup)}</div>
-        ) : (
-          <div className="py-2">
-            <div className={itemsClassName}>
-              {group.items.map((item, i) => (
-                <Item key={i} item={item} />
-              ))}
-            </div>
-          </div>
-        )}
+        <div className={group.itemsClassName}>
+          {group.groups
+            ? group.groups.map(renderGroup)
+            : group.items.map((item, i) => <Item key={i} item={item} />)}
+        </div>
       </div>
     );
   };
 
   return <div className={className}>{groups.map(renderGroup)}</div>;
-};
-
-type Option =
-  | {
-      yesCount: number;
-      ifNeedBeCount: number;
-      noCount: number;
-    } & (
-      | {
-          type: "date";
-          date: string;
-        }
-      | {
-          type: "time";
-          start: string;
-          end: string;
-        }
-    );
-
-const FormattedOptionHorizontal = <T extends Option = Option>({
-  item,
-}: {
-  item: T;
-}) => {
-  const { dayjs } = useDayjs();
-
-  if (item.type === "date") {
-    return (
-      <div className="text-center">
-        <div className="text-2xl font-bold">
-          {dayjs(item.date).format("DD ")}
-        </div>
-        <div className="text-slate-700/75">
-          {dayjs(item.date).format("ddd")}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="text-center">
-      <div className="font-semibold">{dayjs(item.start).format("LT")}</div>
-      <div className="text-slate-400">{dayjs(item.end).format("LT")}</div>
-      <div className="mt-2 inline-flex items-center rounded bg-slate-400/10 px-1 text-sm leading-6 text-slate-400/75">
-        <Clock className="mr-1 h-4" />
-        {getDuration(item.start, item.end)}
-      </div>
-    </div>
-  );
-};
-
-type OptionWithResults = Option & {
-  yes: string[];
-  ifNeedBe: string[];
-  no: string[];
-  votes: Array<VoteType | undefined>;
-};
-
-export const OptionListResultHorizontal: React.VoidFunctionComponent<{
-  item: OptionWithResults;
-}> = ({ item }) => {
-  return (
-    <div className="grow">
-      <div className="flex h-28 items-center justify-center p-4">
-        <FormattedOptionHorizontal item={item} />
-      </div>
-      <div className="pb-1">
-        {item.votes.map((vote, i) => {
-          return (
-            <div className="h-12 p-1" key={i}>
-              <div
-                className={clsx(
-                  "flex h-full w-full items-center  justify-center",
-                  {
-                    "bg-green-400/20": vote === "yes",
-                    "bg-amber-300/30": vote === "ifNeedBe",
-                    "bg-slate-200/20": vote === "no" || !vote,
-                  },
-                )}
-              >
-                <VoteIcon type={vote} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="p-3 text-center">
-        <div className="flex justify-center gap-1">
-          <div className="mb-1">
-            <VoteIcon type="yes" />
-            <div className="text-sm tabular-nums leading-none text-slate-500">
-              {item.yes.length}
-            </div>
-          </div>
-          <div className="mb-1">
-            <VoteIcon type="ifNeedBe" />
-            <div className="text-sm tabular-nums leading-none text-slate-500">
-              {item.ifNeedBe.length}
-            </div>
-          </div>
-          <div className="mb-1">
-            <VoteIcon type="no" />
-            <div className="text-sm tabular-nums leading-none text-slate-500">
-              {item.no.length}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 };

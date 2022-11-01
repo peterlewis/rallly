@@ -519,7 +519,7 @@ export const NewLayout: React.VoidFunctionComponent<{
           </div>
         </div>
       </div>
-      <div className="mx-auto px-8">{children}</div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-8">{children}</div>
     </div>
   );
 };

@@ -20,6 +20,7 @@ export interface ButtonProps
   type?: "default" | "primary" | "danger" | "link" | "ghost" | "success";
   form?: string;
   rounded?: boolean;
+  active?: boolean;
   size?: "lg" | "md";
   title?: string;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
@@ -37,6 +38,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       disabled,
       rounded,
       size = "md",
+      active,
       ...passThroughProps
     },
     ref,

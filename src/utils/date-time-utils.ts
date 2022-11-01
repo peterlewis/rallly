@@ -159,6 +159,13 @@ export const expectTimeOption = (d: DateTimeOption): TimeOption => {
   return d;
 };
 
+export const parseTimeValue = (
+  timeRange: string,
+): { start: string; end: string } => {
+  const [start, end] = timeRange.split("/");
+  return { start, end };
+};
+
 export const parseValue = (value: string): DateTimeOption => {
   if (isTimeSlot(value)) {
     const [start, end] = value.split("/");
