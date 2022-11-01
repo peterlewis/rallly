@@ -87,7 +87,7 @@ export const TimeOptionListHorizontal = <T extends TimeOption>({
 }) => {
   return (
     <GroupedList
-      className={clsx("flex  divide-x", className)}
+      className={clsx("flex divide-x", className)}
       data={data}
       groupDefs={[
         {

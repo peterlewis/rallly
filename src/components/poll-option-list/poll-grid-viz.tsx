@@ -55,7 +55,12 @@ const GridColumn: React.VoidFunctionComponent<{
         })}
       </div>
       <div className="flex h-16 items-center justify-center gap-1 text-center">
-        <VoteScore type="yes" count={namesByVote.yes.length} />
+        <ResultViz
+          yes={namesByVote.yes.length}
+          ifNeedBe={namesByVote.ifNeedBe.length}
+          no={namesByVote.no.length}
+        />
+        {/* <VoteScore type="yes" count={namesByVote.yes.length} /> */}
         {/* <VoteScore type="ifNeedBe" count={namesByVote.ifNeedBe.length} />
         <VoteScore type="no" count={namesByVote.no.length} /> */}
       </div>
@@ -80,6 +85,30 @@ const DateColumn: React.VoidFunctionComponent<{ item: DateOptionResult }> = ({
     <GridColumn votes={item.votes} namesByVote={item.namesByVote}>
       <DateListHorizontalItem item={item} />
     </GridColumn>
+  );
+};
+
+const ResultViz: React.VoidFunctionComponent<{
+  yes: number;
+  ifNeedBe: number;
+  no: number;
+}> = ({ yes, ifNeedBe, no }) => {
+  const total = yes + ifNeedBe + no;
+  const yesEnd = Math.round((yes / total) * 360);
+  const ifNeedBeEnd = Math.round((ifNeedBe / total) * 360);
+  return (
+    <div
+      className="flex h-8 w-8 items-center justify-center rounded-full text-sm"
+      style={{
+        background: `conic-gradient(rgb(74 222 128 / var(--tw-text-opacity)) 0deg ${yesEnd}deg, rgb(252 211 77 / var(--tw-text-opacity)) ${yesEnd}deg ${
+          yesEnd + ifNeedBeEnd
+        }deg, rgb(203 213 225 / var(--tw-text-opacity)) ${ifNeedBeEnd}deg 360deg)`,
+      }}
+    >
+      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm">
+        {yes}
+      </div>
+    </div>
   );
 };
 
