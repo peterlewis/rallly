@@ -2,10 +2,10 @@ import { VoteType } from "@prisma/client";
 import clsx from "clsx";
 import * as React from "react";
 
-import CheckCircle from "@/components/icons/check-circle.svg";
-import IfNeedBe from "@/components/icons/if-need-be.svg";
+import CheckCircle from "@/components/icons/check-line.svg";
+import IfNeedBe from "@/components/icons/if-need-be-line.svg";
 import QuestionMark from "@/components/icons/question-mark.svg";
-import X from "@/components/icons/x-circle.svg";
+import X from "@/components/icons/x-line.svg";
 
 const VoteIcon: React.VoidFunctionComponent<{
   type?: VoteType;
@@ -18,8 +18,8 @@ const VoteIcon: React.VoidFunctionComponent<{
       case "yes":
         return (
           <CheckCircle
-            className={clsx("text-green-400", {
-              "h-5": size === "md",
+            className={clsx("text-green-700", {
+              "h-7": size === "md",
               "h-3": size === "sm",
             })}
           />
@@ -28,8 +28,8 @@ const VoteIcon: React.VoidFunctionComponent<{
       case "ifNeedBe":
         return (
           <IfNeedBe
-            className={clsx("text-amber-300", {
-              "h-5": size === "md",
+            className={clsx("text-amber-600/75", {
+              "h-7": size === "md",
               "h-3": size === "sm",
             })}
           />
@@ -39,7 +39,7 @@ const VoteIcon: React.VoidFunctionComponent<{
         return (
           <X
             className={clsx("text-slate-300", {
-              "h-5": size === "md",
+              "h-7": size === "md",
               "h-3": size === "sm",
             })}
           />
@@ -58,7 +58,12 @@ const VoteIcon: React.VoidFunctionComponent<{
   };
 
   return (
-    <span className={clsx("inline-block h-5 w-5", className)}>
+    <span
+      className={clsx(
+        "justify-centerh-7 inline-flex w-7 items-center",
+        className,
+      )}
+    >
       {renderIcon()}
     </span>
   );

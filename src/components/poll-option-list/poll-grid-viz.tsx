@@ -34,17 +34,18 @@ const GridColumn: React.VoidFunctionComponent<{
   return (
     <div className="w-24 grow divide-y bg-white">
       <div className="py-3">{children}</div>
-      <div className="divide-y bg-gray-50">
+      <div className="divide-y">
         {votes.map((vote, i) => {
           return (
-            <div className="h-12" key={i}>
+            <div className="h-12 border-slate-300/20 p-1" key={i}>
               <div
                 className={clsx(
-                  "flex h-full w-full items-center justify-center",
+                  "flex h-full w-full items-center justify-center rounded",
                   {
-                    "border-green-600/10": vote === "yes",
-                    "border-amber-500/20 ": vote === "ifNeedBe",
-                    "border-slate-400/20 ": vote === "no" || !vote,
+                    "border border-green-500 bg-green-400/90": vote === "yes",
+                    "border border-amber-400 bg-amber-300/90":
+                      vote === "ifNeedBe",
+                    "border border-slate-200 bg-slate-50": vote === "no",
                   },
                 )}
               >
@@ -54,7 +55,7 @@ const GridColumn: React.VoidFunctionComponent<{
           );
         })}
       </div>
-      <div className="flex h-16 items-center justify-center gap-1 text-center">
+      <div className="flex h-14 items-center justify-center gap-1 text-center">
         <ResultViz
           yes={namesByVote.yes.length}
           ifNeedBe={namesByVote.ifNeedBe.length}
@@ -98,11 +99,13 @@ const ResultViz: React.VoidFunctionComponent<{
   const ifNeedBeEnd = Math.round((ifNeedBe / total) * 360);
   return (
     <div
-      className="flex h-8 w-8 items-center justify-center rounded-full text-sm"
+      className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-sm"
       style={{
-        background: `conic-gradient(rgb(74 222 128 / var(--tw-text-opacity)) 0deg ${yesEnd}deg, rgb(252 211 77 / var(--tw-text-opacity)) ${yesEnd}deg ${
-          yesEnd + ifNeedBeEnd
-        }deg, rgb(203 213 225 / var(--tw-text-opacity)) ${ifNeedBeEnd}deg 360deg)`,
+        background: total
+          ? `conic-gradient(rgb(74 222 128 / var(--tw-text-opacity)) 0deg ${yesEnd}deg, rgb(252 211 77 / var(--tw-text-opacity)) ${yesEnd}deg ${
+              yesEnd + ifNeedBeEnd
+            }deg, rgb(203 213 225 / var(--tw-text-opacity)) ${ifNeedBeEnd}deg 360deg)`
+          : undefined,
       }}
     >
       <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm">
@@ -127,11 +130,11 @@ export const PollGridViz = (
   return (
     <div
       className={clsx(
-        "relative flex overflow-auto rounded border bg-white",
+        "relative flex overflow-auto rounded-md border bg-white shadow-sm",
         props.className,
       )}
     >
-      <div className="sticky left-0 z-20 flex w-48 shrink-0 flex-col justify-end divide-y border-r bg-white/80 backdrop-blur-md">
+      <div className="sticky left-0 z-20 flex w-48 shrink-0 flex-col justify-end divide-y border-r bg-white/90 backdrop-blur-md">
         <div className="divide-y">
           {props.participants.map((participant) => {
             return (
@@ -141,7 +144,7 @@ export const PollGridViz = (
             );
           })}
         </div>
-        <div className="h-16"></div>
+        <div className="h-14"></div>
       </div>
       <div className="grow">
         {(() => {

@@ -16,7 +16,7 @@ const GroupHeaderMonthYear: React.VoidFunctionComponent<{ value: string }> = ({
   const date = dayjs(value);
 
   return (
-    <div className="flex h-9 items-center">
+    <div className="flex h-10 items-center">
       <div className="sticky left-48 z-10 w-fit p-3 text-center leading-none text-slate-600">
         <div className="font-semibold">
           <span>{date.format("MMMM ")}</span>
