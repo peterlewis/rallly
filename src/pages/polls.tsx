@@ -70,10 +70,12 @@ const Polls: React.VoidFunctionComponent = () => {
             >
               <div className="grow">
                 <div className="flex justify-between space-x-2">
-                  <Link href={`/admin/${poll.adminUrlId}`}>
-                    <a className="text-lg font-semibold text-slate-700 hover:text-slate-700 hover:underline active:text-slate-700/75">
-                      {poll.title}
-                    </a>
+                  <Link
+                    href={`/admin/${poll.adminUrlId}`}
+                    className="text-lg font-semibold text-slate-700 hover:text-slate-700 hover:underline active:text-slate-700/75">
+
+                    {poll.title}
+
                   </Link>
                 </div>
                 <div className="mb-4 text-sm text-slate-400">
@@ -126,11 +128,11 @@ const Page = () => {
           title={t("meetingPolls")}
           description={t("meetingPollsDescription")}
           actions={
-            <Link href="/new">
-              <a className="btn-primary pr-4">
-                <Plus className="-ml-1 mr-1 h-5" />
-                {t("newPoll")}
-              </a>
+            <Link href="/new" className="btn-primary pr-4">
+
+              <Plus className="-ml-1 mr-1 h-5" />
+              {t("newPoll")}
+
             </Link>
           }
           className="mb-8"

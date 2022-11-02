@@ -38,10 +38,10 @@ const CookieConsentPopover: React.VoidFunctionComponent = () => {
             browsing experience on this website.
           </div>
           <div className="flex items-center space-x-6">
-            <Link href="/privacy-policy">
-              <a className="hover:text-primary-500 text-slate-400">
+            <Link href="/privacy-policy" className="hover:text-primary-500 text-slate-400">
+              
                 Privacy Policy
-              </a>
+              
             </Link>
             <button
               onClick={() => {

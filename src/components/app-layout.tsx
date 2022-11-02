@@ -57,15 +57,19 @@ const Footer: React.VoidFunctionComponent = () => {
         >
           {t("common:support")}
         </a>
-        <Link href="https://github.com/lukevella/rallly/discussions">
-          <a className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
-            {t("common:discussions")}
-          </a>
+        <Link
+          href="https://github.com/lukevella/rallly/discussions"
+          className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
+
+          {t("common:discussions")}
+
         </Link>
-        <Link href="https://blog.rallly.co">
-          <a className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
-            {t("common:blog")}
-          </a>
+        <Link
+          href="https://blog.rallly.co"
+          className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
+
+          {t("common:blog")}
+
         </Link>
         <div className="hidden text-slate-300 md:block">&bull;</div>
         <div className="flex items-center space-x-6">
@@ -274,103 +278,105 @@ const MobileNavigation: React.VoidFunctionComponent<{
   const [visible, setVisible] = React.useState(false);
   const MenuIcon = visible ? X : Menu;
   const { user } = useUser();
-  return (
-    <>
-      <div
-        className={clsx("sticky top-0 z-40 w-full md:hidden", {
-          "bg-white": visible,
-          "bg-gray-100/80 backdrop-blur-md": !visible,
-        })}
-      >
-        <div className="flex items-center justify-between border-b py-2 px-4">
-          <Link href="/">
-            <a>
-              <Logo className="h-5 text-primary-500" />
-            </a>
-          </Link>
-          <div className="flex space-x-1">
-            <UserDropdown
-              key={user.id} // make sure dropdown closes when user changes. There are nicer ways to do this.
-              placement="bottom-end"
-            />
-            <NavigationButton
-              onClick={() => {
-                setVisible(!visible);
-              }}
-            >
-              <MenuIcon className="h-5" />
-            </NavigationButton>
-          </div>
+  return <>
+    <div
+      className={clsx("sticky top-0 z-40 w-full md:hidden", {
+        "bg-white": visible,
+        "bg-gray-100/80 backdrop-blur-md": !visible,
+      })}
+    >
+      <div className="flex items-center justify-between border-b py-2 px-4">
+        <Link href="/">
+
+          <Logo className="h-5 text-primary-500" />
+
+        </Link>
+        <div className="flex space-x-1">
+          <UserDropdown
+            key={user.id} // make sure dropdown closes when user changes. There are nicer ways to do this.
+            placement="bottom-end"
+          />
+          <NavigationButton
+            onClick={() => {
+              setVisible(!visible);
+            }}
+          >
+            <MenuIcon className="h-5" />
+          </NavigationButton>
         </div>
-        <AnimatePresence>
-          {visible ? (
-            <div className="absolute top-12 z-40 h-[calc(100vh-4px)] w-full divide-y overflow-auto bg-white backdrop-blur-md">
-              <ul className="space-y-8 p-4">
-                <li>
-                  <div className="mb-4 text-lg font-semibold text-slate-700">
-                    {t("app:preferences")}
-                  </div>
-                  <Preferences />
-                </li>
-              </ul>
-              <div className="space-y-8 p-4">
-                <div className="flex flex-col space-y-4">
-                  <a
-                    target="_blank"
-                    href="https://support.rallly.co"
-                    className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
-                    rel="noreferrer"
-                  >
-                    {t("common:support")}
-                  </a>
-                  <Link href="https://github.com/lukevella/rallly/discussions">
-                    <a className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
-                      {t("common:discussions")}
-                    </a>
-                  </Link>
-                  <Link href="https://blog.rallly.co">
-                    <a className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
-                      {t("common:blog")}
-                    </a>
-                  </Link>
+      </div>
+      <AnimatePresence>
+        {visible ? (
+          <div className="absolute top-12 z-40 h-[calc(100vh-4px)] w-full divide-y overflow-auto bg-white backdrop-blur-md">
+            <ul className="space-y-8 p-4">
+              <li>
+                <div className="mb-4 text-lg font-semibold text-slate-700">
+                  {t("app:preferences")}
                 </div>
-                <div className="flex items-center space-x-6">
-                  <a
-                    href="https://twitter.com/ralllyco"
-                    className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
-                  >
-                    <Twitter className="h-5" />
-                  </a>
-                  <a
-                    href="https://github.com/lukevella/rallly"
-                    className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
-                  >
-                    <Github className="h-5" />
-                  </a>
-                  <a
-                    href="https://discord.gg/uzg4ZcHbuM"
-                    className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
-                  >
-                    <Discord className="h-5" />
-                  </a>
-                </div>
+                <Preferences />
+              </li>
+            </ul>
+            <div className="space-y-8 p-4">
+              <div className="flex flex-col space-y-4">
                 <a
-                  href="https://www.paypal.com/donate/?hosted_button_id=7QXP2CUBLY88E"
-                  className="btn-primary flex items-center justify-center"
+                  target="_blank"
+                  href="https://support.rallly.co"
+                  className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
+                  rel="noreferrer"
                 >
-                  <Cash className="mr-1 inline-block w-5" />
-                  <span>{t("app:donate")}</span>
+                  {t("common:support")}
+                </a>
+                <Link
+                  href="https://github.com/lukevella/rallly/discussions"
+                  className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
+
+                  {t("common:discussions")}
+
+                </Link>
+                <Link
+                  href="https://blog.rallly.co"
+                  className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline">
+
+                  {t("common:blog")}
+
+                </Link>
+              </div>
+              <div className="flex items-center space-x-6">
+                <a
+                  href="https://twitter.com/ralllyco"
+                  className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
+                >
+                  <Twitter className="h-5" />
+                </a>
+                <a
+                  href="https://github.com/lukevella/rallly"
+                  className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
+                >
+                  <Github className="h-5" />
+                </a>
+                <a
+                  href="https://discord.gg/uzg4ZcHbuM"
+                  className="text-sm text-slate-400 transition-colors hover:text-primary-500 hover:no-underline"
+                >
+                  <Discord className="h-5" />
                 </a>
               </div>
+              <a
+                href="https://www.paypal.com/donate/?hosted_button_id=7QXP2CUBLY88E"
+                className="btn-primary flex items-center justify-center"
+              >
+                <Cash className="mr-1 inline-block w-5" />
+                <span>{t("app:donate")}</span>
+              </a>
             </div>
-          ) : null}
-        </AnimatePresence>
-      </div>
-      {/* <div className="no-scrollbar overflow-auto border-b px-3 py-1 md:hidden">
-        <Breadcrumbs {...props} />
-      </div> */}
-    </>
-  );
+          </div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+    {/* <div className="no-scrollbar overflow-auto border-b px-3 py-1 md:hidden">
+      <Breadcrumbs {...props} />
+    </div> */}
+  </>;
 };
 
 const DesktopNavigation: React.VoidFunctionComponent<{
@@ -393,9 +399,9 @@ const DesktopNavigation: React.VoidFunctionComponent<{
     >
       <div className="flex items-center space-x-4 overflow-hidden">
         <Link href="/">
-          <a>
-            <Logo className="h-6 text-primary-500" />
-          </a>
+
+          <Logo className="h-6 text-primary-500" />
+
         </Link>
         {breadcrumbs}
       </div>
@@ -412,7 +418,7 @@ const DesktopNavigation: React.VoidFunctionComponent<{
           <Preferences />
         </Popover>
         <IfGuest>
-          <Link href="/login" passHref={true}>
+          <Link href="/login" passHref={true} legacyBehavior>
             <NavigationButton
               onClick={(e) => {
                 e.preventDefault();
@@ -446,10 +452,12 @@ const Breadcrumbs: React.VoidFunctionComponent<BreadcrumbsProps> = ({
     <div className="flex items-center space-x-1 whitespace-nowrap py-1 md:flex md:overflow-hidden md:rounded-md md:bg-slate-500/10 md:px-3">
       {breadcrumbs?.map((breadcrumb, i) => (
         <div className="flex shrink-0 items-center" key={i}>
-          <Link href={breadcrumb.href}>
-            <a className="mr-1 inline-block text-slate-500 hover:text-slate-600 hover:no-underline">
-              {breadcrumb.title}
-            </a>
+          <Link
+            href={breadcrumb.href}
+            className="mr-1 inline-block text-slate-500 hover:text-slate-600 hover:no-underline">
+
+            {breadcrumb.title}
+
           </Link>
           <ChevronRight className="inline-block h-5 shrink-0 text-slate-500/50" />
         </div>

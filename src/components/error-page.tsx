@@ -35,8 +35,8 @@ const ErrorPage: React.VoidFunctionComponent<ComponentProps> = ({
           </div>
           <p>{description}</p>
           <div className="flex justify-center space-x-3">
-            <Link href="/" passHref={true}>
-              <a className="btn-default">{t("goToHome")}</a>
+            <Link href="/" passHref={true} className="btn-default">
+              {t("goToHome")}
             </Link>
             <Button icon={<Chat />} onClick={showCrispChat}>
               {t("startChat")}

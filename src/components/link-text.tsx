@@ -8,10 +8,10 @@ export const LinkText = ({
   ...forwardProps
 }: React.PropsWithChildren<LinkProps & { className?: string }>) => {
   return (
-    <Link {...forwardProps} href={href}>
-      <a className={className} onClick={onClick}>
-        {children}
-      </a>
-    </Link>
+    (<Link {...forwardProps} href={href} className={className} onClick={onClick}>
+
+      {children}
+
+    </Link>)
   );
 };

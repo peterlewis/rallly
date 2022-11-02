@@ -108,7 +108,7 @@ const Page: NextPage = () => {
             <div className="mb-4 text-lg font-semibold">{t("yourPolls")}</div>
             <div>
               <Link href="/polls">
-                <a>{t("goToPolls")}</a>
+                {t("goToPolls")}
               </Link>
             </div>
           </div>
