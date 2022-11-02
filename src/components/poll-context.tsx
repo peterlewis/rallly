@@ -26,7 +26,7 @@ type PollContextValue = {
   targetTimeZone: string;
   participantUrl: string;
   setTargetTimeZone: (timeZone: string) => void;
-  pollType: "date" | "timeSlot";
+  pollType: "date" | "time";
   highScore: number;
   isDeleted: boolean;
   setDeleted: React.Dispatch<React.SetStateAction<boolean>>;
@@ -40,7 +40,7 @@ type PollContextValue = {
   getVote: (participantId: string, optionId: string) => VoteType | undefined;
 } & (
   | { pollType: "date"; options: ParsedDateOption[] }
-  | { pollType: "timeSlot"; options: ParsedTimeSlotOption[] }
+  | { pollType: "time"; options: ParsedTimeSlotOption[] }
 );
 
 export const PollContext = React.createContext<PollContextValue | null>(null);

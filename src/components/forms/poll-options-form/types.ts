@@ -4,7 +4,7 @@ export type DateOption = {
 };
 
 export type TimeOption = {
-  type: "timeSlot";
+  type: "time";
   start: string;
   end: string;
 };

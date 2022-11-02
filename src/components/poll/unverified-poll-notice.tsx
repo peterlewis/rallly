@@ -15,16 +15,7 @@ export const UnverifiedPollNotice = () => {
     <div>
       <div className="md:flex md:justify-between md:space-x-4">
         <div className="mb-4 md:mb-0 md:w-2/3">
-          <Trans
-            t={t}
-            i18nKey="unverifiedMessage"
-            values={{ email: poll.user.email }}
-            components={{
-              b: (
-                <span className="whitespace-nowrap font-medium text-slate-700" />
-              ),
-            }}
-          />
+          <Trans t={t} i18nKey="guestPoll" />
         </div>
         <Button
           onClick={() => {

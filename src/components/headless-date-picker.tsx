@@ -1,9 +1,8 @@
+import dayjs from "dayjs";
 import React from "react";
 
-import { useDayjs } from "../utils/dayjs";
-
 interface DayProps {
-  date: Date;
+  date: string;
   day: string;
   weekend: boolean;
   outOfMonth: boolean;
@@ -11,11 +10,13 @@ interface DayProps {
   selected: boolean;
 }
 
-interface HeadlessDatePickerOptions {
-  onSelectionChange?: (selection: Date[]) => void;
+export interface HeadlessDatePickerOptions {
+  onChangeSelected?: (selection: string[]) => void;
   date?: Date;
-  selection?: Date[];
+  selected?: string[];
   onNavigationChange?: (date: Date) => void;
+  onAddToSelection?: (date: string) => void;
+  onRemoveFromSelection?: (date: string) => void;
   weekStartsOn?: "monday" | "sunday";
 }
 
@@ -31,12 +32,11 @@ export const useHeadlessDatePicker = (
   daysOfWeek: string[];
   days: DayProps[];
   navigationDate: Date;
-  selection: Date[];
-  toggle: (date: Date) => void;
+  selection: string[];
+  toggle: (date: string) => string[];
 } => {
-  const { dayjs } = useDayjs();
-  const [localSelection, setSelection] = React.useState<Date[]>([]);
-  const selection = options?.selection ?? localSelection;
+  const [localSelection, setSelection] = React.useState<string[]>([]);
+  const selection = options?.selected ?? localSelection;
   const [localNavigationDate, setNavigationDate] = React.useState(today);
   const navigationDate = dayjs(options?.date ?? localNavigationDate);
 
@@ -58,7 +58,7 @@ export const useHeadlessDatePicker = (
   do {
     const d = firstDayOfFirstWeek.add(i, "days");
     days.push({
-      date: d.toDate(),
+      date: d.format("YYYY-MM-DD"),
       day: d.format("D"),
       weekend: d.day() === 0 || d.day() === 6,
       outOfMonth: d.month() !== currentMonth,
@@ -96,18 +96,27 @@ export const useHeadlessDatePicker = (
     },
     days,
     daysOfWeek,
-    selection: options?.selection ?? selection,
+    selection: options?.selected ?? selection,
     toggle: (date) => {
-      if (options?.selection) {
-        // ignore, selection is controlled externally
-        return;
-      }
       const index = selection.indexOf(date);
-      if (index === -1) {
-        setSelection((s) => [...s, date]);
+
+      const isNotAlreadySelected = index === -1;
+      const newSelection = isNotAlreadySelected
+        ? [...selection, date]
+        : [...selection].splice(index, 1);
+
+      if (isNotAlreadySelected) {
+        options?.onAddToSelection?.(date);
       } else {
-        setSelection((s) => s.splice(index, 1));
+        options?.onRemoveFromSelection?.(date);
       }
+
+      if (!options?.selected) {
+        // ignore, selection is controlled externally\
+        setSelection(newSelection);
+      }
+
+      return newSelection;
     },
   };
 };

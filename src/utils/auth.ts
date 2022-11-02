@@ -1,6 +1,12 @@
 import { IronSessionOptions, sealData, unsealData } from "iron-session";
 import { withIronSessionApiRoute, withIronSessionSsr } from "iron-session/next";
-import { GetServerSideProps, NextApiHandler } from "next";
+import {
+  GetServerSideProps,
+  GetServerSidePropsContext,
+  NextApiHandler,
+  NextApiRequest,
+  NextApiResponse,
+} from "next";
 
 import { prisma } from "~/prisma/db";
 
@@ -8,7 +14,7 @@ import { randomid } from "./nanoid";
 
 const sessionOptions: IronSessionOptions = {
   password: process.env.SECRET_PASSWORD,
-  cookieName: "rallly-session",
+  cookieName: "cc-session",
   cookieOptions: {
     secure: process.env.NODE_ENV === "production",
   },
@@ -57,14 +63,85 @@ export const createToken = async <T extends Record<string, unknown>>(
   });
 };
 
-export const createGuestUser = async (): Promise<{
+export type RegistrationTokenPayload = {
+  name: string;
+  email: string;
+  company: string;
+  position: string;
+};
+
+export type LoginTokenPayload = {
+  userId: string;
+  redirect?: string;
+};
+
+export type RegisteredUserSession = {
+  isGuest: false;
+  id: string;
+  name: string;
+  email: string;
+};
+
+export type GuestUserSession = {
   isGuest: true;
   id: string;
+};
+
+export type UserSession = GuestUserSession | RegisteredUserSession;
+
+export const withAuthRequired = (options?: {
+  getServerSideProps?: GetServerSideProps;
+  redirectTo?: string;
+}): GetServerSideProps => {
+  return withSessionSsr(async (ctx) => {
+    if (!ctx.req.session.user || ctx.req.session.user.isGuest !== false) {
+      return {
+        redirect: {
+          destination:
+            options?.redirectTo ?? `/login?redirect=${ctx.resolvedUrl}`,
+          permanent: false,
+        },
+      };
+    }
+
+    if (options?.getServerSideProps) {
+      const res = await options.getServerSideProps(ctx);
+
+      if ("props" in res) {
+        return { ...res, props: { ...res.props, user: ctx.req.session.user } };
+      }
+      return res;
+    }
+
+    return { props: { user: ctx.req.session.user } };
+  });
+};
+
+export const createGuestUser = async (): Promise<{
+  id: string;
+  isGuest: true;
 }> => {
   return {
-    id: `user-${await randomid()}`,
     isGuest: true,
+    id: `guest-${await randomid()}`,
   };
+};
+
+export const getCurrentUser = async (
+  ctx:
+    | GetServerSidePropsContext
+    | { req: NextApiRequest; res: NextApiResponse },
+): Promise<
+  | { isGuest: false; name: string; id: string; email: string }
+  | { isGuest: true; id: string }
+> => {
+  const user = ctx.req.session.user;
+
+  if (!user) {
+    throw new Error("Tried to get user but no user found.");
+  }
+
+  return user;
 };
 
 // assigns participants and comments created by guests to a user

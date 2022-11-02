@@ -284,10 +284,10 @@ const MobilePoll: React.VoidFunctionComponent = () => {
           options={pollContext.options}
           editable={isEditing}
           groupClassName={
-            pollContext.pollType === "timeSlot" ? "top-[151px]" : "top-[108px]"
+            pollContext.pollType === "time" ? "top-[151px]" : "top-[108px]"
           }
           group={(option) => {
-            if (option.type === "timeSlot") {
+            if (option.type === "time") {
               return `${option.dow} ${option.day} ${option.month}`;
             }
             return `${option.month} ${option.year}`;

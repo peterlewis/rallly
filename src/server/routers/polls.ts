@@ -5,7 +5,6 @@ import { prisma } from "~/prisma/db";
 
 import { absoluteUrl } from "../../utils/absolute-url";
 import { sendEmailTemplate } from "../../utils/api-utils";
-import { createToken } from "../../utils/auth";
 import { nanoid } from "../../utils/nanoid";
 import { GetPollApiResponse } from "../../utils/trpc/types";
 import { createRouter } from "../createRouter";
@@ -25,6 +24,7 @@ const defaultSelectFields: {
   participantUrlId: true;
   adminUrlId: true;
   verified: true;
+  userId: true;
   closed: true;
   legacy: true;
   demo: true;
@@ -38,6 +38,7 @@ const defaultSelectFields: {
 } = {
   id: true,
   timeZone: true,
+  userId: true,
   title: true,
   authorName: true,
   location: true,
@@ -82,57 +83,36 @@ export const polls = createRouter()
   .mutation("create", {
     input: z.object({
       title: z.string(),
-      type: z.literal("date"),
       timeZone: z.string().optional(),
       location: z.string().optional(),
       description: z.string().optional(),
-      user: z.object({
-        name: z.string(),
-        email: z.string(),
-      }),
       options: z.string().array(),
       demo: z.boolean().optional(),
     }),
     resolve: async ({ ctx, input }): Promise<{ urlId: string }> => {
       const adminUrlId = await nanoid();
 
-      let verified = false;
-
-      if (ctx.session.user.isGuest === false) {
-        const user = await prisma.user.findUnique({
-          where: { id: ctx.session.user.id },
-        });
-
-        // If user is logged in with the same email address
-        if (user?.email === input.user.email) {
-          verified = true;
-        }
-      }
-
       const poll = await prisma.poll.create({
         data: {
           id: await nanoid(),
           title: input.title,
-          type: input.type,
+          type: "date",
           timeZone: input.timeZone,
           location: input.location,
           description: input.description,
-          authorName: input.user.name,
+          authorName: ctx.user.isGuest ? "Guest" : ctx.user.name,
           demo: input.demo,
-          verified: verified,
+          verified: !ctx.user.isGuest,
           adminUrlId,
           participantUrlId: await nanoid(),
-          user: {
-            connectOrCreate: {
-              where: {
-                email: input.user.email,
+          user: ctx.user.isGuest
+            ? undefined
+            : {
+                connect: {
+                  email: ctx.user.email,
+                },
               },
-              create: {
-                id: await nanoid(),
-                ...input.user,
-              },
-            },
-          },
+          userId: ctx.user.isGuest ? ctx.user.id : undefined,
           options: {
             createMany: {
               data: input.options.map((value) => ({
@@ -147,34 +127,15 @@ export const polls = createRouter()
       const pollUrl = `${homePageUrl}/admin/${adminUrlId}`;
 
       try {
-        if (poll.verified) {
+        if (!ctx.user.isGuest) {
           await sendEmailTemplate({
             templateName: "new-poll-verified",
-            to: input.user.email,
+            to: ctx.user.email,
             subject: `Rallly: ${poll.title}`,
             templateVars: {
               title: poll.title,
-              name: input.user.name,
+              name: ctx.user.name,
               pollUrl,
-              homePageUrl,
-              supportEmail: process.env.SUPPORT_EMAIL,
-            },
-          });
-        } else {
-          const verificationCode = await createToken({
-            pollId: poll.id,
-          });
-          const verifyEmailUrl = `${pollUrl}?code=${verificationCode}`;
-
-          await sendEmailTemplate({
-            templateName: "new-poll",
-            to: input.user.email,
-            subject: `Rallly: ${poll.title} - Verify your email address`,
-            templateVars: {
-              title: poll.title,
-              name: input.user.name,
-              pollUrl,
-              verifyEmailUrl,
               homePageUrl,
               supportEmail: process.env.SUPPORT_EMAIL,
             },
@@ -211,7 +172,7 @@ export const polls = createRouter()
       }
 
       // We want to keep the adminUrlId in if the user is view
-      if (!input.admin && ctx.session.user?.id !== poll.user.id) {
+      if (!input.admin && ctx.user.id !== poll.userId) {
         return { ...poll, admin: input.admin, adminUrlId: "" };
       }
 

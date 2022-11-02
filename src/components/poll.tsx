@@ -187,7 +187,9 @@ const PollPage: NextPage = () => {
           {!poll.admin && poll.adminUrlId ? (
             <div className="mb-4 items-center justify-between rounded-lg px-4 md:flex md:space-x-4 md:border md:p-2 md:pl-4">
               <div className="mb-4 font-medium md:mb-0">
-                {t("pollOwnerNotice", { name: poll.user.name })}
+                {t("pollOwnerNotice", {
+                  name: poll.user ? poll.user.name : "Guest",
+                })}
               </div>
               <a href={`/admin/${poll.adminUrlId}`} className="btn-default">
                 {t("goToAdmin")} &rarr;

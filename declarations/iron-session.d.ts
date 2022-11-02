@@ -1,10 +1,9 @@
 import "iron-session";
 
+import { UserSession } from "@/utils/auth";
+
 declare module "iron-session" {
   export interface IronSessionData {
-    user: {
-      id: string;
-      isGuest: boolean;
-    };
+    user?: UserSession;
   }
 }

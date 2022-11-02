@@ -1,32 +1,24 @@
-import clsx from "clsx";
+import dayjs from "dayjs";
+import produce from "immer";
 import { useTranslation } from "next-i18next";
-import { usePlausible } from "next-plausible";
 import * as React from "react";
 
-import {
-  expectTimeOption,
-  getDateProps,
-  removeAllOptionsForDay,
-} from "../../../../utils/date-time-utils";
 import { useDayjs } from "../../../../utils/dayjs";
 import { Button } from "../../../button";
 import CompactButton from "../../../compact-button";
-import DateCard from "../../../date-card";
 import Dropdown, { DropdownItem } from "../../../dropdown";
 import { useHeadlessDatePicker } from "../../../headless-date-picker";
 import Calendar from "../../../icons/calendar.svg";
-import ChevronLeft from "../../../icons/chevron-left.svg";
-import ChevronRight from "../../../icons/chevron-right.svg";
 import DotsHorizontal from "../../../icons/dots-horizontal.svg";
 import Magic from "../../../icons/magic.svg";
 import PlusSm from "../../../icons/plus-sm.svg";
 import Trash from "../../../icons/trash.svg";
 import X from "../../../icons/x.svg";
 import Switch from "../../../switch";
-import { DateTimeOption } from "..";
-import { DateTimePickerProps } from "../types";
-import { formatDateWithoutTime, formatDateWithoutTz } from "../utils";
-import TimePicker from "./time-picker";
+import { DateTimeOption, DateTimePickerProps } from "../types";
+import { isoDateTimeFormat } from "../utils";
+import { MultiDateSelect } from "./multi-date-select";
+import { TimeSlotPicker } from "./time-slot-picker";
 
 const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   options,
@@ -36,11 +28,8 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   duration,
   onChangeDuration,
 }) => {
-  const { dayjs, weekStartsOn } = useDayjs();
   const { t } = useTranslation("app");
-  const isTimedEvent = options.some((option) => option.type === "timeSlot");
-
-  const plausible = usePlausible();
+  const isTimedEvent = !options.some((option) => option.type === "date");
 
   const optionsByDay = React.useMemo(() => {
     const res: Record<
@@ -69,153 +58,92 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
     return res;
   }, [options]);
 
-  const datepickerSelection = React.useMemo(() => {
-    return Object.keys(optionsByDay).map(
-      (dateString) => new Date(dateString + "T12:00:00"),
-    );
-  }, [optionsByDay]);
+  const { weekStartsOn } = useDayjs();
 
   const datepicker = useHeadlessDatePicker({
-    selection: datepickerSelection,
+    selected: Object.keys(optionsByDay),
     onNavigationChange: onNavigate,
     weekStartsOn,
     date,
   });
 
-  return (
-    <div className="overflow-hidden lg:flex">
-      <div className="border-b p-4 lg:w-[440px] lg:border-r lg:border-b-0">
-        <div>
-          <div className="flex w-full flex-col">
-            <div className="mb-3 flex items-center justify-center space-x-4">
-              <Button
-                icon={<ChevronLeft />}
-                title={t("previousMonth")}
-                onClick={datepicker.prev}
-              />
-              <div className="grow text-center text-lg font-medium">
-                {datepicker.label}
-              </div>
-              <Button
-                title={t("nextMonth")}
-                icon={<ChevronRight />}
-                onClick={datepicker.next}
-              />
-            </div>
-            <div className="grid grid-cols-7">
-              {datepicker.daysOfWeek.map((dayOfWeek) => {
-                return (
-                  <div
-                    key={dayOfWeek}
-                    className="flex items-center justify-center pb-2 text-sm font-medium text-slate-400"
-                  >
-                    {dayOfWeek.substring(0, 2)}
-                  </div>
-                );
-              })}
-            </div>
-            <div className="grid grow grid-cols-7 overflow-hidden rounded-lg border bg-white shadow-sm">
-              {datepicker.days.map((day, i) => {
-                return (
-                  <button
-                    type="button"
-                    key={i}
-                    onClick={() => {
-                      if (
-                        datepicker.selection.some((selectedDate) =>
-                          dayjs(selectedDate).isSame(day.date, "day"),
-                        )
-                      ) {
-                        onChange(removeAllOptionsForDay(options, day.date));
-                      } else {
-                        const selectedDate = dayjs(day.date)
-                          .set("hour", 12)
-                          .toDate();
-                        const newOption: DateTimeOption = !isTimedEvent
-                          ? {
-                              type: "date",
-                              date: formatDateWithoutTime(selectedDate),
-                            }
-                          : {
-                              type: "timeSlot",
-                              start: formatDateWithoutTz(selectedDate),
-                              end: formatDateWithoutTz(
-                                dayjs(selectedDate)
-                                  .add(duration, "minutes")
-                                  .toDate(),
-                              ),
-                            };
+  const removeAllOptionsForDay = React.useCallback(
+    (dateToRemove: string) => {
+      onChange(
+        options.filter((option) => {
+          const optionDate =
+            option.type === "date" ? option.date : option.start;
+          return !optionDate.includes(dateToRemove);
+        }),
+      );
+    },
+    [onChange, options],
+  );
 
-                        onChange([...options, newOption]);
-                        onNavigate(selectedDate);
-                      }
-                      if (day.outOfMonth) {
-                        if (i < 6) {
-                          datepicker.prev();
-                        } else {
-                          datepicker.next();
-                        }
-                      }
-                    }}
-                    className={clsx(
-                      "relative flex h-12 items-center justify-center text-sm hover:bg-slate-50 focus:ring-0 focus:ring-offset-0 active:bg-slate-100",
-                      {
-                        "bg-slate-50 text-slate-400": day.outOfMonth,
-                        "font-bold": day.today,
-                        "text-primary-500": day.today && !day.selected,
-                        "border-r": (i + 1) % 7 !== 0,
-                        "border-b": i < datepicker.days.length - 7,
-                        "font-normal text-white after:absolute after:-z-0 after:h-8 after:w-8 after:animate-popIn after:rounded-full after:bg-green-500 after:content-['']":
-                          day.selected,
-                      },
-                    )}
-                  >
-                    <span className="z-10">{day.day}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <Button className="mt-3" onClick={datepicker.today}>
-              {t("today")}
-            </Button>
-          </div>
-        </div>
+  return (
+    <div className="h-full lg:flex">
+      <div className="border-b p-4 lg:w-[440px] lg:border-r lg:border-b-0">
+        <MultiDateSelect
+          selected={Object.keys(optionsByDay)}
+          weekStartsOn={weekStartsOn}
+          onAddToSelection={(newDateString) => {
+            let newOption: DateTimeOption;
+            if (isTimedEvent) {
+              const start = `${newDateString}T08:00:00`;
+              newOption = {
+                type: "time",
+                start,
+                end: dayjs(start)
+                  .add(duration, "minutes")
+                  .format(isoDateTimeFormat),
+              };
+            } else {
+              newOption = {
+                type: "date",
+                date: newDateString,
+              };
+            }
+
+            onChange([...options, newOption]);
+            onNavigate(new Date(newDateString));
+          }}
+          onRemoveFromSelection={removeAllOptionsForDay}
+          onNavigationChange={onNavigate}
+          date={date}
+        />
       </div>
       <div className="flex grow flex-col">
-        <div
-          className={clsx("border-b", {
-            hidden: datepicker.selection.length === 0,
-          })}
-        >
+        <div className="border-b shadow-sm">
           <div className="flex items-center space-x-3 p-4">
             <div className="grow">
-              <div className="font-medium">{t("specifyTimes")}</div>
-              <div className="text-sm text-slate-400">
-                {t("specifyTimesDescription")}
+              <div className="font-medium">All-day event</div>
+              <div className="text-sm text-gray-400">
+                Do not specify start and end times for this event
               </div>
             </div>
             <div>
               <Switch
                 data-testid="specify-times-switch"
-                checked={isTimedEvent}
+                checked={!isTimedEvent}
                 onChange={(checked) => {
-                  if (checked) {
+                  if (!checked) {
                     // convert dates to time slots
                     onChange(
                       options.map((option) => {
-                        if (option.type === "timeSlot") {
+                        if (option.type === "time") {
                           throw new Error(
                             "Expected option to be a date but received timeSlot",
                           );
                         }
-                        const startDate = new Date(`${option.date}T12:00:00`);
-                        const endDate = dayjs(startDate)
-                          .add(duration, "minutes")
-                          .toDate();
+
+                        const start = `${option.date}T08:00:00`;
+
                         return {
-                          type: "timeSlot",
-                          start: formatDateWithoutTz(startDate),
-                          end: formatDateWithoutTz(endDate),
+                          type: "time",
+                          start,
+                          end: dayjs(start)
+                            .add(duration, "minutes")
+                            .format("YYYY-MM-DDTHH:mm:ss"),
                         };
                       }),
                     );
@@ -223,7 +151,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                     onChange(
                       datepicker.selection.map((date) => ({
                         type: "date",
-                        date: formatDateWithoutTime(date),
+                        date,
                       })),
                     );
                   }
@@ -232,215 +160,177 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
             </div>
           </div>
         </div>
-        <div className="grow px-4">
-          {isTimedEvent ? (
-            <div className="divide-y">
-              {Object.keys(optionsByDay)
-                .sort((a, b) => (a > b ? 1 : -1))
-                .map((dateString) => {
-                  const optionsForDay = optionsByDay[dateString];
-                  return (
-                    <div
-                      key={dateString}
-                      className="space-y-3 py-4 sm:flex sm:space-y-0 sm:space-x-4"
-                    >
-                      <div>
-                        <DateCard
-                          {...getDateProps(new Date(dateString + "T12:00:00"))}
-                        />
-                      </div>
-                      <div className="grow space-y-3">
-                        {optionsForDay.map(({ option, index }) => {
-                          if (option.type === "date") {
-                            throw new Error("Expected timeSlot but got date");
-                          }
-                          const startDate = new Date(option.start);
-                          return (
-                            <div
-                              key={index}
-                              className="flex items-center space-x-3"
-                            >
-                              <TimePicker
-                                value={startDate}
-                                onChange={(newStart) => {
-                                  let newEnd = dayjs(newStart).add(
-                                    duration,
-                                    "minutes",
-                                  );
+        {options.length === 0 ? (
+          <div className="flex h-full items-center justify-center py-12">
+            <div className="text-center font-medium text-gray-400">
+              <Calendar className="mb-2 inline-block h-12 w-12" />
+              <div>{t("noDatesSelected")}</div>
+            </div>
+          </div>
+        ) : null}
+        <div className="grow divide-y overflow-y-scroll px-4">
+          {Object.keys(optionsByDay)
+            .sort((a, b) => (a > b ? 1 : -1))
+            .map((dateString) => {
+              const optionsForDay = optionsByDay[dateString];
+              const date = dayjs(dateString);
+              const lastOption = optionsForDay[optionsForDay.length - 1].option;
 
-                                  if (!newEnd.isSame(newStart, "day")) {
-                                    newEnd = newEnd
-                                      .set("hour", 23)
-                                      .set("minute", 45);
-                                  }
-                                  // replace enter with updated start time
-                                  onChange([
-                                    ...options.slice(0, index),
-                                    {
-                                      ...option,
-                                      start: formatDateWithoutTz(newStart),
-                                      end: formatDateWithoutTz(newEnd.toDate()),
-                                    },
-                                    ...options.slice(index + 1),
-                                  ]);
-                                  onNavigate(newStart);
-                                  onChangeDuration(
-                                    newEnd.diff(newStart, "minutes"),
-                                  );
-                                }}
-                              />
-                              <TimePicker
-                                value={new Date(option.end)}
-                                startFrom={dayjs(startDate)
-                                  .add(15, "minutes")
-                                  .toDate()}
-                                onChange={(newEnd) => {
-                                  onChange([
-                                    ...options.slice(0, index),
-                                    {
-                                      ...option,
-                                      end: formatDateWithoutTz(newEnd),
-                                    },
-                                    ...options.slice(index + 1),
-                                  ]);
-                                  onNavigate(newEnd);
-                                  onChangeDuration(
-                                    dayjs(newEnd).diff(startDate, "minutes"),
-                                  );
-                                }}
-                              />
+              return (
+                <div key={dateString} className="flex space-x-4 py-4">
+                  <div>
+                    <div className="text-2xl font-bold">{date.format("D")}</div>
+                    <div className="text-sm uppercase text-gray-400">
+                      {date.format("MMM")}
+                    </div>
+                  </div>
+                  <div className="grow">
+                    {optionsForDay.map(({ option, index }) => {
+                      if (option.type === "date") {
+                        return (
+                          <div key={index} className="flex space-x-4">
+                            <div className="grow rounded-lg border border-dashed p-4 text-center text-sm text-gray-400">
+                              All-day
+                            </div>
+                            <div>
                               <CompactButton
                                 icon={X}
                                 onClick={() => {
-                                  onChange([
-                                    ...options.slice(0, index),
-                                    ...options.slice(index + 1),
-                                  ]);
+                                  onChange(
+                                    produce(options, (draft) => {
+                                      draft.splice(index, 1);
+                                    }),
+                                  );
                                 }}
                               />
                             </div>
-                          );
-                        })}
-                        <div className="flex items-center space-x-3">
-                          <Button
-                            icon={<PlusSm />}
-                            onClick={() => {
-                              const lastOption = expectTimeOption(
-                                optionsForDay[optionsForDay.length - 1].option,
-                              );
-                              const startTime = lastOption.start;
+                          </div>
+                        );
+                      }
 
-                              onChange([
-                                ...options,
-                                {
-                                  type: "timeSlot",
-                                  start: startTime,
-                                  end: formatDateWithoutTz(
-                                    dayjs(new Date(startTime))
-                                      .add(duration, "minutes")
-                                      .toDate(),
-                                  ),
-                                },
-                              ]);
-                            }}
-                          >
-                            {t("addTimeOption")}
-                          </Button>
-                          <Dropdown
-                            trigger={<CompactButton icon={DotsHorizontal} />}
-                            placement="bottom-start"
-                          >
-                            <DropdownItem
-                              icon={Magic}
-                              disabled={datepicker.selection.length < 2}
-                              label={t("applyToAllDates")}
-                              onClick={() => {
-                                plausible("Applied options to all dates");
-                                const times = optionsForDay.map(
-                                  ({ option }) => {
-                                    if (option.type === "date") {
-                                      throw new Error(
-                                        "Expected timeSlot but got date",
+                      return (
+                        <div key={index}>
+                          <div className="mb-3 flex space-x-4">
+                            <div className="flex grow items-center space-x-4">
+                              <TimeSlotPicker
+                                value={[option.start, option.end]}
+                                onChange={([newStartTime, newEndtime]) => {
+                                  onChange(
+                                    produce(options, (draft) => {
+                                      draft[index] = {
+                                        type: "time",
+                                        start: newStartTime,
+                                        end: newEndtime,
+                                      };
+                                    }),
+                                  );
+
+                                  const newDuration = dayjs(newEndtime).diff(
+                                    newStartTime,
+                                    "minutes",
+                                  );
+
+                                  if (newDuration !== duration) {
+                                    onChangeDuration(newDuration);
+                                  }
+                                }}
+                                suffix={
+                                  <CompactButton
+                                    icon={X}
+                                    onClick={() => {
+                                      onChange(
+                                        produce(options, (draft) => {
+                                          draft.splice(index, 1);
+                                        }),
                                       );
-                                    }
-
-                                    return {
-                                      startTime: option.start.substring(
-                                        option.start.indexOf("T"),
-                                      ),
-                                      endTime: option.end.substring(
-                                        option.end.indexOf("T"),
-                                      ),
-                                    };
-                                  },
-                                );
-                                const newOptions: DateTimeOption[] = [];
-                                Object.keys(optionsByDay).forEach(
-                                  (dateString) => {
-                                    times.forEach((time) => {
-                                      newOptions.push({
-                                        type: "timeSlot",
-                                        start: dateString + time.startTime,
-                                        end: dateString + time.endTime,
-                                      });
-                                    });
-                                  },
-                                );
-                                onChange(newOptions);
-                              }}
-                            />
-                            <DropdownItem
-                              label={t("deleteDate")}
-                              icon={Trash}
-                              onClick={() => {
-                                onChange(
-                                  removeAllOptionsForDay(
-                                    options,
-                                    new Date(dateString),
-                                  ),
-                                );
-                              }}
-                            />
-                          </Dropdown>
+                                    }}
+                                  />
+                                }
+                              />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          ) : datepicker.selection.length ? (
-            <div className="grid grid-cols-[repeat(auto-fill,60px)] gap-5 py-4">
-              {datepicker.selection
-                .sort((a, b) => a.getTime() - b.getTime())
-                .map((selectedDate, i) => {
-                  return (
-                    <DateCard
-                      key={i}
-                      {...getDateProps(selectedDate)}
-                      annotation={
-                        <CompactButton
-                          icon={X}
+                      );
+                    })}
+                    {lastOption.type === "time" ? (
+                      <div className="flex items-center space-x-4">
+                        <Button
+                          icon={<PlusSm />}
                           onClick={() => {
-                            // TODO (Luke Vella) [2022-03-19]: Find cleaner way to manage this state
-                            // Quite tedious right now to remove a single element
+                            const end = dayjs(lastOption.end);
+
+                            let newEnd = end.add(duration, "minutes");
+
+                            if (!newEnd.isSame(end, "day")) {
+                              newEnd = end.set("hour", 23).set("minute", 59);
+                            }
                             onChange(
-                              removeAllOptionsForDay(options, selectedDate),
+                              produce(options, (draft) => {
+                                draft.splice(optionsForDay.length + 1, 0, {
+                                  type: "time",
+                                  start: end.format("YYYY-MM-DDTHH:mm:ss"),
+                                  end: newEnd.format("YYYY-MM-DDTHH:mm:ss"),
+                                });
+                              }),
                             );
                           }}
-                        />
-                      }
-                    />
-                  );
-                })}
-            </div>
-          ) : (
-            <div className="flex h-full items-center justify-center py-12">
-              <div className="text-center font-medium text-gray-400">
-                <Calendar className="mb-2 inline-block h-12 w-12" />
-                <div>{t("noDatesSelected")}</div>
-              </div>
-            </div>
-          )}
+                        >
+                          Add time
+                        </Button>
+                        <Dropdown
+                          trigger={<CompactButton icon={DotsHorizontal} />}
+                          placement="bottom-start"
+                        >
+                          <DropdownItem
+                            icon={Magic}
+                            disabled={datepicker.selection.length < 2}
+                            label="Apply to all dates"
+                            onClick={() => {
+                              const times = optionsForDay.map(({ option }) => {
+                                if (option.type === "date") {
+                                  throw new Error(
+                                    "Expected timeSlot but got date",
+                                  );
+                                }
+
+                                return {
+                                  startTime: option.start.substring(
+                                    option.start.indexOf("T"),
+                                  ),
+                                  endTime: option.end.substring(
+                                    option.end.indexOf("T"),
+                                  ),
+                                };
+                              });
+                              const newOptions: DateTimeOption[] = [];
+                              Object.keys(optionsByDay).forEach(
+                                (dateString) => {
+                                  times.forEach((time) => {
+                                    newOptions.push({
+                                      type: "time",
+                                      start: dateString + time.startTime,
+                                      end: dateString + time.endTime,
+                                    });
+                                  });
+                                },
+                              );
+                              onChange(newOptions);
+                            }}
+                          />
+                          <DropdownItem
+                            label="Delete date"
+                            icon={Trash}
+                            onClick={() => {
+                              removeAllOptionsForDay(dateString);
+                            }}
+                          />
+                        </Dropdown>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
         </div>
       </div>
     </div>

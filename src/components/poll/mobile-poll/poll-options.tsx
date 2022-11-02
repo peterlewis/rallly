@@ -61,7 +61,7 @@ const PollOptions: React.VoidFunctionComponent<PollOptions> = ({
               };
 
               switch (option.type) {
-                case "timeSlot":
+                case "time":
                   return (
                     <TimeSlotOption
                       onChange={handleChange}

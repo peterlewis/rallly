@@ -1,231 +1,168 @@
-import { NextPage } from "next";
-import Head from "next/head";
+import { motion } from "framer-motion";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import { usePlausible } from "next-plausible";
-import React from "react";
-import { useSessionStorage } from "react-use";
+import * as React from "react";
 
-import { encodeDateOption } from "../utils/date-time-utils";
+import ChevronLeft from "@/components/icons/chevron-left.svg";
+
 import { trpc } from "../utils/trpc";
+import { AppLayout, AppPage } from "./app-layout";
 import { Button } from "./button";
 import {
-  NewEventData,
-  PollDetailsData,
   PollDetailsForm,
-  PollOptionsData,
-  PollOptionsForm,
-  UserDetailsData,
-  UserDetailsForm,
-} from "./forms";
-import { SessionProps, useSession, withSession } from "./session";
-import StandardLayout from "./standard-layout";
-import Steps from "./steps";
+  ProceedingDetailsStep,
+} from "./create-poll/poll-details-step";
+import { PollOptionsData, PollOptionsForm } from "./forms";
 
-type StepName = "eventDetails" | "options" | "userDetails";
-
-const steps: StepName[] = ["eventDetails", "options", "userDetails"];
-
-const required = <T,>(v: T | undefined): T => {
-  if (!v) {
-    throw new Error("Required value is missing");
-  }
-
-  return v;
+type NewPollState = {
+  step: number;
+  details: PollDetailsForm;
+  options: PollOptionsData;
 };
 
-const initialNewEventData: NewEventData = { currentStep: 0 };
-const sessionStorageKey = "newEventFormData";
+const initialState: NewPollState = {
+  step: 0,
+  details: {
+    title: "",
+    location: "",
+    description: "",
+  },
+  options: {
+    navigationDate: new Date().toISOString(),
+    duration: 30,
+    options: [],
+    view: "month",
+    timeZone: "",
+  },
+};
 
-export interface CreatePollPageProps extends SessionProps {
-  title?: string;
-  location?: string;
-  description?: string;
-  view?: "week" | "month";
-}
+type NewPollAction =
+  | { type: "back" }
+  | { type: "loadState"; payload: NewPollState }
+  | {
+      type: "updateDetails";
+      payload: PollDetailsForm;
+    }
+  | {
+      type: "updateOptions";
+      payload: PollOptionsData;
+    };
 
-const Page: NextPage<CreatePollPageProps> = ({
-  title,
-  location,
-  description,
-  view,
-}) => {
+const reducer = (state: NewPollState, action: NewPollAction): NewPollState => {
+  switch (action.type) {
+    case "updateDetails":
+      return { ...state, step: 1, details: { ...action.payload } };
+    case "updateOptions":
+      return { ...state, step: 2, options: { ...action.payload } };
+    case "loadState":
+      return { ...action.payload };
+    case "back":
+      return { ...state, step: state.step - 1 };
+  }
+};
+
+const NewPollContext =
+  React.createContext<{
+    state: NewPollState;
+    dispatch: React.Dispatch<NewPollAction>;
+  } | null>(null);
+
+export const useNewProceeding = () => {
+  const context = React.useContext(NewPollContext);
+
+  if (!context) {
+    throw new Error("Missing context provider for new proceeding");
+  }
+
+  return context;
+};
+
+const currentFormId = "new-proceeding";
+
+const NewProceeding: React.VoidFunctionComponent = () => {
   const { t } = useTranslation("app");
-
+  const [state, dispatch] = React.useReducer(reducer, initialState);
   const router = useRouter();
 
-  const session = useSession();
-
-  const [persistedFormData, setPersistedFormData] =
-    useSessionStorage<NewEventData>(sessionStorageKey, {
-      currentStep: 0,
-      eventDetails: {
-        title,
-        location,
-        description,
-      },
-      options: {
-        view,
-      },
-      userDetails:
-        session.user?.isGuest === false
-          ? {
-              name: session.user.name,
-              contact: session.user.email,
-            }
-          : undefined,
-    });
-
-  const [formData, setTransientFormData] = React.useState(persistedFormData);
-
-  const setFormData = React.useCallback(
-    (newEventData: NewEventData) => {
-      setTransientFormData(newEventData);
-      setPersistedFormData(newEventData);
-    },
-    [setPersistedFormData],
-  );
-
-  const currentStepIndex = formData?.currentStep ?? 0;
-
-  const currentStepName = steps[currentStepIndex];
-
-  const [isRedirecting, setIsRedirecting] = React.useState(false);
-
-  const plausible = usePlausible();
+  const isFirstStep = state.step === 0;
 
   const createPoll = trpc.useMutation(["polls.create"], {
     onSuccess: (res) => {
-      setIsRedirecting(true);
-      plausible("Created poll", {
-        props: {
-          numberOfOptions: formData.options?.options?.length,
-          optionsView: formData?.options?.view,
-        },
-      });
-      setPersistedFormData(initialNewEventData);
-      router.replace(`/admin/${res.urlId}?sharing=true`);
+      router.replace(`/admin/${res.urlId}`);
     },
   });
 
-  const isBusy = isRedirecting || createPoll.isLoading;
-
-  const handleSubmit = async (
-    data: PollDetailsData | PollOptionsData | UserDetailsData,
-  ) => {
-    if (currentStepIndex < steps.length - 1) {
-      setFormData({
-        ...formData,
-        currentStep: currentStepIndex + 1,
-        [currentStepName]: data,
-      });
-    } else {
-      // last step
-      const title = required(formData?.eventDetails?.title);
-
-      await createPoll.mutateAsync({
-        title: title,
-        type: "date",
-        location: formData?.eventDetails?.location,
-        description: formData?.eventDetails?.description,
-        user: {
-          name: required(formData?.userDetails?.name),
-          email: required(formData?.userDetails?.contact),
-        },
-        timeZone: formData?.options?.timeZone,
-        options: required(formData?.options?.options).map(encodeDateOption),
-      });
-    }
-  };
-
-  const handleChange = (
-    data: Partial<PollDetailsData | PollOptionsData | UserDetailsData>,
-  ) => {
-    setFormData({
-      ...formData,
-      currentStep: currentStepIndex,
-      [currentStepName]: data,
-    });
-  };
-
   return (
-    <StandardLayout>
-      <Head>
-        <title>{formData?.eventDetails?.title ?? t("newPoll")}</title>
-        <meta name="robots" content="noindex,nofollow" />
-      </Head>
-      <div className="max-w-full py-4 md:px-3 lg:px-6">
-        <div className="mx-auto w-fit max-w-full lg:mx-0">
-          <div className="mb-4 flex items-center justify-center space-x-4 px-4 lg:justify-start">
-            <h1 className="m-0">{t("newPoll")}</h1>
-            <Steps current={currentStepIndex} total={steps.length} />
-          </div>
-          <div className="overflow-hidden border-t border-b bg-white shadow-sm md:rounded-lg md:border">
+    <AppLayout>
+      <AppPage title="New poll">
+        <NewPollContext.Provider value={{ state, dispatch }}>
+          <div className="h-full space-y-8">
             {(() => {
-              switch (currentStepName) {
-                case "eventDetails":
+              switch (state.step) {
+                case 0:
                   return (
-                    <PollDetailsForm
-                      className="max-w-full px-4 pt-4"
-                      name={currentStepName}
-                      defaultValues={formData?.eventDetails}
-                      onSubmit={handleSubmit}
-                      onChange={handleChange}
+                    <ProceedingDetailsStep
+                      formId={currentFormId}
+                      defaultValues={state.details}
+                      onSubmit={(payload) => {
+                        dispatch({ type: "updateDetails", payload });
+                      }}
                     />
                   );
-                case "options":
+                case 1:
                   return (
                     <PollOptionsForm
-                      className="grow"
-                      name={currentStepName}
-                      defaultValues={formData?.options}
-                      onSubmit={handleSubmit}
-                      onChange={handleChange}
-                      title={formData.eventDetails?.title}
-                    />
-                  );
-                case "userDetails":
-                  return (
-                    <UserDetailsForm
-                      className="grow px-4 pt-4"
-                      name={currentStepName}
-                      defaultValues={formData?.userDetails}
-                      onSubmit={handleSubmit}
-                      onChange={handleChange}
+                      formId={currentFormId}
+                      defaultValues={state.options}
+                      onSubmit={async (payload) => {
+                        const newState = { ...state, options: payload };
+                        await createPoll.mutateAsync({
+                          title: newState.details.title,
+                          location: newState.details.location,
+                          description: newState.details.description,
+                          timeZone: newState.options.timeZone,
+                          options: newState.options.options.map((option) =>
+                            option.type === "date"
+                              ? option.date
+                              : `${option.start}/${option.end}`,
+                          ),
+                        });
+                      }}
                     />
                   );
               }
             })()}
-            <div className="flex w-full justify-end space-x-3 border-t bg-slate-50 px-4 py-3">
-              {currentStepIndex > 0 ? (
-                <Button
-                  disabled={isBusy}
-                  onClick={() => {
-                    setFormData({
-                      ...persistedFormData,
-                      currentStep: currentStepIndex - 1,
-                    });
-                  }}
-                >
-                  {t("back")}
-                </Button>
-              ) : null}
+          </div>
+          <motion.div
+            layout="position"
+            className="mt-4 flex items-center justify-end"
+          >
+            <div className="flex space-x-3">
               <Button
-                form={currentStepName}
-                loading={isBusy}
-                htmlType="submit"
+                disabled={isFirstStep}
+                icon={<ChevronLeft />}
+                onClick={() => dispatch({ type: "back" })}
+              />
+              <Button
                 type="primary"
+                loading={createPoll.isLoading}
+                htmlType="submit"
+                form={currentFormId}
               >
-                {currentStepIndex < steps.length - 1
-                  ? t("continue")
-                  : t("createPoll")}
+                <div>
+                  {state.step < 1 ? (
+                    <>{t("continue")} &rarr;</>
+                  ) : (
+                    "Create proceeding"
+                  )}
+                </div>
               </Button>
             </div>
-          </div>
-        </div>
-      </div>
-    </StandardLayout>
+          </motion.div>
+        </NewPollContext.Provider>
+      </AppPage>
+    </AppLayout>
   );
 };
 
-export default withSession(Page);
+export default NewProceeding;

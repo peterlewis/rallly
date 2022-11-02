@@ -10,9 +10,7 @@ export const getBrowserTimeZone = () =>
   Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 export const encodeDateOption = (option: DateTimeOption) => {
-  return option.type === "timeSlot"
-    ? `${option.start}/${option.end}`
-    : option.date;
+  return option.type === "time" ? `${option.start}/${option.end}` : option.date;
 };
 
 export interface ParsedDateOption {
@@ -25,7 +23,7 @@ export interface ParsedDateOption {
 }
 
 export interface ParsedTimeSlotOption {
-  type: "timeSlot";
+  type: "time";
   optionId: string;
   day: string;
   dow: string;
@@ -64,10 +62,10 @@ export const decodeOptions = (
   _timeFormat: string, // TODO (Luke Vella) [2022-06-28]: Need to pass timeFormat so that we recalculate the options when timeFormat changes. There is definitely a better way to do this
 ):
   | { pollType: "date"; options: ParsedDateOption[] }
-  | { pollType: "timeSlot"; options: ParsedTimeSlotOption[] } => {
-  const pollType = isTimeSlot(options[0].value) ? "timeSlot" : "date";
+  | { pollType: "time"; options: ParsedTimeSlotOption[] } => {
+  const pollType = isTimeSlot(options[0].value) ? "time" : "date";
 
-  if (pollType === "timeSlot") {
+  if (pollType === "time") {
     return {
       pollType,
       options: options.map((option) =>
@@ -116,7 +114,7 @@ const parseTimeSlotOption = (
       : dayjs(end);
 
   return {
-    type: "timeSlot",
+    type: "time",
     optionId: option.id,
     startTime: startDate.format("LT"),
     endTime: endDate.format("LT"),
@@ -160,7 +158,7 @@ export const parseValue = (value: string): DateTimeOption => {
   if (isTimeSlot(value)) {
     const [start, end] = value.split("/");
     return {
-      type: "timeSlot",
+      type: "time",
       start,
       end,
     };

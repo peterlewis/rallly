@@ -15,4 +15,5 @@ export interface PollFormProps<T extends Record<string, any>> {
   defaultValues?: Partial<T>;
   name?: string;
   className?: string;
+  formId?: string;
 }

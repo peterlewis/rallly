@@ -55,7 +55,7 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
           options.filter(
             (option) =>
               !(
-                option.type === "timeSlot" &&
+                option.type === "time" &&
                 option.start === formatDateWithoutTz(event.start) &&
                 event.end &&
                 option.end === formatDateWithoutTz(event.end)
@@ -152,7 +152,7 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
         const endDate = new Date(end);
 
         const newEvent: DateTimeOption = {
-          type: "timeSlot",
+          type: "time",
           start: formatDateWithoutTz(startDate),
           end: formatDateWithoutTz(endDate),
         };
@@ -170,7 +170,7 @@ const WeekCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
 
         const alreadyExists = options.some(
           (option) =>
-            option.type === "timeSlot" &&
+            option.type === "time" &&
             option.start === newEvent.start &&
             option.end === newEvent.end,
         );

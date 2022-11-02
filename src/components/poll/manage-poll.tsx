@@ -73,7 +73,7 @@ const ManagePoll: React.VoidFunctionComponent<{
               const [start, end] = option.value.split("/");
               return end
                 ? {
-                    type: "timeSlot",
+                    type: "time",
                     start,
                     end,
                   }

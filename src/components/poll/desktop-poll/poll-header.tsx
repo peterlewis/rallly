@@ -53,7 +53,7 @@ const PollHeader: React.VoidFunctionComponent = () => {
                 </div>
               </div>
             </div>
-            {option.type === "timeSlot" ? (
+            {option.type === "time" ? (
               <TimeRange
                 className="mt-3"
                 startTime={option.startTime}

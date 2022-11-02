@@ -1,13 +1,13 @@
 import { GetServerSideProps } from "next";
-import dynamic from "next/dynamic";
 
-import { withSessionSsr } from "../utils/auth";
+import NewPoll from "@/components/create-poll";
+import { withSessionSsr } from "@/utils/auth";
+
+import { withUserSession } from "../components/user-provider";
 import { withPageTranslations } from "../utils/with-page-translations";
 
 export const getServerSideProps: GetServerSideProps = withSessionSsr(
   withPageTranslations(["common", "app"]),
 );
 
-export default dynamic(() => import("@/components/create-poll"), {
-  ssr: false,
-});
+export default withUserSession(NewPoll);
