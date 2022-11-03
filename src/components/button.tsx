@@ -17,7 +17,14 @@ export interface ButtonProps
   loading?: boolean;
   icon?: React.ReactElement;
   htmlType?: React.ButtonHTMLAttributes<HTMLButtonElement>["type"];
-  type?: "default" | "primary" | "danger" | "link" | "ghost" | "success";
+  type?:
+    | "default"
+    | "primary"
+    | "danger"
+    | "link"
+    | "ghost"
+    | "ghost-light"
+    | "success";
   form?: string;
   rounded?: boolean;
   active?: boolean;
@@ -57,6 +64,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             "btn-link": type === "link",
             "inline-flex h-9 items-center justify-center rounded px-3 font-medium text-slate-500/90 hover:bg-slate-500/10 active:bg-slate-500/20 ":
               type === "ghost" || type === "default",
+            "inline-flex h-9 items-center justify-center rounded px-3 font-medium text-white/90 hover:bg-white/10 active:bg-white/20 ":
+              type === "ghost-light",
+
             "btn-disabled": disabled,
             "h-auto rounded-full p-2": rounded,
             "h-12 px-6": size === "lg",

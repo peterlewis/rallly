@@ -5,39 +5,31 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import { usePlausible } from "next-plausible";
-import React, { ReactText } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import TextareaAutosize from "react-textarea-autosize";
 
 import Discussion from "@/components/discussion";
-import Calendar from "@/components/icons/calendar.svg";
-import Chart from "@/components/icons/chart.svg";
 import ClipboardCopy from "@/components/icons/clipboard-copy.svg";
 import DocumentText from "@/components/icons/document-text.svg";
 import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
 import LocationMarker from "@/components/icons/location-marker.svg";
-import LockClosed from "@/components/icons/lock-closed.svg";
-import Minus from "@/components/icons/minus.svg";
 import Pencil from "@/components/icons/pencil.svg";
-import Plus from "@/components/icons/plus.svg";
 import Trash from "@/components/icons/trash.svg";
-import UserGroup from "@/components/icons/user-group.svg";
 
-import { parseTimeValue, parseValue } from "../utils/date-time-utils";
-import { DayjsProvider, useDayjs } from "../utils/dayjs";
+import { parseTimeValue } from "../utils/date-time-utils";
+import { useDayjs } from "../utils/dayjs";
 import { useFormValidation } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
 import { NewLayout } from "./app-layout";
 import { Button } from "./button";
 import CompactButton from "./compact-button";
+import { DonutScore } from "./donut-score";
 import Dropdown, { DropdownItem } from "./dropdown";
-import { GroupedList, OptionListResultHorizontal } from "./grouped-list";
 import { createModalHook, withModal } from "./modal/modal-provider";
-import { OptionList, OptionListResults } from "./option-list";
 import { useParticipants } from "./participants-provider";
 import NotificationsToggle from "./poll/notifications-toggle";
-import { ConnectedPollViz } from "./poll/poll-viz";
 import { useTouchBeacon } from "./poll/use-touch-beacon";
 import UserAvatar, { UserAvatarProvider } from "./poll/user-avatar";
 import {
@@ -45,10 +37,8 @@ import {
   PollGridViz,
   TimeOptionResult,
 } from "./poll-option-list/poll-grid-viz";
-import { PollListViz } from "./poll-option-list/poll-list-viz";
 import { usePoll } from "./poll-provider";
-import { EditableSection, Section } from "./section";
-import { Sticky } from "./sticky";
+import { EditableSection } from "./section";
 import { TextInput } from "./text-input";
 import { usePollMutations } from "./use-poll-mutations";
 
@@ -437,7 +427,6 @@ const PollPage: NextPage = () => {
 
   useTouchBeacon(poll.id);
 
-  const { dayjs } = useDayjs();
   const { t } = useTranslation("app");
 
   const plausible = usePlausible();
@@ -515,24 +504,42 @@ const PollPage: NextPage = () => {
           <meta name="robots" content="noindex,nofollow" />
         </Head>
         <div className="mx-auto sm:space-y-4">
-          {poll.closed ? (
-            <div className="mobile:edge-4 flex bg-blue-300/10 px-4 py-3 text-blue-800/75 sm:rounded-md">
-              <div className="mr-2 rounded-md">
-                <LockClosed className="w-6" />
+          <div className="min-w-0 grow space-y-6 px-6">
+            <div className="text-3xl font-semibold">{poll.title}</div>
+            <div className="action-group">
+              <Button>{t("results")}</Button>
+              <Button>{t("participants")}</Button>
+              <Button>{t("manage")}</Button>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex grow items-center justify-center rounded-md border p-6">
+                <div className="text-center">
+                  <div className="mb-1 text-slate-500">{t("participants")}</div>
+                  <div className="text-3xl font-bold">
+                    {participants.length}
+                  </div>
+                </div>
               </div>
-              <div>{t("pollHasBeenLocked")}</div>
+              <div className="flex grow items-center  rounded-md border p-6">
+                <div className="flex gap-4">
+                  <div>
+                    <DonutScore size="lg" yes={6} ifNeedBe={2} no={1} />
+                  </div>
+                  <div>
+                    <div className="mb-1 leading-none text-slate-500">
+                      Top pick
+                    </div>
+                    <div className="text-xl font-bold">14 Wednesday</div>
+                    <div className="text-sm text-slate-500">December 2022</div>
+                  </div>
+                </div>
+              </div>
             </div>
-          ) : null}
-          <div className="flex gap-6 py-6">
-            <div className="min-w-0 grow space-y-6">
-              <Results />
-              <Section title={t("participants")} icon={UserGroup}>
-                <Participants />
-              </Section>
-              <Discussion />
-            </div>
+            <Results />
+            <Discussion />
+          </div>
 
-            {/* <div className="space-y-4">
+          {/* <div className="space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
                   description={<PollSubheader />}
@@ -559,9 +566,9 @@ const PollPage: NextPage = () => {
                   <Legend />
                 </div>
               </div> */}
-            {/* <DescriptionSection />
+          {/* <DescriptionSection />
             <LocationSection /> */}
-            {/* <Section
+          {/* <Section
               title={t("poll")}
               icon={Chart}
               actions={
@@ -580,7 +587,6 @@ const PollPage: NextPage = () => {
             >
               {participants ? <ConnectedPollViz /> : null}
             </Section> */}
-          </div>
         </div>
       </UserAvatarProvider>
     </NewLayout>
@@ -698,23 +704,11 @@ const usePollOptionData = (
 
 const Results = () => {
   const { poll } = usePoll();
-  const { dayjs } = useDayjs();
   const { participants } = useParticipants();
-  const [value, setValue] = React.useState<string[]>([]);
 
   const pollGridProps = usePollOptionData(poll.options, participants);
 
-  return (
-    <div>
-      {/* <PollListViz
-        className="rounded-md border bg-white shadow-sm"
-        {...pollGridProps}
-      /> */}
-      <div className="min-w-0 grow">
-        <PollGridViz {...pollGridProps} participants={participants} />
-      </div>
-    </div>
-  );
+  return <PollGridViz {...pollGridProps} participants={participants} />;
 };
 
 export default withModal(PollPage);

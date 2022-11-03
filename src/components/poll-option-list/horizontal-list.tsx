@@ -16,7 +16,7 @@ const GroupHeaderMonthYear: React.VoidFunctionComponent<{ value: string }> = ({
   const date = dayjs(value);
 
   return (
-    <div className="flex h-10 items-center">
+    <div className="flex h-10 items-center bg-white">
       <div className="sticky left-48 z-10 w-fit p-3 text-center leading-none text-slate-600">
         <div className="font-semibold">
           <span>{date.format("MMMM ")}</span>
@@ -33,7 +33,7 @@ const GroupHeaderDay: React.VoidFunctionComponent<{ value: string }> = ({
   const { dayjs } = useDayjs();
   const date = dayjs(value);
   return (
-    <div className="flex h-12 items-center">
+    <div className="flex h-12 items-center bg-white">
       <div className="sticky left-48 z-10 w-24 px-3 leading-none">
         <span className="text-xl font-bold text-slate-600">
           {date.format("D")}
@@ -92,13 +92,13 @@ export const TimeOptionListHorizontal = <T extends TimeOption>({
       groupDefs={[
         {
           groupBy: (option) => option.start.substring(0, 7),
-          itemsClassName: "flex divide-x grow",
+          itemsClassName: "flex divide-x border-slate-200 grow",
           className: "divide-y grow",
           render: GroupHeaderMonthYear,
         },
         {
           groupBy: (option) => option.start.substring(0, 10),
-          itemsClassName: "flex divide-x grow",
+          itemsClassName: "flex divide-x border-slate-200 grow",
           className: "divide-y grow",
           render: GroupHeaderDay,
         },
@@ -125,7 +125,7 @@ export const DateOptionListHorizontal = <T extends DateOption>({
       groupDefs={[
         {
           groupBy: (option) => option.date.substring(0, 7),
-          itemsClassName: "divide-x flex",
+          itemsClassName: "divide-x flex border-slate-200",
           className: "divide-y",
           render: GroupHeaderMonthYear,
         },
