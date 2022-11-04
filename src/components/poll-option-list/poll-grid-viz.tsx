@@ -33,20 +33,19 @@ const GridColumn: React.VoidFunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children, votes, namesByVote }) => {
   return (
-    <div className="w-24 grow  border-dashed border-slate-200">
-      <div className="py-3">{children}</div>
-      <div className="divide-y">
+    <div className="w-20 grow border-slate-200">
+      <div className="border-slate-200 py-3">{children}</div>
+      <div className="">
         {votes.map((vote, i) => {
           return (
-            <div className="h-12 border-dashed border-slate-200 p-1" key={i}>
+            <div className="h-12 border-slate-200 p-1" key={i}>
               <div
                 className={clsx(
                   "flex h-full w-full items-center justify-center rounded",
                   {
-                    "border border-green-200 bg-green-400/10": vote === "yes",
-                    "border border-amber-100 bg-amber-300/10":
-                      vote === "ifNeedBe",
-                    "border bg-slate-100": vote === "no",
+                    "bg-green-50": vote === "yes",
+                    "bg-amber-50": vote === "ifNeedBe",
+                    "bg-slate-100": vote === "no",
                   },
                 )}
               >
@@ -56,15 +55,12 @@ const GridColumn: React.VoidFunctionComponent<{
           );
         })}
       </div>
-      <div className="flex h-14 items-center justify-center gap-1 text-center">
+      <div className="flex h-12 items-center justify-center">
         <DonutScore
           yes={namesByVote.yes.length}
           ifNeedBe={namesByVote.ifNeedBe.length}
           no={namesByVote.no.length}
         />
-        {/* <VoteScore type="yes" count={namesByVote.yes.length} /> */}
-        {/* <VoteScore type="ifNeedBe" count={namesByVote.ifNeedBe.length} />
-        <VoteScore type="no" count={namesByVote.no.length} /> */}
       </div>
     </div>
   );
@@ -109,8 +105,8 @@ export const PollGridViz = (
         props.className,
       )}
     >
-      <div className="sticky left-0 z-20 flex w-48 shrink-0 flex-col justify-end border-r border-slate-200 bg-white/90 backdrop-blur-md">
-        <div className="divide-y">
+      <div className="sticky left-0 z-20 flex w-48 shrink-0 flex-col justify-end bg-gradient-to-r from-white to-white/0 py-6 ">
+        <div className="">
           {props.participants.map((participant) => {
             return (
               <div
@@ -122,9 +118,9 @@ export const PollGridViz = (
             );
           })}
         </div>
-        <div className="h-14"></div>
+        <div className="h-12" />
       </div>
-      <div className="grow">
+      <div className="grow p-6">
         {(() => {
           switch (props.type) {
             case "date":

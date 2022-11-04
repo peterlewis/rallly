@@ -12,10 +12,12 @@ export const DonutScore: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "flex h-8 items-center justify-center rounded-full bg-slate-200 p-1 ",
+        "inline-flex items-center justify-center rounded-full bg-slate-200 p-1 ",
         {
-          "h-8": size === "md",
-          "h-12": size === "lg",
+          "h-7 w-7": size === "md",
+          "text-sm": size === "md" && yes < 10,
+          "text-xs": size === "md" && yes >= 10,
+          "h-12 w-12 text-xl": size === "lg",
         },
       )}
       style={{
@@ -28,11 +30,7 @@ export const DonutScore: React.VoidFunctionComponent<{
     >
       <div
         className={clsx(
-          "flex items-center justify-center rounded-full bg-white p-1 font-mono font-bold",
-          {
-            "h-6 w-6 text-sm": size === "md",
-            "h-10 w-10 text-xl": size === "lg",
-          },
+          "flex h-full w-full items-center justify-center rounded-full bg-white p-1 font-mono font-bold",
         )}
       >
         {yes}

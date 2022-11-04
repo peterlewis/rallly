@@ -18,7 +18,7 @@ const VoteIcon: React.VoidFunctionComponent<{
       case "yes":
         return (
           <CheckCircle
-            className={clsx("text-green-500", {
+            className={clsx("text-green-400", {
               "h-7": size === "md",
               "h-3": size === "sm",
             })}
@@ -28,7 +28,7 @@ const VoteIcon: React.VoidFunctionComponent<{
       case "ifNeedBe":
         return (
           <IfNeedBe
-            className={clsx("text-amber-400", {
+            className={clsx("text-amber-300", {
               "h-7": size === "md",
               "h-3": size === "sm",
             })}
@@ -49,7 +49,7 @@ const VoteIcon: React.VoidFunctionComponent<{
         return (
           <QuestionMark
             className={clsx("text-slate-300", {
-              "h-5": size === "md",
+              "h-4": size === "md",
               "h-3": size === "sm",
             })}
           />
@@ -60,7 +60,7 @@ const VoteIcon: React.VoidFunctionComponent<{
   return (
     <span
       className={clsx(
-        "justify-centerh-7 inline-flex w-7 items-center",
+        "inline-flex h-7 w-7 items-center justify-center",
         className,
       )}
     >

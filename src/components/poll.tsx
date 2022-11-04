@@ -1,5 +1,6 @@
 import { Option, Participant, Vote } from "@prisma/client";
 import clsx from "clsx";
+import dayjs from "dayjs";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -505,37 +506,25 @@ const PollPage: NextPage = () => {
         </Head>
         <div className="mx-auto sm:space-y-4">
           <div className="min-w-0 grow space-y-6 px-6">
-            <div className="text-3xl font-semibold">{poll.title}</div>
-            <div className="action-group">
-              <Button>{t("results")}</Button>
-              <Button>{t("participants")}</Button>
-              <Button>{t("manage")}</Button>
+            <div>
+              <div className="text-3xl font-semibold">{poll.title}</div>
             </div>
-            <div className="flex gap-4">
-              <div className="flex grow items-center justify-center rounded-md border p-6">
-                <div className="text-center">
-                  <div className="mb-1 text-slate-500">{t("participants")}</div>
-                  <div className="text-3xl font-bold">
-                    {participants.length}
+            <div className="relative">
+              <Results />
+              {participants.length === 0 ? (
+                <div className="absolute inset-0 z-30 mx-auto mt-16 h-fit  max-w-md rounded-md border bg-white p-6 shadow-md">
+                  <div className="mb-2 font-semibold">Share link</div>
+                  <div className="mb-4 text-slate-500">
+                    Share this link with your participants to start collecting
+                    responses.
+                  </div>
+                  <div className="action-group flex justify-between rounded border p-2">
+                    <div className="truncate">{`${window.location.origin}/p/${poll.participantUrlId}`}</div>
+                    <Button className="shrink-0">{t("copyLink")}</Button>
                   </div>
                 </div>
-              </div>
-              <div className="flex grow items-center  rounded-md border p-6">
-                <div className="flex gap-4">
-                  <div>
-                    <DonutScore size="lg" yes={6} ifNeedBe={2} no={1} />
-                  </div>
-                  <div>
-                    <div className="mb-1 leading-none text-slate-500">
-                      Top pick
-                    </div>
-                    <div className="text-xl font-bold">14 Wednesday</div>
-                    <div className="text-sm text-slate-500">December 2022</div>
-                  </div>
-                </div>
-              </div>
+              ) : null}
             </div>
-            <Results />
             <Discussion />
           </div>
 
@@ -702,7 +691,7 @@ const usePollOptionData = (
   }, [options, participants]);
 };
 
-const Results = () => {
+const Grid = () => {
   const { poll } = usePoll();
   const { participants } = useParticipants();
 
@@ -712,3 +701,35 @@ const Results = () => {
 };
 
 export default withModal(PollPage);
+
+const Results = () => {
+  const { participants } = useParticipants();
+  const { t } = useTranslation("app");
+  return (
+    <div
+      className={clsx("space-y-6", {
+        "opacity-50": participants.length === 0,
+      })}
+    >
+      <div className="flex gap-4">
+        <div className="flex grow items-start rounded-md border bg-white p-6">
+          <div className="">
+            <div className="mb-1 text-slate-500">{t("participants")}</div>
+            <div className="text-3xl font-semibold">{participants.length}</div>
+          </div>
+        </div>
+        <div className="flex grow items-start justify-between gap-4 rounded-md border bg-white p-6">
+          <div>
+            <div className="mb-1 leading-none text-slate-500">Top pick</div>
+            <div className="text-xl font-semibold">14 Wednesday</div>
+            <div className="text-sm text-slate-500">December 2022</div>
+          </div>
+          <div>
+            <DonutScore size="lg" yes={6} ifNeedBe={2} no={1} />
+          </div>
+        </div>
+      </div>
+      <Grid />
+    </div>
+  );
+};

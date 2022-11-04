@@ -503,7 +503,7 @@ export const NewLayout: React.VoidFunctionComponent<{
     <div className="">
       <div className="mb-8 p-3">
         <div className="flex items-center justify-between">
-          <Logo className="ml-2 h-5 text-primary-500" />
+          <Logo className="ml-2 h-7 text-primary-500" />
           <div className="action-group">
             <UserDropdown />
             <Button icon={<Menu />} />

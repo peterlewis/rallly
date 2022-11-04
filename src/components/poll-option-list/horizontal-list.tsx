@@ -87,19 +87,19 @@ export const TimeOptionListHorizontal = <T extends TimeOption>({
 }) => {
   return (
     <GroupedList
-      className={clsx("flex divide-x", className)}
+      className={clsx("flex", className)}
       data={data}
       groupDefs={[
         {
           groupBy: (option) => option.start.substring(0, 7),
-          itemsClassName: "flex divide-x border-slate-200 grow",
-          className: "divide-y grow",
+          itemsClassName: "flex border-slate-200 grow",
+          className: "grow",
           render: GroupHeaderMonthYear,
         },
         {
           groupBy: (option) => option.start.substring(0, 10),
-          itemsClassName: "flex divide-x border-slate-200 grow",
-          className: "divide-y grow",
+          itemsClassName: "flex border-slate-200 grow",
+          className: "grow ",
           render: GroupHeaderDay,
         },
       ]}
@@ -125,8 +125,8 @@ export const DateOptionListHorizontal = <T extends DateOption>({
       groupDefs={[
         {
           groupBy: (option) => option.date.substring(0, 7),
-          itemsClassName: "divide-x flex border-slate-200",
-          className: "divide-y",
+          itemsClassName: "flex border-slate-200",
+          className: "",
           render: GroupHeaderMonthYear,
         },
       ]}
