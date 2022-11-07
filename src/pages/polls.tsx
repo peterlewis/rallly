@@ -10,7 +10,11 @@ import LockClosed from "@/components/icons/lock-closed.svg";
 import Plus from "@/components/icons/plus-sm.svg";
 import Search from "@/components/icons/search.svg";
 
-import { AppLayout, AppLayoutHeading } from "../components/app-layout";
+import {
+  AppLayout,
+  AppLayoutHeading,
+  NewLayout,
+} from "../components/app-layout";
 import { EmptyState } from "../components/empty-state";
 import FullPageLoader from "../components/full-page-loader";
 import { UserAvatarProvider } from "../components/poll/user-avatar";
@@ -71,11 +75,10 @@ const Polls: React.VoidFunctionComponent = () => {
               <div className="grow">
                 <div className="flex justify-between space-x-2">
                   <Link
-                    href={`/admin/${poll.adminUrlId}`}
-                    className="text-lg font-semibold text-slate-700 hover:text-slate-700 hover:underline active:text-slate-700/75">
-
+                    href={`/poll/${poll.id}`}
+                    className="text-lg font-semibold text-slate-700 hover:text-slate-700 hover:underline active:text-slate-700/75"
+                  >
                     {poll.title}
-
                   </Link>
                 </div>
                 <div className="mb-4 text-sm text-slate-400">
@@ -122,24 +125,22 @@ const Page = () => {
   const { t } = useTranslation("app");
 
   return (
-    <AppLayout title={t("meetingPolls")}>
+    <NewLayout title={t("meetingPolls")}>
       <div className="pt-8">
         <AppLayoutHeading
           title={t("meetingPolls")}
           description={t("meetingPollsDescription")}
           actions={
             <Link href="/new" className="btn-primary pr-4">
-
               <Plus className="-ml-1 mr-1 h-5" />
               {t("newPoll")}
-
             </Link>
           }
           className="mb-8"
         />
         <Polls />
       </div>
-    </AppLayout>
+    </NewLayout>
   );
 };
 

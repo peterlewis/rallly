@@ -9,6 +9,7 @@ import { createRouter } from "../createRouter";
 import { comments } from "./polls/comments";
 import { demo } from "./polls/demo";
 import { participants } from "./polls/participants";
+import { user } from "./user";
 
 const defaultSelectFields: {
   id: true;
@@ -153,18 +154,13 @@ export const polls = createRouter()
   .query("get", {
     input: z.object({
       urlId: z.string(),
-      admin: z.boolean(),
     }),
     resolve: async ({ input, ctx }): Promise<GetPollApiResponse> => {
       const poll = await prisma.poll.findFirst({
         select: defaultSelectFields,
-        where: input.admin
-          ? {
-              adminUrlId: input.urlId,
-            }
-          : {
-              participantUrlId: input.urlId,
-            },
+        where: {
+          id: input.urlId,
+        },
       });
 
       if (!poll) {
@@ -173,12 +169,13 @@ export const polls = createRouter()
         });
       }
 
-      // We want to keep the adminUrlId in if the user is view
-      if (!input.admin && ctx.user.id !== poll.userId) {
-        return { ...poll, admin: input.admin, adminUrlId: "" };
+      if (poll.userId !== ctx.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+        });
       }
 
-      return { ...poll, admin: input.admin };
+      return poll;
     },
   })
   .mutation("updateDescription", {
@@ -285,7 +282,7 @@ export const polls = createRouter()
         },
       });
 
-      return { ...poll, admin: true };
+      return poll;
     },
   })
   .mutation("delete", {
@@ -349,6 +346,6 @@ export const polls = createRouter()
         },
       });
 
-      return { ...claimedPoll, admin: true };
+      return claimedPoll;
     },
   });

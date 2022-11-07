@@ -25,36 +25,16 @@ export const Manage: React.VFC = () => {
   const { t } = useTranslation("app");
   const { poll } = usePoll();
   return (
-    <AppLayout
-      title={t("manage")}
-      breadcrumbs={[
-        {
-          href: "/polls",
-          title: t("meetingPolls"),
-        },
-        {
-          href: `/admin/${poll.adminUrlId}`,
-          title: poll.title,
-        },
-      ]}
-    >
-      <div className="card">
-        <AppLayoutHeading
-          title={t("manage")}
-          description={t("manageDescription")}
-        />
-        <div className="">
-          <Section title={t("details")}>
-            <General />
-          </Section>
-          <Section title={t("options")}>
-            <Options />
-          </Section>
-          <Section title={t("advanced")}>
-            <Advanced />
-          </Section>
-        </div>
-      </div>
-    </AppLayout>
+    <div className="">
+      <Section title={t("details")}>
+        <General />
+      </Section>
+      <Section title={t("options")}>
+        <Options />
+      </Section>
+      <Section title={t("advanced")}>
+        <Advanced />
+      </Section>
+    </div>
   );
 };

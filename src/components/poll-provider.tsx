@@ -10,12 +10,10 @@ import Custom404 from "../pages/404";
 import { trpc } from "../utils/trpc";
 import ErrorPage from "./error-page";
 import FullPageLoader from "./full-page-loader";
-import { PollViewOption } from "./poll/types";
 import { useRequiredContext } from "./use-required-context";
 
 type PollContextValue = {
   poll: GetPollApiResponse;
-  options: PollViewOption[];
   updatePoll: (poll: GetPollApiResponse) => void;
   urlId: string;
   targetTimeZone: string;
@@ -35,15 +33,15 @@ export const PollContextProvider: React.VoidFunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children }) => {
   const { t } = useTranslation("app");
-  const { query, asPath } = useRouter();
-  const urlId = query.urlId as string;
+  const { query } = useRouter();
+  const urlId = query.id as string;
   const [notFound, setNotFound] = React.useState(false);
 
-  const admin = /^\/admin/.test(asPath);
-
   const queryClient = trpc.useContext();
-  const pollQuery = trpc.useQuery(["polls.get", { urlId, admin }], {
-    onError: () => {
+
+  const pollQuery = trpc.useQuery(["polls.get", { urlId }], {
+    onError: (e) => {
+      console.log(e);
       setNotFound(true);
     },
     retry: false,
@@ -78,7 +76,7 @@ export const PollContextProvider: React.VoidFunctionComponent<{
         poll,
         urlId,
         updatePoll: (newPoll) => {
-          queryClient.setQueryData(["polls.get", { urlId, admin }], newPoll);
+          queryClient.setQueryData(["polls.get", { urlId }], newPoll);
         },
         targetTimeZone,
         setTargetTimeZone,

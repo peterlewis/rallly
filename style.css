@@ -74,7 +74,7 @@
     @apply h-4 w-4 rounded border-slate-300 text-primary-500 shadow-sm focus:ring-primary-500;
   }
   .btn {
-    @apply inline-flex h-9 select-none items-center justify-center whitespace-nowrap rounded px-3 font-medium shadow-sm;
+    @apply inline-flex h-9 select-none items-center justify-center whitespace-nowrap rounded px-3 font-medium;
   }
   a.btn {
     @apply cursor-pointer hover:no-underline;
@@ -85,7 +85,7 @@
   }
 
   a.btn-default {
-    @apply hover:text-slate-700;
+    @apply inline-flex h-9 items-center justify-center rounded px-3 font-medium text-slate-500/90 hover:bg-slate-500/10 active:bg-slate-500/20;
   }
   .btn-danger {
     @apply btn border-rose-600 bg-rose-500 text-white focus-visible:ring-rose-500 hover:bg-rose-600;

@@ -11,7 +11,6 @@ export type GetPollApiResponse = {
   adminUrlId: string;
   participantUrlId: string;
   closed: boolean;
-  admin: boolean;
   legacy: boolean;
   demo: boolean;
   deleted: boolean;

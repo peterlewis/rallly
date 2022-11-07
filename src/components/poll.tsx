@@ -1,6 +1,7 @@
 import { Option, Participant, Vote } from "@prisma/client";
 import clsx from "clsx";
 import dayjs from "dayjs";
+import { orderBy } from "lodash";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -18,8 +19,8 @@ import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
 import LocationMarker from "@/components/icons/location-marker.svg";
 import Pencil from "@/components/icons/pencil.svg";
 import Trash from "@/components/icons/trash.svg";
+import { parseTimeValue } from "@/utils/date-time-utils";
 
-import { parseTimeValue } from "../utils/date-time-utils";
 import { useDayjs } from "../utils/dayjs";
 import { useFormValidation } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
@@ -31,13 +32,11 @@ import Dropdown, { DropdownItem } from "./dropdown";
 import { createModalHook, withModal } from "./modal/modal-provider";
 import { useParticipants } from "./participants-provider";
 import NotificationsToggle from "./poll/notifications-toggle";
+import { PollLayout } from "./poll/poll-layout";
 import { useTouchBeacon } from "./poll/use-touch-beacon";
 import UserAvatar, { UserAvatarProvider } from "./poll/user-avatar";
-import {
-  DateOptionResult,
-  PollGridViz,
-  TimeOptionResult,
-} from "./poll-option-list/poll-grid-viz";
+import { PollGridViz } from "./poll-option-list/poll-grid-viz";
+import { DateOptionResult, TimeOptionResult } from "./poll-option-list/types";
 import { usePoll } from "./poll-provider";
 import { EditableSection } from "./section";
 import { TextInput } from "./text-input";
@@ -499,36 +498,34 @@ const PollPage: NextPage = () => {
       }
       backHref="/polls"
     >
-      <UserAvatarProvider seed={poll.id} names={names}>
-        <Head>
-          <title>{poll.title}</title>
-          <meta name="robots" content="noindex,nofollow" />
-        </Head>
-        <div className="mx-auto sm:space-y-4">
-          <div className="min-w-0 grow space-y-6 px-6">
-            <div>
-              <div className="text-3xl font-semibold">{poll.title}</div>
-            </div>
-            <div className="relative">
-              <Results />
-              {participants.length === 0 ? (
-                <div className="absolute inset-0 z-30 mx-auto mt-16 h-fit  max-w-md rounded-md border bg-white p-6 shadow-md">
-                  <div className="mb-2 font-semibold">Share link</div>
-                  <div className="mb-4 text-slate-500">
-                    Share this link with your participants to start collecting
-                    responses.
+      <PollLayout>
+        <UserAvatarProvider seed={poll.id} names={names}>
+          <Head>
+            <title>{poll.title}</title>
+            <meta name="robots" content="noindex,nofollow" />
+          </Head>
+          <div className="mx-auto sm:space-y-4">
+            <div className="min-w-0 grow space-y-6">
+              <div className="relative">
+                <Results />
+                {participants.length === 0 ? (
+                  <div className="absolute inset-0 z-30 mx-auto mt-16 h-fit  max-w-md rounded-md border bg-white p-6 shadow-md">
+                    <div className="mb-2 font-semibold">Share link</div>
+                    <div className="mb-4 text-slate-500">
+                      Share this link with your participants to start collecting
+                      responses.
+                    </div>
+                    <div className="action-group flex justify-between rounded border p-2">
+                      <div className="truncate">{`${window.location.origin}/p/${poll.participantUrlId}`}</div>
+                      <Button className="shrink-0">{t("copyLink")}</Button>
+                    </div>
                   </div>
-                  <div className="action-group flex justify-between rounded border p-2">
-                    <div className="truncate">{`${window.location.origin}/p/${poll.participantUrlId}`}</div>
-                    <Button className="shrink-0">{t("copyLink")}</Button>
-                  </div>
-                </div>
-              ) : null}
+                ) : null}
+              </div>
+              <Discussion />
             </div>
-            <Discussion />
-          </div>
 
-          {/* <div className="space-y-4">
+            {/* <div className="space-y-4">
                 <AppLayoutHeading
                   title={preventWidows(poll.title)}
                   description={<PollSubheader />}
@@ -555,9 +552,9 @@ const PollPage: NextPage = () => {
                   <Legend />
                 </div>
               </div> */}
-          {/* <DescriptionSection />
+            {/* <DescriptionSection />
             <LocationSection /> */}
-          {/* <Section
+            {/* <Section
               title={t("poll")}
               icon={Chart}
               actions={
@@ -576,8 +573,9 @@ const PollPage: NextPage = () => {
             >
               {participants ? <ConnectedPollViz /> : null}
             </Section> */}
-        </div>
-      </UserAvatarProvider>
+          </div>
+        </UserAvatarProvider>
+      </PollLayout>
     </NewLayout>
   );
 };
@@ -642,7 +640,12 @@ const getNamesByVote = (
     }
   }
 
-  return { yes, ifNeedBe, no };
+  return {
+    namesByVote: { yes, ifNeedBe, no },
+    yesCount: yes.length,
+    ifNeedBeCount: ifNeedBe.length,
+    noCount: no.length,
+  };
 };
 
 const usePollOptionData = (
@@ -665,6 +668,7 @@ const usePollOptionData = (
       ? {
           type: "time",
           data: options.map((option) => ({
+            type: "time",
             ...parseTimeValue(option.value),
             votes: participants.map((participant) => {
               const vote = participant.votes.find(
@@ -672,12 +676,13 @@ const usePollOptionData = (
               );
               return vote?.type;
             }),
-            namesByVote: getNamesByVote(option.id, participants),
+            ...getNamesByVote(option.id, participants),
           })),
         }
       : {
           type: "date",
           data: options.map<DateOptionResult>((option) => ({
+            type: "date",
             date: option.value,
             votes: participants.map((participant) => {
               const vote = participant.votes.find(
@@ -685,7 +690,7 @@ const usePollOptionData = (
               );
               return vote?.type;
             }),
-            namesByVote: getNamesByVote(option.id, participants),
+            ...getNamesByVote(option.id, participants),
           })),
         };
   }, [options, participants]);
@@ -702,9 +707,56 @@ const Grid = () => {
 
 export default withModal(PollPage);
 
+const TopPick: React.VoidFunctionComponent<{
+  option: DateOptionResult | TimeOptionResult;
+}> = ({ option }) => {
+  const { dayjs } = useDayjs();
+  const title = dayjs(
+    option.type === "date" ? option.date : option.start,
+  ).format("LL");
+
+  const yes = option.namesByVote.yes.length;
+  const ifNeedBe = option.namesByVote.ifNeedBe.length;
+  const no = option.namesByVote.no.length;
+
+  return (
+    <div className="flex grow items-start justify-between gap-4 rounded-md border bg-white p-6">
+      <div>
+        <div className="mb-1 leading-none text-slate-500">Top pick</div>
+        <div className="text-2xl font-semibold">{title}</div>
+        {option.type === "time" ? (
+          <div className="text-slate-500">{`${dayjs(option.start).format(
+            "LT",
+          )} - ${dayjs(option.end).format("LT")}`}</div>
+        ) : null}
+      </div>
+      <div>
+        <DonutScore size="lg" yes={yes} ifNeedBe={ifNeedBe} no={no} />
+      </div>
+    </div>
+  );
+};
+
 const Results = () => {
   const { participants } = useParticipants();
+  const { poll } = usePoll();
   const { t } = useTranslation("app");
+  const res = usePollOptionData(poll.options, participants);
+  const optionsOrderedByPopularity = React.useMemo(() => {
+    if (participants.length === 0) {
+      return res.data;
+    }
+    return res.data.sort((a, b) => {
+      if (b.yesCount === a.yesCount) {
+        return b.ifNeedBeCount < a.ifNeedBeCount ? -1 : 1;
+      }
+
+      return b.yesCount > a.yesCount ? 1 : -1;
+    });
+  }, [participants.length, res]);
+
+  const topPick = optionsOrderedByPopularity[0];
+
   return (
     <div
       className={clsx("space-y-6", {
@@ -718,16 +770,7 @@ const Results = () => {
             <div className="text-3xl font-semibold">{participants.length}</div>
           </div>
         </div>
-        <div className="flex grow items-start justify-between gap-4 rounded-md border bg-white p-6">
-          <div>
-            <div className="mb-1 leading-none text-slate-500">Top pick</div>
-            <div className="text-xl font-semibold">14 Wednesday</div>
-            <div className="text-sm text-slate-500">December 2022</div>
-          </div>
-          <div>
-            <DonutScore size="lg" yes={6} ifNeedBe={2} no={1} />
-          </div>
-        </div>
+        <TopPick option={topPick} />
       </div>
       <Grid />
     </div>

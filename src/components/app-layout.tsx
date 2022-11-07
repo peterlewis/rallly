@@ -500,21 +500,27 @@ export const NewLayout: React.VoidFunctionComponent<{
 }> = ({ title, backHref, actions, children }) => {
   const { t } = useTranslation("app");
   return (
-    <div className="">
-      <div className="mb-8 p-3">
-        <div className="flex items-center justify-between">
-          <Logo className="ml-2 h-7 text-primary-500" />
-          <div className="action-group">
-            <UserDropdown />
-            <Button icon={<Menu />} />
+    <DayjsProvider>
+      <ModalProvider>
+        <div className="">
+          <div className="mb-8 p-3">
+            <div className="flex items-center justify-between">
+              <Link href="/polls">
+                <Logo className="ml-2 h-7 text-primary-500" />
+              </Link>
+              <div className="action-group">
+                <UserDropdown />
+                <Button icon={<Menu />} />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      {/* <div className="mx-auto flex items-center justify-between gap-12">
+          {/* <div className="mx-auto flex items-center justify-between gap-12">
         <div className="text-3xl font-semibold">{title}</div>
         <div>{actions}</div>
       </div> */}
-      <div className="mx-auto max-w-5xl">{children}</div>
-    </div>
+          <div className="mx-auto max-w-5xl px-6">{children}</div>
+        </div>
+      </ModalProvider>
+    </DayjsProvider>
   );
 };
