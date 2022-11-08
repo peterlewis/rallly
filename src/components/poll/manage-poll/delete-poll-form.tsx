@@ -27,15 +27,7 @@ export const DeletePollForm: React.VoidFunctionComponent<{
   const deletePoll = trpc.useMutation("polls.delete", {
     onSuccess: () => {
       plausible("Deleted poll");
-      queryClient.setQueryData(
-        ["polls.get", { urlId, admin: true }],
-        (poll) => {
-          if (!poll) {
-            throw new Error("Poll not found");
-          }
-          return { ...poll, deleted: true };
-        },
-      );
+      queryClient.invalidateQueries();
       router.push("/polls");
     },
   });

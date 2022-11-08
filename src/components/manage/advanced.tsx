@@ -77,30 +77,7 @@ export const Advanced = () => {
           />
         }
       />
-      <AdvancedOption
-        icon={LockClosed}
-        title={t("lockPoll")}
-        description={t("lockPollDescription")}
-        action={
-          <Switch
-            checked={locked}
-            onChange={(newValue) => {
-              setLocked(newValue);
-              toast.promise(
-                updatePoll.mutateAsync({
-                  urlId: poll.adminUrlId,
-                  closed: newValue,
-                }),
-                {
-                  loading: t("saving"),
-                  success: t("saved"),
-                  error: t("saveFailed"),
-                },
-              );
-            }}
-          />
-        }
-      />
+
       <AdvancedOption
         icon={Save}
         title={t("exportResults")}

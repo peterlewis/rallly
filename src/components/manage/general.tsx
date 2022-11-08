@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -46,22 +47,31 @@ export const General: React.VFC = () => {
         );
       })}
     >
-      <div className="divide-y">
-        <FormField name={t("title")}>
-          <TextInput
-            placeholder={t("titlePlaceholder")}
-            {...register("title", {
-              validate: requiredString(t("title")),
+      <div className="mb-4 space-y-4">
+        <div className="formField">
+          <label htmlFor="title">{t("title")}</label>
+          <input
+            type="text"
+            id="title"
+            className={clsx("input w-full", {
+              // "input-error": errors.title,
             })}
+            placeholder={t("titlePlaceholder")}
+            {...register("title", { validate: requiredString(t("title")) })}
           />
-        </FormField>
-        <FormField name={t("location")}>
-          <TextInput
+        </div>
+        <div className="formField">
+          <label htmlFor="location">{t("location")}</label>
+          <input
+            type="text"
+            id="location"
+            className="input w-full"
             placeholder={t("locationPlaceholder")}
             {...register("location")}
           />
-        </FormField>
-        <FormField name={t("description")}>
+        </div>
+        <div className="formField">
+          <label htmlFor="description">{t("description")}</label>
           <textarea
             id="description"
             className="input w-full"
@@ -69,9 +79,9 @@ export const General: React.VFC = () => {
             rows={5}
             {...register("description")}
           />
-        </FormField>
+        </div>
       </div>
-      <div className="flex justify-end space-x-3">
+      <div className="flex space-x-3">
         <Button
           type="primary"
           loading={formState.isSubmitting}

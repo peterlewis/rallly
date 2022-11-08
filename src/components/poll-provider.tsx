@@ -41,7 +41,6 @@ export const PollContextProvider: React.VoidFunctionComponent<{
 
   const pollQuery = trpc.useQuery(["polls.get", { urlId }], {
     onError: (e) => {
-      console.log(e);
       setNotFound(true);
     },
     retry: false,

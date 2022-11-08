@@ -7,27 +7,30 @@ import { Button } from "./button";
 
 interface SectionHeadingProps {
   title: string;
-  icon: React.ComponentType<{ className?: string }>;
   active?: boolean;
   actions?: React.ReactNode;
+  subtitle?: React.ReactNode;
 }
 
 const SectionHeading: React.VoidFunctionComponent<SectionHeadingProps> = ({
   title,
-  icon: Icon,
+  subtitle,
   actions,
 }) => {
   return (
-    <div className="mb-3 flex items-center justify-between">
-      <div className="text-lg font-medium">{title}</div>
-      {actions}
+    <div className="mb-3">
+      <div className="flex items-center justify-between">
+        <div className="text-lg font-medium">{title}</div>
+        {actions}
+      </div>
+      {subtitle ? <div className="">{subtitle}</div> : null}
     </div>
   );
 };
 
 export type SectionProps = React.PropsWithChildren<{
   title: string;
-  icon: React.ComponentType<{ className?: string }>;
+  subtitle?: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
 }>;
@@ -35,13 +38,13 @@ export type SectionProps = React.PropsWithChildren<{
 export const Section: React.VoidFunctionComponent<SectionProps> = ({
   className,
   title,
-  icon,
+  subtitle,
   actions,
   children,
 }) => {
   return (
-    <div className={clsx("", className)}>
-      <SectionHeading title={title} icon={icon} actions={actions} />
+    <div className={clsx("rounded-md border p-4", className)}>
+      <SectionHeading title={title} subtitle={subtitle} actions={actions} />
       <div className="">{children}</div>
     </div>
   );

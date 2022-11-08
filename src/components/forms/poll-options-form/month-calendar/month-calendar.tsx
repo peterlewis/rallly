@@ -26,13 +26,9 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   onNavigate,
   date = new Date(),
   onChange,
-  duration = 60,
-  onChangeDuration,
+  duration = "allDay",
 }) => {
   const { t } = useTranslation("app");
-  const [isAllDay, setIsAllDay] = React.useState(() => {
-    return !options.some((option) => option.type === "time");
-  });
 
   const optionsByDay = React.useMemo(() => {
     const res: Record<
@@ -84,14 +80,14 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   );
 
   return (
-    <div className="h-full rounded-md border md:flex">
+    <div className="h-full rounded-md border bg-white md:flex">
       <div className="border-b p-4 md:w-[440px] md:border-r md:border-b-0">
         <MultiDateSelect
           selected={Object.keys(optionsByDay)}
           weekStartsOn={weekStartsOn}
           onAddToSelection={(newDateString) => {
             let newOption: DateTimeOption;
-            if (!isAllDay) {
+            if (duration !== "allDay") {
               const start = `${newDateString}T08:00:00`;
               newOption = {
                 type: "time",
@@ -127,11 +123,12 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
             <div>
               <Switch
                 data-testid="specify-times-switch"
-                checked={!isAllDay}
-                onChange={(checked) => {
-                  setIsAllDay(!checked);
-                  if (checked) {
+                checked={duration !== "allDay"}
+                onChange={(shouldSpecifyTimes) => {
+                  if (shouldSpecifyTimes) {
                     // convert dates to time slots
+                    const duration = 60;
+
                     onChange?.(
                       options.map((option) => {
                         if (option.type === "time") {
@@ -223,15 +220,6 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                                       };
                                     }),
                                   );
-
-                                  const newDuration = dayjs(newEndtime).diff(
-                                    newStartTime,
-                                    "minutes",
-                                  );
-
-                                  if (newDuration !== duration) {
-                                    onChangeDuration?.(newDuration);
-                                  }
                                 }}
                                 suffix={
                                   <CompactButton
@@ -258,7 +246,10 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                           onClick={() => {
                             const end = dayjs(lastOption.end);
 
-                            let newEnd = end.add(duration, "minutes");
+                            let newEnd = end.add(
+                              duration !== "allDay" ? duration : 60,
+                              "minutes",
+                            );
 
                             if (!newEnd.isSame(end, "day")) {
                               newEnd = end.set("hour", 23).set("minute", 59);

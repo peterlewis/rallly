@@ -1,11 +1,18 @@
 import { Participant } from "@prisma/client";
 import { Trans, useTranslation } from "next-i18next";
 import React from "react";
+import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
-import { encodeDateOption, parseValue } from "../../utils/date-time-utils";
+import {
+  decodeOptions,
+  encodeDateOption,
+  parseValue,
+} from "../../utils/date-time-utils";
 import { Button } from "../button";
+import { DateOrTimeSelector } from "../date-or-time-selector";
 import { PollOptionsForm } from "../forms";
+import { DateTimeOption } from "../forms/poll-options-form/types";
 import { useModalContext } from "../modal/modal-provider";
 import { useParticipants } from "../participants-provider";
 import { usePoll } from "../poll-provider";
@@ -40,68 +47,26 @@ export const Options: React.VFC = () => {
   const { t } = useTranslation("app");
   const modalContext = useModalContext();
 
+  const [defaultPollValue] = React.useState(() => {
+    return poll.options.map((option) => parseValue(option.value));
+  });
+
+  const { control, handleSubmit } = useForm<{ options: DateTimeOption[] }>();
+
   return (
-    <div>
-      <PollOptionsForm
-        formId={formId}
-        defaultValues={{
-          navigationDate, // used to navigate to the right part of the calendar
-          duration: 30, // duration of the event in minutes
-          timeZone: poll.timeZone ?? "",
-          view: "month",
-          options: poll.options.map(({ value }) => parseValue(value)),
-        }}
-        onSubmit={async (data) => {
-          const encodedOptions = data.options.map(encodeDateOption);
-          const optionsToDelete = poll.options.filter((option) => {
-            return !encodedOptions.includes(option.value);
-          });
-
-          const optionsToAdd = encodedOptions.filter(
-            (encodedOption) =>
-              !poll.options.find((o) => o.value === encodedOption),
+    <form>
+      <Controller
+        control={control}
+        name="options"
+        defaultValue={defaultPollValue}
+        render={({ field }) => {
+          return (
+            <DateOrTimeSelector
+              defaultDate={new Date(navigationDate)}
+              value={field.value}
+              onChange={field.onChange}
+            />
           );
-
-          const onOk = async () => {
-            await toast.promise(
-              updatePoll.mutateAsync({
-                urlId: poll.adminUrlId,
-                timeZone: data.timeZone,
-                optionsToDelete: optionsToDelete.map(({ id }) => id),
-                optionsToAdd,
-              }),
-              {
-                loading: t("saving"),
-                success: t("saved"),
-                error: t("saveFailed"),
-              },
-            );
-          };
-
-          const optionsToDeleteThatHaveVotes = optionsToDelete.filter(
-            (option) => getParticipantsWhoVotedForOption(option.id).length > 0,
-          );
-
-          if (optionsToDeleteThatHaveVotes.length > 0) {
-            modalContext.render({
-              title: t("areYouSure"),
-              description: (
-                <Trans
-                  t={t}
-                  i18nKey="deletingOptionsWarning"
-                  components={{ b: <strong /> }}
-                />
-              ),
-              onOk,
-              okButtonProps: {
-                type: "danger",
-              },
-              okText: t("delete"),
-              cancelText: t("cancel"),
-            });
-          } else {
-            onOk();
-          }
         }}
       />
       <div className="flex justify-end py-3">
@@ -114,6 +79,6 @@ export const Options: React.VFC = () => {
           {t("save")}
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
