@@ -61,7 +61,7 @@ const Polls: React.VoidFunctionComponent = () => {
           className="w-full sm:w-64"
         />
       </div>
-      <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
         {polls.map((poll) => {
           const participantNames = poll.participants.map(({ name }) => name);
           return (
