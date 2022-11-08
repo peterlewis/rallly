@@ -20,25 +20,26 @@ const TimeZonePolicyOption: React.VoidFunctionComponent<{
   icon: React.ComponentType<{ className?: string }>;
   className?: string;
   disabled?: boolean;
-}> = ({ active, title, description, icon: Icon, className }) => {
+  onClick?: () => void;
+}> = ({ active, title, description, icon: Icon, className, onClick }) => {
   return (
     <div
+      role="button"
+      onClick={onClick}
       className={clsx(
-        "flex max-w-sm cursor-default select-none items-start space-x-4 px-4 py-3 transition-all hover:bg-slate-300/10 active:bg-slate-500/10",
+        "flex grow select-none items-start space-x-4 rounded border px-4 py-3 hover:bg-slate-300/10 active:bg-slate-500/10",
         className,
         {
-          "bg-slate-300/10": active,
+          "border-primary-500 text-primary-500 ring-1 ring-primary-500": active,
         },
       )}
     >
       <div className="grow">
         <div className="mb-2 flex items-center">
-          <Icon className="mr-2 inline-block w-5 text-slate-400" />
+          <Icon className="mr-2 inline-block w-5" />
           <div className="font-medium">{title}</div>
         </div>
-        <div className="text-sm leading-normal text-slate-500">
-          {description}
-        </div>
+        <div className="text-sm leading-normal">{description}</div>
       </div>
       <div
         className={clsx(
@@ -75,76 +76,23 @@ export const TimezonePicker: React.VoidFunctionComponent<{
   className?: string;
 }> = ({ value, onChange, disabled, className }) => {
   const { t } = useTranslation("app");
-  const { reference, floating, x, y, strategy } = useFloating({
-    strategy: "fixed",
-    placement: "top-start",
-    middleware: [offset(10), flip()],
-  });
+
   return (
-    <Listbox value={value} onChange={onChange} disabled={disabled}>
-      {({ open }) => (
-        <>
-          <Listbox.Button
-            ref={reference}
-            as={Button}
-            className={clsx("shadow-none", className)}
-          >
-            {value === "auto" ? (
-              <div className="flex items-center">
-                <Globe className="mr-2 inline-block w-5 text-slate-400" />
-                <div className="">{t("timezonePolicyAutomatic")}</div>
-              </div>
-            ) : (
-              <div className="flex items-center">
-                <LocationMarker className="mr-2 inline-block w-5 text-slate-400" />
-                <div className="">{t("timezonePolicyFixed")}</div>
-              </div>
-            )}
-            <ChevronDown className="ml-2 h-5" />
-          </Listbox.Button>
-          <FloatingPortal>
-            <AnimatePresence>
-              {open && (
-                <Options
-                  static={true}
-                  transition={{ duration: 0.2 }}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  ref={floating}
-                  className="z-10 divide-y overflow-hidden rounded-lg border bg-white shadow-lg"
-                  style={{
-                    position: strategy,
-                    left: x ?? "",
-                    top: y ?? "",
-                  }}
-                >
-                  <Listbox.Option value="auto">
-                    {({ selected }) => (
-                      <TimeZonePolicyOption
-                        icon={Globe}
-                        title={t("timezonePolicyAutomatic")}
-                        description={t("timezonePolicyAutomaticDescription")}
-                        active={selected}
-                      />
-                    )}
-                  </Listbox.Option>
-                  <Listbox.Option value="fixed">
-                    {({ selected }) => (
-                      <TimeZonePolicyOption
-                        icon={LocationMarker}
-                        title={t("timezonePolicyFixed")}
-                        description={t("timezonePolicyFixedDescription")}
-                        active={selected}
-                      />
-                    )}
-                  </Listbox.Option>
-                </Options>
-              )}
-            </AnimatePresence>
-          </FloatingPortal>
-        </>
-      )}
-    </Listbox>
+    <div className="flex gap-3">
+      <TimeZonePolicyOption
+        icon={Globe}
+        title={t("timezonePolicyAutomatic")}
+        description={t("timezonePolicyAutomaticDescription")}
+        active={value === "auto"}
+        onClick={() => onChange("auto")}
+      />
+      <TimeZonePolicyOption
+        icon={LocationMarker}
+        title={t("timezonePolicyFixed")}
+        description={t("timezonePolicyFixedDescription")}
+        active={value === "fixed"}
+        onClick={() => onChange("fixed")}
+      />
+    </div>
   );
 };

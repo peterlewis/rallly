@@ -81,7 +81,7 @@
   }
 
   .btn-default {
-    @apply btn bg-white text-slate-700 hover:bg-gray-50 active:bg-slate-500/10;
+    @apply btn text-slate-700 hover:bg-gray-50 active:bg-slate-500/10;
   }
 
   a.btn-default {

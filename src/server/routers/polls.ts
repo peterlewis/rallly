@@ -86,10 +86,10 @@ export const polls = createRouter()
     }),
     resolve: async ({ ctx, input }): Promise<{ urlId: string }> => {
       const adminUrlId = await nanoid();
-
+      const id = await nanoid();
       await prisma.poll.create({
         data: {
-          id: await nanoid(),
+          id,
           title: input.title,
           type: "date",
           timeZone: input.timeZone,
@@ -109,7 +109,7 @@ export const polls = createRouter()
         },
       });
 
-      return { urlId: adminUrlId };
+      return { urlId: id };
     },
   })
   .query("list", {

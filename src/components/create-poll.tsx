@@ -1,182 +1,152 @@
-import { motion } from "framer-motion";
+import clsx from "clsx";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
+import { Controller, useForm } from "react-hook-form";
 
-import ChevronLeft from "@/components/icons/chevron-left.svg";
-
+import { encodeDateOption, getBrowserTimeZone } from "../utils/date-time-utils";
+import { useFormValidation } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
-import { AppLayout, AppLayoutHeading } from "./app-layout";
+import { NewLayout } from "./app-layout";
 import { Button } from "./button";
-import {
-  PollDetailsForm,
-  PollDetailsStep,
-} from "./create-poll/poll-details-step";
-import { PollOptionsData, PollOptionsForm } from "./forms";
-
-type NewPollState = {
-  step: number;
-  details: PollDetailsForm;
-  options: PollOptionsData;
-};
-
-const initialState: NewPollState = {
-  step: 0,
-  details: {
-    title: "",
-    location: "",
-    description: "",
-  },
-  options: {
-    navigationDate: new Date().toISOString(),
-    duration: 30,
-    options: [],
-    view: "month",
-    timeZone: "",
-  },
-};
-
-type NewPollAction =
-  | { type: "back" }
-  | { type: "loadState"; payload: NewPollState }
-  | {
-      type: "updateDetails";
-      payload: PollDetailsForm;
-    }
-  | {
-      type: "updateOptions";
-      payload: PollOptionsData;
-    };
-
-const reducer = (state: NewPollState, action: NewPollAction): NewPollState => {
-  switch (action.type) {
-    case "updateDetails":
-      return { ...state, step: 1, details: { ...action.payload } };
-    case "updateOptions":
-      return { ...state, step: 2, options: { ...action.payload } };
-    case "loadState":
-      return { ...action.payload };
-    case "back":
-      return { ...state, step: state.step - 1 };
-  }
-};
-
-const NewPollContext =
-  React.createContext<{
-    state: NewPollState;
-    dispatch: React.Dispatch<NewPollAction>;
-  } | null>(null);
-
-export const useNewProceeding = () => {
-  const context = React.useContext(NewPollContext);
-
-  if (!context) {
-    throw new Error("Missing context provider for new proceeding");
-  }
-
-  return context;
-};
-
-const currentFormId = "new-proceeding";
+import { DateOrTimeSelector } from "./date-or-time-selector";
+import { TimezonePicker } from "./forms/poll-options-form/time-zone-policy";
+import { DateTimeOption } from "./forms/poll-options-form/types";
 
 const NewProceeding: React.VoidFunctionComponent = () => {
   const { t } = useTranslation("app");
-  const [state, dispatch] = React.useReducer(reducer, initialState);
   const router = useRouter();
 
-  const isFirstStep = state.step === 0;
-
+  const { handleSubmit, register, control, formState } = useForm<{
+    title: string;
+    location: string;
+    description: string;
+    options: DateTimeOption[];
+    timeZone: "auto" | "fixed";
+  }>({
+    defaultValues: {
+      timeZone: "auto",
+      options: [],
+    },
+  });
   const createPoll = trpc.useMutation(["polls.create"], {
     onSuccess: (res) => {
-      router.replace(`/admin/${res.urlId}`);
+      router.replace(`/poll/${res.urlId}`);
     },
   });
 
+  const { errors } = formState;
+
+  const [isAllDayEvent, setIsAllDayEvent] = React.useState(true);
+
+  const { requiredString } = useFormValidation();
+
   return (
-    <AppLayout
-      breadcrumbs={[
-        {
-          title: <>&larr; {t("meetingPolls")}</>,
-          href: "/polls",
-        },
-      ]}
-      title={t("createPollTitle")}
-    >
-      <NewPollContext.Provider value={{ state, dispatch }}>
-        <motion.div layout={true} className="card">
-          <motion.div layout={"position"}>
-            <AppLayoutHeading
-              title={t("createPollTitle")}
-              description={t("stepSummary", {
-                current: state.step + 1,
-                total: 2,
-              })}
-              className="mb-8"
-            />
-            <div className="space-y-4">
-              {(() => {
-                switch (state.step) {
-                  case 0:
-                    return (
-                      <PollDetailsStep
-                        formId={currentFormId}
-                        defaultValues={state.details}
-                        onSubmit={(payload) => {
-                          dispatch({ type: "updateDetails", payload });
-                        }}
-                      />
-                    );
-                  case 1:
-                    return (
-                      <PollOptionsForm
-                        formId={currentFormId}
-                        defaultValues={state.options}
-                        onSubmit={async (payload) => {
-                          const newState = { ...state, options: payload };
-                          await createPoll.mutateAsync({
-                            title: newState.details.title,
-                            location: newState.details.location,
-                            description: newState.details.description,
-                            timeZone: newState.options.timeZone,
-                            options: newState.options.options.map((option) =>
-                              option.type === "date"
-                                ? option.date
-                                : `${option.start}/${option.end}`,
-                            ),
-                          });
-                        }}
-                      />
-                    );
-                }
-              })()}
-              <motion.div layout="position" className="mt-4 flex items-center">
-                <div className="flex space-x-3">
-                  <Button
-                    disabled={isFirstStep}
-                    icon={<ChevronLeft />}
-                    onClick={() => dispatch({ type: "back" })}
-                  />
-                  <Button
-                    type="primary"
-                    loading={createPoll.isLoading || createPoll.isSuccess}
-                    htmlType="submit"
-                    form={currentFormId}
-                  >
-                    <div>
-                      {state.step < 1 ? (
-                        <>{t("continue")} &rarr;</>
-                      ) : (
-                        t("createPoll")
-                      )}
-                    </div>
-                  </Button>
-                </div>
-              </motion.div>
+    <NewLayout>
+      <form
+        onSubmit={handleSubmit(async (data) => {
+          await createPoll.mutateAsync({
+            ...data,
+            options: data.options.map(encodeDateOption),
+            timeZone: data.timeZone === "auto" ? getBrowserTimeZone() : "",
+          });
+        })}
+      >
+        <div className="space-y-4 pb-8">
+          <div>
+            <div className="text-2xl font-semibold">New meeting poll</div>
+            <div>Fill in the form below to create a new meeting poll</div>
+          </div>
+          <div>
+            <div className="formField">
+              <label htmlFor="title">{t("title")}</label>
+              <input
+                type="text"
+                id="title"
+                className={clsx("input w-full", {
+                  "input-error": errors.title,
+                })}
+                placeholder={t("titlePlaceholder")}
+                {...register("title", { validate: requiredString(t("title")) })}
+              />
             </div>
-          </motion.div>
-        </motion.div>
-      </NewPollContext.Provider>
-    </AppLayout>
+            <div className="formField">
+              <label htmlFor="location">{t("location")}</label>
+              <input
+                type="text"
+                id="location"
+                className="input w-full"
+                placeholder={t("locationPlaceholder")}
+                {...register("location")}
+              />
+            </div>
+            <div className="formField">
+              <label htmlFor="description">{t("description")}</label>
+              <textarea
+                id="description"
+                className="input w-full"
+                placeholder={t("descriptionPlaceholder")}
+                rows={5}
+                {...register("description")}
+              />
+            </div>
+          </div>
+          <div>
+            <div className="text-lg font-semibold">Options</div>
+            <div className="mb-4">
+              These will be the options your participants can vote for.
+            </div>
+            <Controller
+              name="options"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <DateOrTimeSelector
+                    value={field.value}
+                    onChange={(options) => {
+                      field.onChange(options);
+                      setIsAllDayEvent(
+                        options.length === 0 || options[0].type === "date",
+                      );
+                    }}
+                  />
+                );
+              }}
+            />
+          </div>
+          {!isAllDayEvent ? (
+            <div>
+              <div className="mb-1 text-sm font-semibold">Time zone policy</div>
+              <div className="mb-4">
+                Choose how participants see the times you have selected
+              </div>
+              <Controller
+                control={control}
+                name="timeZone"
+                render={({ field }) => {
+                  return (
+                    <TimezonePicker
+                      value={field.value}
+                      className="w-full sm:w-auto"
+                      onChange={field.onChange}
+                    />
+                  );
+                }}
+              />
+            </div>
+          ) : null}
+          <div className="mt-6 flex items-center">
+            <Button
+              type="primary"
+              loading={createPoll.isLoading || createPoll.isSuccess}
+              htmlType="submit"
+            >
+              {t("continue")}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </NewLayout>
   );
 };
 

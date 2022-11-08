@@ -22,11 +22,11 @@ import { MultiDateSelect } from "./multi-date-select";
 import { TimeSlotPicker } from "./time-slot-picker";
 
 const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
-  options,
+  options = [],
   onNavigate,
-  date,
+  date = new Date(),
   onChange,
-  duration,
+  duration = 60,
   onChangeDuration,
 }) => {
   const { t } = useTranslation("app");
@@ -72,7 +72,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
 
   const removeAllOptionsForDay = React.useCallback(
     (dateToRemove: string) => {
-      onChange(
+      onChange?.(
         options.filter((option) => {
           const optionDate =
             option.type === "date" ? option.date : option.start;
@@ -84,7 +84,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
   );
 
   return (
-    <div className="h-full md:flex">
+    <div className="h-full rounded-md border md:flex">
       <div className="border-b p-4 md:w-[440px] md:border-r md:border-b-0">
         <MultiDateSelect
           selected={Object.keys(optionsByDay)}
@@ -107,8 +107,8 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
               };
             }
 
-            onChange([...options, newOption]);
-            onNavigate(new Date(newDateString));
+            onChange?.([...options, newOption]);
+            onNavigate?.(new Date(newDateString));
           }}
           onRemoveFromSelection={removeAllOptionsForDay}
           onNavigationChange={onNavigate}
@@ -132,7 +132,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                   setIsAllDay(!checked);
                   if (checked) {
                     // convert dates to time slots
-                    onChange(
+                    onChange?.(
                       options.map((option) => {
                         if (option.type === "time") {
                           throw new Error(
@@ -152,7 +152,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                       }),
                     );
                   } else {
-                    onChange(
+                    onChange?.(
                       datepicker.selection.map((date) => ({
                         type: "date",
                         date,
@@ -195,7 +195,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                               <CompactButton
                                 icon={X}
                                 onClick={() => {
-                                  onChange(
+                                  onChange?.(
                                     produce(options, (draft) => {
                                       draft.splice(index, 1);
                                     }),
@@ -214,7 +214,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                               <TimeSlotPicker
                                 value={[option.start, option.end]}
                                 onChange={([newStartTime, newEndtime]) => {
-                                  onChange(
+                                  onChange?.(
                                     produce(options, (draft) => {
                                       draft[index] = {
                                         type: "time",
@@ -230,14 +230,14 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                                   );
 
                                   if (newDuration !== duration) {
-                                    onChangeDuration(newDuration);
+                                    onChangeDuration?.(newDuration);
                                   }
                                 }}
                                 suffix={
                                   <CompactButton
                                     icon={X}
                                     onClick={() => {
-                                      onChange(
+                                      onChange?.(
                                         produce(options, (draft) => {
                                           draft.splice(index, 1);
                                         }),
@@ -256,7 +256,6 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                         <Button
                           icon={<PlusSm />}
                           onClick={() => {
-                            console.log(lastOption);
                             const end = dayjs(lastOption.end);
 
                             let newEnd = end.add(duration, "minutes");
@@ -264,7 +263,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                             if (!newEnd.isSame(end, "day")) {
                               newEnd = end.set("hour", 23).set("minute", 59);
                             }
-                            onChange(
+                            onChange?.(
                               produce(options, (draft) => {
                                 draft.push({
                                   type: "time",
@@ -314,7 +313,7 @@ const MonthCalendar: React.VoidFunctionComponent<DateTimePickerProps> = ({
                                   });
                                 },
                               );
-                              onChange(newOptions);
+                              onChange?.(newOptions);
                             }}
                           />
                           <DropdownItem

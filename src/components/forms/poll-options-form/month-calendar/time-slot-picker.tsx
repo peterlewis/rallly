@@ -26,14 +26,14 @@ export const TimeSlotPicker: React.VoidFunctionComponent<{
   }, [value]);
   return (
     <div
-      className={clsx("input flex items-center space-x-4 bg-white py-0 px-4", {
+      className={clsx("input flex items-center space-x-4 py-0 px-4", {
         "border-primary-600 ring-1 ring-primary-600": hasFocus,
       })}
     >
       <input
         ref={startTimeInput}
         type="time"
-        className="cursor-pointer border-0 p-0 focus:ring-0 dark:bg-gray-700"
+        className="border-0 bg-transparent p-0 focus:ring-0 dark:bg-gray-700"
         step={60 * 5}
         onFocus={() => {
           setFocus(true);
@@ -57,7 +57,7 @@ export const TimeSlotPicker: React.VoidFunctionComponent<{
         ref={endTimeInput}
         type="time"
         onFocus={() => setFocus(true)}
-        className="h-9 cursor-pointer border-0 p-0 focus:ring-0 dark:bg-gray-700"
+        className="h-9 border-0 bg-transparent p-0 focus:ring-0 dark:bg-gray-700"
         step={60 * 5}
         min={start.format("HH:mm")}
         onBlur={(e) => {

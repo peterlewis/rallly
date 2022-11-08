@@ -29,7 +29,7 @@ export const PollDetailsStep: React.VoidFunctionComponent<{
           onSubmit(data);
         })}
       >
-        <div className="max-w-lg space-y-4">
+        <div className="space-y-4">
           <fieldset>
             <label className="mb-2 font-medium">{t("title")}</label>
             <TextInput
