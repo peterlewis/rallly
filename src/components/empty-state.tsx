@@ -19,7 +19,7 @@ export const EmptyState: React.VoidFunctionComponent<EmptyStateProps> = ({
         className,
       )}
     >
-      <div className="text-center font-medium text-slate-500/50">
+      <div className="text-center font-medium text-gray-500/50">
         <Icon className="mb-2 inline-block h-16" />
         <div>{text}</div>
       </div>

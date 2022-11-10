@@ -759,7 +759,7 @@ const Results = () => {
 
   return (
     <div
-      className={clsx("space-y-6", {
+      className={clsx("space-y-4", {
         "opacity-50": participants.length === 0,
       })}
     >

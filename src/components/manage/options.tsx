@@ -69,7 +69,7 @@ export const Options: React.VFC = () => {
           );
         }}
       />
-      <div className="flex justify-end py-3">
+      <div className="flex py-3">
         <Button
           htmlType="submit"
           type="primary"

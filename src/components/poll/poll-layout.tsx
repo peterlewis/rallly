@@ -30,7 +30,7 @@ export const PollLayout: React.VoidFunctionComponent<{
   return (
     <div className="">
       <div className="mb-4 text-2xl font-semibold">{poll.title}</div>
-      <div className="action-group mb-8">
+      <div className="action-group mb-4">
         <MenuItem href={`/poll/${poll.id}`}>Dashboard</MenuItem>
         <MenuItem href={`/poll/${poll.id}/manage`}>Manage</MenuItem>
       </div>

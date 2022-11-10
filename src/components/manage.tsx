@@ -23,9 +23,9 @@ export const Manage: React.VFC = () => {
       >
         <Options />
       </Section>
-      <Section title={t("advanced")}>
+      {/* <Section title={t("advanced")}>
         <Advanced />
-      </Section>
+      </Section> */}
     </div>
   );
 };

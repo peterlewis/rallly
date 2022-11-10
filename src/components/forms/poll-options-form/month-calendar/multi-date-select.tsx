@@ -66,14 +66,14 @@ export const MultiDateSelect: React.VoidFunctionComponent<HeadlessDatePickerOpti
                   datepicker.toggle(day.date);
                 }}
                 className={clsx(
-                  "relative flex h-12 items-center justify-center text-sm hover:bg-gray-50 focus:ring-0 focus:ring-offset-0 active:bg-gray-100",
+                  "relative flex h-12 items-center justify-center text-sm focus:ring-0 focus:ring-offset-0 hover:bg-gray-50 active:bg-gray-100",
                   {
                     "bg-gray-50 text-gray-400": day.outOfMonth && !day.selected,
-                    "font-bold": day.today,
-                    "text-primary-500": day.today && !day.selected,
+                    "font-semibold before:absolute before:-z-0 before:h-9 before:w-9 before:rounded-full before:border before:border-dashed before:border-primary-400":
+                      day.today,
                     "border-r": (i + 1) % 7 !== 0,
                     "border-b": i < datepicker.days.length - 7,
-                    "font-normal text-white after:absolute after:-z-0 after:h-8 after:w-8 after:rounded-full after:bg-green-500 after:content-['']":
+                    "text-white after:absolute after:-z-0 after:h-8 after:w-8 after:rounded-full after:bg-primary-500 after:content-['']":
                       day.selected,
                   },
                 )}

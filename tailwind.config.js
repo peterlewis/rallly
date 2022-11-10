@@ -29,6 +29,7 @@ module.exports = {
           50: { transform: "translateY(0)" },
         },
       },
+      ringColor: colors.indigo["500"],
     },
   },
   plugins: [

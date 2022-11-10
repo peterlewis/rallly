@@ -18,7 +18,7 @@ const SectionHeading: React.VoidFunctionComponent<SectionHeadingProps> = ({
   actions,
 }) => {
   return (
-    <div className="mb-3">
+    <div className="mb-4 border-b pb-3">
       <div className="flex items-center justify-between">
         <div className="text-lg font-medium">{title}</div>
         {actions}
@@ -43,7 +43,7 @@ export const Section: React.VoidFunctionComponent<SectionProps> = ({
   children,
 }) => {
   return (
-    <div className={clsx("rounded-md border p-4", className)}>
+    <div className={clsx("", className)}>
       <SectionHeading title={title} subtitle={subtitle} actions={actions} />
       <div className="">{children}</div>
     </div>
