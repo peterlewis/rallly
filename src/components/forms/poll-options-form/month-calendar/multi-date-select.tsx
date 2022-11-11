@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import produce from "immer";
 
 import ChevronLeft from "@/components/icons/chevron-left.svg";
 import ChevronRight from "@/components/icons/chevron-right.svg";
@@ -63,7 +64,11 @@ export const MultiDateSelect: React.VoidFunctionComponent<HeadlessDatePickerOpti
                 type="button"
                 key={i}
                 onClick={() => {
-                  datepicker.toggle(day.date);
+                  if (day.selected) {
+                    onRemoveFromSelection?.(day.date);
+                  } else {
+                    onAddToSelection?.(day.date);
+                  }
                 }}
                 className={clsx(
                   "relative flex h-12 items-center justify-center text-sm focus:ring-0 focus:ring-offset-0 hover:bg-gray-50 active:bg-gray-100",

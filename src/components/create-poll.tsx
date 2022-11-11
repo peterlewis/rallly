@@ -10,6 +10,7 @@ import { trpc } from "../utils/trpc";
 import { NewLayout } from "./app-layout";
 import { Button } from "./button";
 import { DateOrTimeSelector } from "./date-or-time-selector";
+import { DurationPicker } from "./forms/poll-options-form/month-calendar/duration-picker";
 import { TimezonePicker } from "./forms/poll-options-form/time-zone-policy";
 import { DateTimeOption } from "./forms/poll-options-form/types";
 
@@ -17,15 +18,17 @@ const NewProceeding: React.VoidFunctionComponent = () => {
   const { t } = useTranslation("app");
   const router = useRouter();
 
-  const { handleSubmit, register, control, formState } = useForm<{
+  const { handleSubmit, register, watch, control, formState } = useForm<{
     title: string;
     location: string;
     description: string;
-    options: DateTimeOption[];
+    options: string[];
+    duration: number;
     timeZone: "auto" | "fixed";
   }>({
     defaultValues: {
       timeZone: "auto",
+      duration: 0,
       options: [],
     },
   });
@@ -34,6 +37,8 @@ const NewProceeding: React.VoidFunctionComponent = () => {
       router.replace(`/poll/${res.urlId}`);
     },
   });
+
+  const watchDuration = watch("duration");
 
   const { errors } = formState;
 
@@ -96,6 +101,21 @@ const NewProceeding: React.VoidFunctionComponent = () => {
             <div className="mb-4">
               These will be the options your participants can vote for.
             </div>
+            <div className="action-group mb-4">
+              Duration:
+              <Controller
+                control={control}
+                name="duration"
+                render={({ field }) => {
+                  return (
+                    <DurationPicker
+                      duration={field.value}
+                      onChange={field.onChange}
+                    />
+                  );
+                }}
+              />
+            </div>
             <Controller
               name="options"
               control={control}
@@ -105,36 +125,32 @@ const NewProceeding: React.VoidFunctionComponent = () => {
                     value={field.value}
                     onChange={(options) => {
                       field.onChange(options);
-                      setIsAllDayEvent(
-                        options.length === 0 || options[0].type === "date",
-                      );
                     }}
+                    duration={watchDuration}
                   />
                 );
               }}
             />
           </div>
-          {!isAllDayEvent ? (
-            <div>
-              <div className="mb-1 text-sm font-semibold">Time zone policy</div>
-              <div className="mb-4">
-                Choose how participants see the times you have selected
-              </div>
-              <Controller
-                control={control}
-                name="timeZone"
-                render={({ field }) => {
-                  return (
-                    <TimezonePicker
-                      value={field.value}
-                      className="w-full sm:w-auto"
-                      onChange={field.onChange}
-                    />
-                  );
-                }}
-              />
+          <div>
+            <div className="mb-1 text-sm font-semibold">Time zone policy</div>
+            <div className="mb-4">
+              Choose how participants see the times you have selected
             </div>
-          ) : null}
+            <Controller
+              control={control}
+              name="timeZone"
+              render={({ field }) => {
+                return (
+                  <TimezonePicker
+                    value={field.value}
+                    className="w-full sm:w-auto"
+                    onChange={field.onChange}
+                  />
+                );
+              }}
+            />
+          </div>
           <div className="mt-6 flex items-center">
             <Button
               type="primary"

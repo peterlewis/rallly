@@ -13,12 +13,7 @@ export const EmptyState: React.VoidFunctionComponent<EmptyStateProps> = ({
   className,
 }) => {
   return (
-    <div
-      className={clsx(
-        "flex h-full items-center justify-center py-12",
-        className,
-      )}
-    >
+    <div className={clsx("flex items-center justify-center ", className)}>
       <div className="text-center font-medium text-gray-500/50">
         <Icon className="mb-2 inline-block h-16" />
         <div>{text}</div>

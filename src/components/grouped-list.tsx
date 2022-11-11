@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-export type GroupDefinition<O extends Record<string, unknown> = {}> = {
+export type GroupDefinition<O> = {
   groupBy: (a: O) => string;
   className?: string;
   itemsClassName?: string;
@@ -16,7 +16,7 @@ type Group<T> = {
   items: T[];
 };
 
-const useDefineGroups = <T extends Record<string, unknown>>(
+const useDefineGroups = <T,>(
   data: T[],
   groupDefs: GroupDefinition<T>[],
 ): Array<Group<T>> => {
@@ -57,7 +57,7 @@ const useDefineGroups = <T extends Record<string, unknown>>(
   return createGroups(data, groupDefs);
 };
 
-export const GroupedList = <T extends Record<string, unknown>>({
+export const GroupedList = <T,>({
   className,
   data,
   groupDefs,
@@ -68,7 +68,7 @@ export const GroupedList = <T extends Record<string, unknown>>({
   className?: string;
   groupsClassName?: string;
   groupDefs: Array<GroupDefinition<T>>;
-  itemRender: React.ComponentType<{ item: T }>;
+  itemRender: React.ComponentType<{ item: T; index: number }>;
 }) => {
   const groups = useDefineGroups(data, groupDefs);
   const renderGroup = (group: Group<T>) => {
@@ -78,7 +78,9 @@ export const GroupedList = <T extends Record<string, unknown>>({
         <div className={group.itemsClassName}>
           {group.groups
             ? group.groups.map(renderGroup)
-            : group.items.map((item, i) => <Item key={i} item={item} />)}
+            : group.items.map((item, i) => (
+                <Item key={i} item={item} index={i} />
+              ))}
         </div>
       </div>
     );

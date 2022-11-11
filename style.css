@@ -61,7 +61,8 @@
   .input {
     @apply appearance-none rounded border border-gray-200 px-2 py-1 text-slate-700 ring-inset placeholder:text-slate-400;
   }
-  input.input {
+  input.input,
+  select.input {
     @apply h-9;
   }
   .input-lg {

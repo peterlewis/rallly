@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 import React from "react";
 
+import { useDayjs } from "../utils/dayjs";
+
 interface DayProps {
   date: string;
   day: string;
@@ -34,7 +36,9 @@ export const useHeadlessDatePicker = (
   navigationDate: Date;
   selection: string[];
   toggle: (date: string) => string[];
+  updateSelected: (selected: string[]) => void;
 } => {
+  const { weekdays } = useDayjs();
   const [localSelection, setSelection] = React.useState<string[]>([]);
   const selection = options?.selected ?? localSelection;
   const [localNavigationDate, setNavigationDate] = React.useState(today);
@@ -45,30 +49,30 @@ export const useHeadlessDatePicker = (
 
   const currentMonth = navigationDate.get("month");
 
-  const days: DayProps[] = [];
+  const days: DayProps[] = React.useMemo(() => {
+    const res: DayProps[] = [];
 
-  const daysOfWeek: string[] = [];
+    let reachedEnd = false;
+    let i = 0;
+    do {
+      const d = firstDayOfFirstWeek.add(i, "days");
+      res.push({
+        date: d.format("YYYY-MM-DD"),
+        day: d.format("D"),
+        weekend: d.day() === 0 || d.day() === 6,
+        outOfMonth: d.month() !== currentMonth,
+        today: d.isSame(today, "day"),
+        selected: selection.some((selectedDate) =>
+          d.isSame(selectedDate, "day"),
+        ),
+      });
+      i++;
+      reachedEnd =
+        i > 34 && i % 7 === 0 && d.add(1, "day").month() !== currentMonth;
+    } while (reachedEnd === false);
 
-  for (let i = 0; i < 7; i++) {
-    daysOfWeek.push(firstDayOfFirstWeek.add(i, "days").format("dd"));
-  }
-
-  let reachedEnd = false;
-  let i = 0;
-  do {
-    const d = firstDayOfFirstWeek.add(i, "days");
-    days.push({
-      date: d.format("YYYY-MM-DD"),
-      day: d.format("D"),
-      weekend: d.day() === 0 || d.day() === 6,
-      outOfMonth: d.month() !== currentMonth,
-      today: d.isSame(today, "day"),
-      selected: selection.some((selectedDate) => d.isSame(selectedDate, "day")),
-    });
-    i++;
-    reachedEnd =
-      i > 34 && i % 7 === 0 && d.add(1, "day").month() !== currentMonth;
-  } while (reachedEnd === false);
+    return res;
+  }, [currentMonth, firstDayOfFirstWeek, selection]);
 
   return {
     navigationDate: navigationDate.toDate(),
@@ -95,7 +99,7 @@ export const useHeadlessDatePicker = (
       options?.onNavigationChange?.(newDate);
     },
     days,
-    daysOfWeek,
+    daysOfWeek: weekdays,
     selection: options?.selected ?? selection,
     toggle: (date) => {
       const index = selection.indexOf(date);
@@ -118,5 +122,6 @@ export const useHeadlessDatePicker = (
 
       return newSelection;
     },
+    updateSelected: setSelection,
   };
 };
