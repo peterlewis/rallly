@@ -47,32 +47,32 @@ const TimeSlotGroup: React.VoidFunctionComponent<{
 };
 
 const DateList: React.VoidFunctionComponent<{
-  value: Event[];
-  onChange: (value: Event[]) => void;
+  value: string[];
+  onChange: (value: string[]) => void;
 }> = ({ value, onChange }) => {
   return (
     <GroupedList
       data={value}
       groupDefs={[
         {
-          groupBy(event) {
-            return event.start.substring(0, 7);
+          groupBy(date) {
+            return date.substring(0, 7);
           },
           render({ value }) {
             return <div>{dayjs(value).format("MMMM YYYY")}</div>;
           },
         },
       ]}
-      itemRender={({ item, index }) => {
+      itemRender={({ item }) => {
         return (
           <div className="flex items-center">
-            {dayjs(item.start).format("D dddd")}
+            {dayjs(item).format("D dddd")}
             <CompactButton
               icon={X}
               onClick={() => {
                 onChange(
                   produce(value, (draft) => {
-                    draft.splice(index, 1);
+                    draft.splice(value.indexOf(item), 1);
                   }),
                 );
               }}
@@ -144,7 +144,6 @@ const MonthCalendar: React.VoidFunctionComponent<{
   );
 
   const [duration, setDuration] = React.useState<number>(0);
-  const [times, setTimes] = React.useState<TimeSlotValue[]>([]);
 
   return (
     <div className="space-y-3 rounded-md border">
@@ -197,7 +196,7 @@ const MonthCalendar: React.VoidFunctionComponent<{
             onAddToSelection={(newDateString) => {
               let newOption: DateTimeOption;
               if (duration !== 0) {
-                const start = `${newDateString}T08:00:00`;
+                const start = newDateString;
                 newOption = {
                   type: "time",
                   start,
@@ -231,12 +230,7 @@ const MonthCalendar: React.VoidFunctionComponent<{
             <div className="space-y-3">
               {duration === 0 ? (
                 <DateList
-                  value={datepicker.selection.map((date) => {
-                    return {
-                      start: `${date}T00:00:00`,
-                      duration: 0,
-                    };
-                  })}
+                  value={datepicker.selection}
                   onChange={(events) => {
                     // onChange?.
                   }}

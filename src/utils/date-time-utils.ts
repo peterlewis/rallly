@@ -181,3 +181,19 @@ export const parseValue = (value: string): DateTimeOption => {
     };
   }
 };
+
+export const getDateFromTimestamp = (timestamp: string) => {
+  return timestamp.substring(0, 10);
+};
+
+export const getTimeFromTimestamp = (timestamp: string) => {
+  return timestamp.substring(11, 16);
+};
+
+export const setTimeForTimestamp = (timestamp: string, time: string) => {
+  return `${timestamp.substring(0, 10)}T${time}:00`;
+};
+
+export const createTimestamp = (date: string, time: string) => {
+  return `${date}T${time}:00`;
+};

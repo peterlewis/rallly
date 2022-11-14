@@ -38,9 +38,6 @@
   a {
     @apply rounded-sm font-medium text-primary-500 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 hover:text-primary-500 hover:underline active:text-primary-700;
   }
-  label {
-    @apply mb-1 block text-sm text-slate-800;
-  }
   button {
     @apply outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1;
   }

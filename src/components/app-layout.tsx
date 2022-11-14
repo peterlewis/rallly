@@ -171,13 +171,10 @@ const GuestSessionDropdown: React.VoidFunctionComponent<
     <Dropdown
       {...forwardProps}
       trigger={
-        <button
-          type="button"
-          className="flex h-7 items-center whitespace-nowrap rounded-md bg-pink-500/10 px-3 font-medium text-pink-600 transition-colors hover:bg-pink-500/20 hover:no-underline active:bg-pink-600/20"
-        >
+        <Button className="border-transparent">
           <span className="h-2 w-2 animate-pulse rounded-full bg-pink-500" />
           <span className="ml-2 text-xs sm:text-base">{t("guestSession")}</span>
-        </button>
+        </Button>
       }
     >
       {children}

@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
@@ -13,19 +14,21 @@ import { DateOrTimeSelector } from "./date-or-time-selector";
 import { DurationPicker } from "./forms/poll-options-form/month-calendar/duration-picker";
 import { TimezonePicker } from "./forms/poll-options-form/time-zone-policy";
 import { DateTimeOption } from "./forms/poll-options-form/types";
+import { NewPollFormData } from "./types";
 
 const NewProceeding: React.VoidFunctionComponent = () => {
   const { t } = useTranslation("app");
   const router = useRouter();
 
-  const { handleSubmit, register, watch, control, formState } = useForm<{
-    title: string;
-    location: string;
-    description: string;
-    options: string[];
-    duration: number;
-    timeZone: "auto" | "fixed";
-  }>({
+  const {
+    handleSubmit,
+    register,
+    watch,
+    getValues,
+    control,
+    setValue,
+    formState,
+  } = useForm<NewPollFormData>({
     defaultValues: {
       timeZone: "auto",
       duration: 0,
@@ -42,8 +45,6 @@ const NewProceeding: React.VoidFunctionComponent = () => {
 
   const { errors } = formState;
 
-  const [isAllDayEvent, setIsAllDayEvent] = React.useState(true);
-
   const { requiredString } = useFormValidation();
 
   return (
@@ -52,7 +53,20 @@ const NewProceeding: React.VoidFunctionComponent = () => {
         onSubmit={handleSubmit(async (data) => {
           await createPoll.mutateAsync({
             ...data,
-            options: data.options.map(encodeDateOption),
+            options: data.options.map((startTime) => {
+              const s = dayjs(startTime);
+              if (data.duration > 0) {
+                return encodeDateOption({
+                  type: "time",
+                  start: startTime,
+                  end: s
+                    .add(data.duration, "minutes")
+                    .format("YYYY-MM-DDTHH:mm:ss"),
+                });
+              } else {
+                return s.format("YYYY-MM-DD");
+              }
+            }),
             timeZone: data.timeZone === "auto" ? getBrowserTimeZone() : "",
           });
         })}
@@ -110,7 +124,17 @@ const NewProceeding: React.VoidFunctionComponent = () => {
                   return (
                     <DurationPicker
                       duration={field.value}
-                      onChange={field.onChange}
+                      onChange={(newDuration) => {
+                        field.onChange(newDuration);
+                        if (newDuration === 0) {
+                          const options = getValues("options");
+                          const set = new Set<string>();
+                          options.forEach((option) =>
+                            set.add(option.substring(0, 10)),
+                          );
+                          setValue("options", Array.from(set));
+                        }
+                      }}
                     />
                   );
                 }}
@@ -122,10 +146,8 @@ const NewProceeding: React.VoidFunctionComponent = () => {
               render={({ field }) => {
                 return (
                   <DateOrTimeSelector
-                    value={field.value}
-                    onChange={(options) => {
-                      field.onChange(options);
-                    }}
+                    timestamps={field.value}
+                    onChange={field.onChange}
                     duration={watchDuration}
                   />
                 );

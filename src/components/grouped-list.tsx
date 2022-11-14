@@ -1,10 +1,10 @@
 import clsx from "clsx";
 
-export type GroupDefinition<O> = {
-  groupBy: (a: O) => string;
+export type GroupDefinition<T> = {
+  groupBy: (a: T) => string;
   className?: string;
   itemsClassName?: string;
-  render: React.ComponentType<{ value: string }>;
+  render: React.ComponentType<{ value: string; items: T[] }>;
 };
 
 type Group<T> = {
@@ -34,7 +34,12 @@ const useDefineGroups = <T,>(
         itemsByGroup[groupKey] = {
           key: groupKey,
           render() {
-            return <groupDef.render value={groupKey} />;
+            return (
+              <groupDef.render
+                value={groupKey}
+                items={itemsByGroup[groupKey].items}
+              />
+            );
           },
           className: groupDef.className,
           itemsClassName: groupDef.itemsClassName,
@@ -68,7 +73,7 @@ export const GroupedList = <T,>({
   className?: string;
   groupsClassName?: string;
   groupDefs: Array<GroupDefinition<T>>;
-  itemRender: React.ComponentType<{ item: T; index: number }>;
+  itemRender: React.ComponentType<{ item: T }>;
 }) => {
   const groups = useDefineGroups(data, groupDefs);
   const renderGroup = (group: Group<T>) => {
@@ -78,9 +83,7 @@ export const GroupedList = <T,>({
         <div className={group.itemsClassName}>
           {group.groups
             ? group.groups.map(renderGroup)
-            : group.items.map((item, i) => (
-                <Item key={i} item={item} index={i} />
-              ))}
+            : group.items.map((item, i) => <Item key={i} item={item} />)}
         </div>
       </div>
     );

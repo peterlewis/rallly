@@ -97,18 +97,17 @@ const AnchorLink = React.forwardRef<
   ref,
 ) {
   return (
-    (<Link
+    <Link
       ref={ref}
       href={href}
       className={clsx(
         "font-normal hover:text-white hover:no-underline",
         className,
       )}
-      {...forwardProps}>
-
+      {...forwardProps}
+    >
       {children}
-
-    </Link>)
+    </Link>
   );
 });
 

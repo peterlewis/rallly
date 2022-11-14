@@ -63,7 +63,7 @@ export const Options: React.VFC = () => {
           return (
             <DateOrTimeSelector
               defaultDate={new Date(navigationDate)}
-              value={field.value}
+              timestamps={field.value}
               onChange={field.onChange}
             />
           );
