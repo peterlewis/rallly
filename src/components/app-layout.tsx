@@ -171,7 +171,7 @@ const GuestSessionDropdown: React.VoidFunctionComponent<
     <Dropdown
       {...forwardProps}
       trigger={
-        <Button className="border-transparent">
+        <Button type="ghost">
           <span className="h-2 w-2 animate-pulse rounded-full bg-pink-500" />
           <span className="ml-2 text-xs sm:text-base">{t("guestSession")}</span>
         </Button>
@@ -257,7 +257,11 @@ const UserDropdown: React.VoidFunctionComponent<
     <Dropdown
       {...forwardProps}
       placement="bottom-start"
-      trigger={<Button icon={<UserCircle />}>{getAlias()}</Button>}
+      trigger={
+        <Button type="ghost" icon={<UserCircle />}>
+          {getAlias()}
+        </Button>
+      }
     >
       {children}
       <DropdownItem href="/profile" icon={User} label={t("profile")} />
@@ -507,7 +511,7 @@ export const NewLayout: React.VoidFunctionComponent<{
               </Link>
               <div className="action-group">
                 <UserDropdown />
-                <Button icon={<Menu />} />
+                <Button type="ghost" icon={<Menu />} />
               </div>
             </div>
           </div>

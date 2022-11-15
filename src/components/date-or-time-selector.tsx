@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import dayjs from "dayjs";
 import produce from "immer";
 import { Trans, useTranslation } from "next-i18next";
@@ -210,13 +211,20 @@ export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorP
     });
     const { t } = useTranslation("app");
     const duration = useWatch({ control, name: "duration" });
-    // sort value
+    const { errors } = useFormState({ control });
     return (
-      <div className="sm:rounded-md sm:border md:flex mobile:space-y-4">
-        <div className="sm:p-4 md:w-[440px]">
+      <div className="space-y-3 md:flex md:items-start md:space-x-3 md:space-y-0">
+        <div
+          className={clsx("rounded-md border p-3 md:w-[440px]", {
+            "border-rose-500 ring-1 ring-rose-500": !!errors.dates?.root,
+          })}
+        >
           <Controller
             control={control}
             name="dates"
+            rules={{
+              required: true,
+            }}
             render={({ field }) => {
               const dates = field.value.map(({ date }) => date);
               return (
@@ -251,7 +259,7 @@ export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorP
             }}
           />
         </div>
-        <div className="grow space-y-3 sm:p-4">
+        <div className="grow space-y-3 rounded border p-3">
           <div className="action-group">
             <span className="font-semibold">Duration:</span>
             <Controller
@@ -289,7 +297,7 @@ export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorP
               </div>
             </div>
           ) : null}
-          {duration === 0 ? <DateList /> : <TimeList />}
+          {duration > 0 ? <TimeList /> : null}
         </div>
       </div>
     );
