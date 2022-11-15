@@ -30,8 +30,7 @@ const NewProceeding: React.VoidFunctionComponent = () => {
     },
   });
 
-  const { handleSubmit, register, getValues, control, setValue, formState } =
-    form;
+  const { handleSubmit, register, control, formState } = form;
   const createPoll = trpc.useMutation(["polls.create"], {
     onSuccess: (res) => {
       router.replace(`/poll/${res.urlId}`);
@@ -47,25 +46,44 @@ const NewProceeding: React.VoidFunctionComponent = () => {
       <FormProvider {...form}>
         <form
           onSubmit={handleSubmit(async (data) => {
-            console.log(data);
-            // await createPoll.mutateAsync({
-            //   ...data,
-            //   options: data.options.map((startTime) => {
-            //     const s = dayjs(startTime);
-            //     if (data.duration > 0) {
-            //       return encodeDateOption({
-            //         type: "time",
-            //         start: startTime,
-            //         end: s
-            //           .add(data.duration, "minutes")
-            //           .format("YYYY-MM-DDTHH:mm:ss"),
-            //       });
-            //     } else {
-            //       return s.format("YYYY-MM-DD");
-            //     }
-            //   }),
-            //   timeZone: data.timeZone === "auto" ? getBrowserTimeZone() : "",
-            // });
+            const options: string[] = [];
+            for (const { date, times } of data.dates) {
+              if (data.duration > 0) {
+                if (data.shouldUseSameTimeForAllDates) {
+                  for (const { time } of data.globalTimes) {
+                    const start = dayjs(`${date} ${time}`, "YYYY-MM-DD HH:mm");
+                    const end = start.add(data.duration, "minutes");
+                    options.push(
+                      `${start.format("YYYY-MM-DDTHH:mm:ss")}/${end.format(
+                        "YYYY-MM-DDTHH:mm:ss",
+                      )}`,
+                    );
+                  }
+                } else {
+                  for (const { time } of times) {
+                    const start = dayjs(`${date} ${time}`, "YYYY-MM-DD HH:mm");
+                    const end = start.add(data.duration, "minutes");
+                    options.push(
+                      `${start.format("YYYY-MM-DDTHH:mm:ss")}/${end.format(
+                        "YYYY-MM-DDTHH:mm:ss",
+                      )}`,
+                    );
+                  }
+                }
+              } else {
+                options.push(date);
+              }
+            }
+
+            await createPoll.mutateAsync({
+              title: data.title,
+              location: data.location,
+              description: data.description,
+              timeZone:
+                data.timezonePolicy === "auto" ? getBrowserTimeZone() : "",
+              options,
+              demo: false,
+            });
           })}
         >
           <div className="space-y-4 pb-8">

@@ -165,7 +165,7 @@
   "timeAndDate": "Time & date",
   "timeFormat": "Time format",
   "timesShown": "Showing times in",
-  "useSameTimes": "Use same time(s) for <b>{{count}}</b> dates",
+  "useSameTimes": "Use same time(s) for all <b>{{count}}</b> dates",
   "timeZone": "Time Zone:",
   "timeZonePolicy": "Time zone policy",
   "title": "Title",

@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import dayjs from "dayjs";
 import produce from "immer";
 import { Trans, useTranslation } from "next-i18next";
@@ -10,7 +9,6 @@ import {
   useFormState,
   useWatch,
 } from "react-hook-form";
-import { useMount } from "react-use";
 
 import Plus from "@/components/icons/plus-sm.svg";
 import X from "@/components/icons/x.svg";
@@ -82,95 +80,45 @@ const DateList: React.VoidFunctionComponent = () => {
   );
 };
 
-const GroupedTimeList: React.VoidFunctionComponent<{
-  timestamps: string[];
-  duration: number;
-  onChange: (timestamps: string[]) => void;
-}> = ({ timestamps, duration, onChange }) => {
+const UnsyncedTimeList: React.VoidFunctionComponent = () => {
+  const { control } = useFormContext<NewPollFormData>();
+  const fields = useWatch({ control, name: "dates" });
+
   return (
-    <GroupedList
-      data={timestamps}
-      className="space-y-3"
-      groupDefs={[
-        {
-          groupBy(a) {
-            return a.substring(0, 10);
-          },
-          className: "border rounded",
-          itemsClassName: "px-3 py-1",
-          render({ value, items }) {
-            return (
-              <div className="action-group border-b px-3 py-2">
-                <div className="font-semibold">{dayjs(value).format("LL")}</div>
-                <CompactButton
-                  icon={Plus}
-                  onClick={() => {
-                    const lastTime = dayjs(items[items.length - 1]);
-                    let newStart = lastTime.add(duration, "minutes");
-                    if (!newStart.isSame(lastTime, "day")) {
-                      newStart = lastTime;
-                    }
-                    onChange([
-                      ...timestamps,
-                      newStart.format("YYYY-MM-DDTHH:mm:ss"),
-                    ]);
-                  }}
-                />
-              </div>
-            );
-          },
-        },
-      ]}
-      itemRender={({ item: timestamp }) => {
+    <div className="space-y-3">
+      {fields.map((field, index) => {
         return (
-          <div className="action-group">
-            <StartTimeInput
-              value={getTimeFromTimestamp(timestamp)}
-              duration={duration}
-              onChange={(newTime) => {
-                onChange(
-                  produce(timestamps, (draft) => {
-                    draft[timestamps.indexOf(timestamp)] = setTimeForTimestamp(
-                      timestamp,
-                      newTime,
-                    );
-                  }),
-                );
-              }}
-            />
-            <CompactButton
-              icon={X}
-              onClick={() => {
-                onChange(
-                  produce(timestamps, (draft) => {
-                    draft.splice(timestamps.indexOf(timestamp), 1);
-                  }),
-                );
+          <div key={index}>
+            <div className="mb-3 font-semibold">
+              {dayjs(field.date).format("LL")}
+            </div>
+            <Controller
+              control={control}
+              name={`dates.${index}.times`}
+              defaultValue={[{ time: "" }]}
+              render={({ field }) => {
+                return <SyncedTimeList name={field.name} />;
               }}
             />
           </div>
         );
-      }}
-    />
+      })}
+    </div>
   );
 };
 
-const SyncedTimeList: React.VoidFunctionComponent = () => {
+const SyncedTimeList: React.VoidFunctionComponent<{
+  name: "globalTimes" | `dates.${number}.times`;
+}> = ({ name }) => {
   const { control } = useFormContext<NewPollFormData>();
   const { errors } = useFormState({ control });
   const { fields, remove, append } = useFieldArray({
     control,
     shouldUnregister: true,
-    name: "globalTimes",
+    name,
     rules: {
       required: true,
     },
-  });
-
-  useMount(() => {
-    if (fields.length === 0) {
-      append({ time: "" });
-    }
   });
 
   const duration = useWatch({ control, name: "duration" });
@@ -186,7 +134,7 @@ const SyncedTimeList: React.VoidFunctionComponent = () => {
             >
               <Controller
                 control={control}
-                name={`globalTimes.${index}.time`}
+                name={`${name}.${index}.time`}
                 render={({ field }) => {
                   return (
                     <StartTimeInput
@@ -212,50 +160,39 @@ const SyncedTimeList: React.VoidFunctionComponent = () => {
           ))}
         </div>
       ) : null}
-      <Button
-        icon={<Plus />}
-        onClick={() => {
-          append({ time: "" });
-        }}
-      >
-        {t("addTimeOption")}
-      </Button>
+      <div>
+        <Button
+          icon={<Plus />}
+          onClick={() => {
+            append({ time: "" });
+          }}
+        >
+          {t("addTimeOption")}
+        </Button>
+      </div>
     </div>
   );
 };
 
 const TimeList = () => {
-  const { control, register } = useFormContext<NewPollFormData>();
+  const { control } = useFormContext<NewPollFormData>();
   const dateSync = useWatch({ name: "shouldUseSameTimeForAllDates", control });
-  const duration = useWatch({ control, name: "duration" });
   const dates = useWatch({ control, name: "dates" });
-  const { t } = useTranslation("app");
-  if (dates.length === 0) {
+  if (!dates || dates.length === 0) {
     return null;
   }
   return (
     <div className="space-y-3">
-      {dates.length > 1 ? (
-        <div className="rounded border px-3">
-          <div className="flex h-10 items-center gap-3">
-            <input
-              id="date-sync"
-              type="checkbox"
-              className="checkbox"
-              {...register("shouldUseSameTimeForAllDates")}
-            />
-            <label htmlFor="date-sync">
-              <Trans
-                t={t}
-                i18nKey="useSameTimes"
-                values={{ count: dates.length }}
-                components={{ b: <strong /> }}
-              />
-            </label>
-          </div>
-        </div>
-      ) : null}
-      {dateSync ? <SyncedTimeList /> : <GroupedTimeList />}
+      {dateSync ? (
+        <Controller
+          control={control}
+          defaultValue={[{ time: "" }]}
+          name="globalTimes"
+          render={() => <SyncedTimeList name="globalTimes" />}
+        />
+      ) : (
+        <UnsyncedTimeList />
+      )}
     </div>
   );
 };
@@ -266,11 +203,12 @@ interface DateOrTimeSelectorProps {
 
 export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorProps> =
   ({ defaultDate }) => {
-    const { control } = useFormContext<NewPollFormData>();
-    const { append, insert, remove } = useFieldArray({
+    const { control, register } = useFormContext<NewPollFormData>();
+    const { fields, append, insert, remove } = useFieldArray({
       control,
       name: "dates",
     });
+    const { t } = useTranslation("app");
     const duration = useWatch({ control, name: "duration" });
     // sort value
     return (
@@ -291,7 +229,11 @@ export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorP
                     });
                     const newDate = {
                       date,
-                      times: [],
+                      times: [
+                        {
+                          time: "",
+                        },
+                      ],
                     };
 
                     if (index === -1) {
@@ -327,6 +269,26 @@ export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorP
               }}
             />
           </div>
+          {fields.length > 1 && duration > 0 ? (
+            <div className="rounded border px-3">
+              <div className="flex h-10 items-center gap-3">
+                <input
+                  id="date-sync"
+                  type="checkbox"
+                  className="checkbox"
+                  {...register("shouldUseSameTimeForAllDates")}
+                />
+                <label htmlFor="date-sync">
+                  <Trans
+                    t={t}
+                    i18nKey="useSameTimes"
+                    values={{ count: fields.length }}
+                    components={{ b: <strong /> }}
+                  />
+                </label>
+              </div>
+            </div>
+          ) : null}
           {duration === 0 ? <DateList /> : <TimeList />}
         </div>
       </div>
