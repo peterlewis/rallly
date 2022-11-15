@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
-import React, { ChangeEventHandler } from "react";
-
-import { TextInput } from "../../../text-input";
+import { useTranslation } from "next-i18next";
+import React from "react";
 
 type DurationValue = number;
 
@@ -18,6 +17,8 @@ export const DurationPicker = ({
     return onChange(parseInt(value));
   };
 
+  const { t } = useTranslation("app");
+
   return (
     <div className="action-group">
       <select
@@ -33,8 +34,8 @@ export const DurationPicker = ({
         }}
         className="input pr-8"
       >
-        <option value="custom">Custom</option>
-        <option value="0">All-day</option>
+        <option value="custom">{t("custom")}</option>
+        <option value="0">{t("allDay")}</option>
         {[...Array(3)].map((_, i) => {
           const minutes = (i + 1) * 15;
           return (

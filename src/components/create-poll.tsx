@@ -37,6 +37,8 @@ const NewProceeding: React.VoidFunctionComponent = () => {
     },
   });
 
+  const duration = form.watch("duration");
+
   const { errors } = formState;
 
   const { requiredString } = useFormValidation();
@@ -134,25 +136,27 @@ const NewProceeding: React.VoidFunctionComponent = () => {
               </div>
               <DateOrTimeSelector />
             </div>
-            <div>
-              <div className="mb-1 text-sm font-semibold">Time zone policy</div>
-              <div className="mb-4">
-                Choose how participants see the times you have selected
+            {duration > 0 ? (
+              <div>
+                <div className="text-lg font-semibold">Time Zone Policy</div>
+                <div className="mb-4">
+                  Choose how participants see the times you have selected
+                </div>
+                <Controller
+                  control={control}
+                  name="timezonePolicy"
+                  render={({ field }) => {
+                    return (
+                      <TimezonePicker
+                        value={field.value}
+                        className="w-full sm:w-auto"
+                        onChange={field.onChange}
+                      />
+                    );
+                  }}
+                />
               </div>
-              <Controller
-                control={control}
-                name="timezonePolicy"
-                render={({ field }) => {
-                  return (
-                    <TimezonePicker
-                      value={field.value}
-                      className="w-full sm:w-auto"
-                      onChange={field.onChange}
-                    />
-                  );
-                }}
-              />
-            </div>
+            ) : null}
             <div className="mt-6 flex items-center">
               <Button
                 type="primary"

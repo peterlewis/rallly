@@ -153,6 +153,8 @@
   "requiredNameError": "Name is required",
   "noComments": "No comments",
   "resendVerificationCode": "Resend verification code",
+  "durationLabel": "Duration:",
+  "custom": "Custom",
   "save": "Save",
   "saveInstruction": "Select your availability and click <b>{{save}}</b>",
   "searchPlaceholder": "Search…",

@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import produce from "immer";
+import { useTranslation } from "next-i18next";
 
 import ChevronLeft from "@/components/icons/chevron-left.svg";
 import ChevronRight from "@/components/icons/chevron-right.svg";
@@ -28,6 +28,8 @@ export const MultiDateSelect: React.VoidFunctionComponent<HeadlessDatePickerOpti
       onRemoveFromSelection,
     });
 
+    const { t } = useTranslation("app");
+
     return (
       <div className="flex w-full flex-col">
         <div className="mb-3 flex items-center justify-center space-x-4">
@@ -50,7 +52,7 @@ export const MultiDateSelect: React.VoidFunctionComponent<HeadlessDatePickerOpti
             return (
               <div
                 key={dayOfWeek}
-                className="flex items-center justify-center pb-2 text-sm font-medium text-gray-400"
+                className="flex items-center justify-center pb-2 text-sm text-gray-400"
               >
                 {dayOfWeek.substring(0, 2)}
               </div>
@@ -89,7 +91,7 @@ export const MultiDateSelect: React.VoidFunctionComponent<HeadlessDatePickerOpti
           })}
         </div>
         <Button className="mt-3" onClick={datepicker.today}>
-          Today
+          {t("today")}
         </Button>
       </div>
     );

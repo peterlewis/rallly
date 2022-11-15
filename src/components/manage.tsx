@@ -17,15 +17,15 @@ export const Manage: React.VFC = () => {
       <Section title={t("details")} subtitle="Change your poll details">
         <General />
       </Section>
-      <Section
+      {/* <Section
         title={t("options")}
         subtitle="Add or remove options from your poll"
       >
         <Options />
-      </Section>
-      {/* <Section title={t("advanced")}>
-        <Advanced />
       </Section> */}
+      <Section title={t("advanced")}>
+        <Advanced />
+      </Section>
     </div>
   );
 };

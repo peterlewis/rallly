@@ -19,67 +19,7 @@ import CompactButton from "./compact-button";
 import { DurationPicker } from "./forms/poll-options-form/month-calendar/duration-picker";
 import { MultiDateSelect } from "./forms/poll-options-form/month-calendar/multi-date-select";
 import { StartTimeInput } from "./forms/poll-options-form/month-calendar/start-time-input";
-import { GroupedList } from "./grouped-list";
 import { NewPollFormData } from "./types";
-
-const DateList: React.VoidFunctionComponent = () => {
-  const { control, setValue } = useFormContext<NewPollFormData>();
-  return (
-    <Controller
-      control={control}
-      name="dates"
-      render={({ field }) => {
-        const dates = field.value.map((date, index) => ({ ...date, index }));
-        return (
-          <GroupedList
-            data={dates}
-            className="space-y-3"
-            groupDefs={[
-              {
-                groupBy(a) {
-                  return a.date.substring(0, 7);
-                },
-                itemsClassName: "border divide-y rounded bg-white",
-                render({ value }) {
-                  return (
-                    <div className="mb-3 font-semibold">
-                      {dayjs(value).format("MMMM YYYY")}
-                    </div>
-                  );
-                },
-              },
-            ]}
-            itemRender={({ item }) => {
-              return (
-                <div className="action-group h-12 justify-between px-3 py-1">
-                  <div>
-                    <span className="font-semibold">
-                      {dayjs(item.date).format("D")}
-                    </span>
-                    <span className="text-gray-400">
-                      {dayjs(item.date).format(" dddd")}
-                    </span>
-                  </div>
-                  <CompactButton
-                    icon={X}
-                    onClick={() => {
-                      setValue(
-                        "dates",
-                        produce(dates, (draft) => {
-                          draft.splice(item.index, 1);
-                        }),
-                      );
-                    }}
-                  />
-                </div>
-              );
-            }}
-          />
-        );
-      }}
-    />
-  );
-};
 
 const UnsyncedTimeList: React.VoidFunctionComponent = () => {
   const { control } = useFormContext<NewPollFormData>();
@@ -261,7 +201,7 @@ export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorP
         </div>
         <div className="grow space-y-3 rounded border p-3">
           <div className="action-group">
-            <span className="font-semibold">Duration:</span>
+            <span className="font-semibold">{t("durationLabel")}</span>
             <Controller
               control={control}
               name="duration"
@@ -278,8 +218,8 @@ export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorP
             />
           </div>
           {fields.length > 1 && duration > 0 ? (
-            <div className="rounded border px-3">
-              <div className="flex h-10 items-center gap-3">
+            <div className="space-y-3">
+              <div className="flex h-10 rounded items-center gap-3 border px-3">
                 <input
                   id="date-sync"
                   type="checkbox"
@@ -295,9 +235,9 @@ export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorP
                   />
                 </label>
               </div>
+              <TimeList />
             </div>
           ) : null}
-          {duration > 0 ? <TimeList /> : null}
         </div>
       </div>
     );

@@ -1,17 +1,11 @@
-import { offset, useFloating } from "@floating-ui/react-dom";
-import { flip, FloatingPortal } from "@floating-ui/react-dom-interactions";
-import { Listbox } from "@headlessui/react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import React from "react";
 
 import Check from "@/components/icons/check-alt.svg";
-import ChevronDown from "@/components/icons/chevron-down.svg";
 import Globe from "@/components/icons/globe.svg";
 import LocationMarker from "@/components/icons/location-marker.svg";
-
-import { Button } from "../../button";
 
 const TimeZonePolicyOption: React.VoidFunctionComponent<{
   active: boolean;
@@ -27,19 +21,21 @@ const TimeZonePolicyOption: React.VoidFunctionComponent<{
       role="button"
       onClick={onClick}
       className={clsx(
-        "flex grow select-none items-start space-x-4 rounded border px-4 py-3 hover:bg-slate-300/10 active:bg-slate-500/10",
+        "flex grow select-none items-start gap-4 rounded-md border px-4 py-3 hover:bg-slate-300/10 active:bg-slate-500/10",
         className,
         {
-          "border-primary-500 text-primary-500 ring-1 ring-primary-500": active,
+          "border-primary-500 text-primary-600 ring-1 ring-indigo-500": active,
         },
       )}
     >
       <div className="grow">
-        <div className="mb-2 flex items-center">
-          <Icon className="mr-2 inline-block w-5" />
-          <div className="font-medium">{title}</div>
+        <div className="mb-1 flex items-start">
+          <Icon className="mr-4 inline-block w-8" />
+          <div>
+            <div className="mb-1 font-semibold">{title}</div>
+            <div>{description}</div>
+          </div>
         </div>
-        <div className="text-sm leading-normal">{description}</div>
       </div>
       <div
         className={clsx(
@@ -67,8 +63,6 @@ const TimeZonePolicyOption: React.VoidFunctionComponent<{
   );
 };
 
-const Options = motion(Listbox.Options);
-
 export const TimezonePicker: React.VoidFunctionComponent<{
   value: "auto" | "fixed";
   onChange: (value: "auto" | "fixed") => void;
@@ -78,12 +72,13 @@ export const TimezonePicker: React.VoidFunctionComponent<{
   const { t } = useTranslation("app");
 
   return (
-    <div className="flex gap-3">
+    <div className={clsx("flex gap-3", className)}>
       <TimeZonePolicyOption
         icon={Globe}
         title={t("timezonePolicyAutomatic")}
         description={t("timezonePolicyAutomaticDescription")}
         active={value === "auto"}
+        disabled={disabled}
         onClick={() => onChange("auto")}
       />
       <TimeZonePolicyOption
@@ -91,6 +86,7 @@ export const TimezonePicker: React.VoidFunctionComponent<{
         title={t("timezonePolicyFixed")}
         description={t("timezonePolicyFixedDescription")}
         active={value === "fixed"}
+        disabled={disabled}
         onClick={() => onChange("fixed")}
       />
     </div>
