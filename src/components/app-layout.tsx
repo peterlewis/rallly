@@ -500,7 +500,7 @@ export const NewLayout: React.VoidFunctionComponent<{
     <DayjsProvider>
       <ModalProvider>
         <div className="bg-white p-4">
-          <div className="p-3">
+          <div className="sm:p-3">
             <div className="flex items-center justify-between">
               <Link href="/polls">
                 <Logo className="ml-2 h-7 text-primary-500" />
@@ -511,7 +511,7 @@ export const NewLayout: React.VoidFunctionComponent<{
               </div>
             </div>
           </div>
-          <div className="mx-auto max-w-5xl p-6">{children}</div>
+          <div className="mx-auto max-w-5xl sm:p-6">{children}</div>
         </div>
       </ModalProvider>
     </DayjsProvider>

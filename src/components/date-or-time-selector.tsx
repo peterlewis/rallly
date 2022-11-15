@@ -1,62 +1,81 @@
+import clsx from "clsx";
 import dayjs from "dayjs";
 import produce from "immer";
-import groupBy from "lodash/groupBy";
-import uniq from "lodash/uniq";
+import { Trans, useTranslation } from "next-i18next";
 import React from "react";
+import {
+  Controller,
+  useFieldArray,
+  useFormContext,
+  useFormState,
+  useWatch,
+} from "react-hook-form";
+import { useMount } from "react-use";
 
-import Plus from "@/components/icons/plus.svg";
+import Plus from "@/components/icons/plus-sm.svg";
 import X from "@/components/icons/x.svg";
 
-import {
-  createTimestamp,
-  getDateFromTimestamp,
-  getTimeFromTimestamp,
-  setTimeForTimestamp,
-} from "../utils/date-time-utils";
+import { Button } from "./button";
 import CompactButton from "./compact-button";
+import { DurationPicker } from "./forms/poll-options-form/month-calendar/duration-picker";
 import { MultiDateSelect } from "./forms/poll-options-form/month-calendar/multi-date-select";
 import { StartTimeInput } from "./forms/poll-options-form/month-calendar/start-time-input";
 import { GroupedList } from "./grouped-list";
+import { NewPollFormData } from "./types";
 
-const DateList: React.VoidFunctionComponent<{
-  dates: string[];
-  onChange: (dates: string[]) => void;
-}> = ({ dates, onChange }) => {
+const DateList: React.VoidFunctionComponent = () => {
+  const { control, setValue } = useFormContext<NewPollFormData>();
   return (
-    <GroupedList
-      data={dates}
-      className="space-y-3"
-      groupDefs={[
-        {
-          groupBy(a) {
-            return a.substring(0, 7);
-          },
-          className: "border rounded shadow-sm",
-          itemsClassName: "py-2",
-          render({ value }) {
-            return (
-              <div className="border-b py-2 px-3 font-semibold">
-                {dayjs(value).format("MMMM YYYY")}
-              </div>
-            );
-          },
-        },
-      ]}
-      itemRender={({ item }) => {
+    <Controller
+      control={control}
+      name="dates"
+      render={({ field }) => {
+        const dates = field.value.map((date, index) => ({ ...date, index }));
         return (
-          <div className="action-group px-3 py-1">
-            <div>{dayjs(item).format("D dddd")}</div>
-            <CompactButton
-              icon={X}
-              onClick={() => {
-                onChange(
-                  produce(dates, (draft) => {
-                    draft.splice(dates.indexOf(item), 1);
-                  }),
-                );
-              }}
-            />
-          </div>
+          <GroupedList
+            data={dates}
+            className="space-y-3"
+            groupDefs={[
+              {
+                groupBy(a) {
+                  return a.date.substring(0, 7);
+                },
+                itemsClassName: "border divide-y rounded bg-white",
+                render({ value }) {
+                  return (
+                    <div className="mb-3 font-semibold">
+                      {dayjs(value).format("MMMM YYYY")}
+                    </div>
+                  );
+                },
+              },
+            ]}
+            itemRender={({ item }) => {
+              return (
+                <div className="action-group h-12 justify-between px-3 py-1">
+                  <div>
+                    <span className="font-semibold">
+                      {dayjs(item.date).format("D")}
+                    </span>
+                    <span className="text-gray-400">
+                      {dayjs(item.date).format(" dddd")}
+                    </span>
+                  </div>
+                  <CompactButton
+                    icon={X}
+                    onClick={() => {
+                      setValue(
+                        "dates",
+                        produce(dates, (draft) => {
+                          draft.splice(item.index, 1);
+                        }),
+                      );
+                    }}
+                  />
+                </div>
+              );
+            }}
+          />
         );
       }}
     />
@@ -136,228 +155,179 @@ const GroupedTimeList: React.VoidFunctionComponent<{
   );
 };
 
-const getUniqueDatesAndTimes = (timestamps: string[]) => {
-  const res: Record<string, string[]> = {};
-  timestamps.forEach((timestamp) => {
-    const date = getDateFromTimestamp(timestamp);
-    const time = getTimeFromTimestamp(timestamp);
-    const times = res[date] ?? [];
-    times.push(time);
-    res[date] = times;
+const SyncedTimeList: React.VoidFunctionComponent = () => {
+  const { control } = useFormContext<NewPollFormData>();
+  const { errors } = useFormState({ control });
+  const { fields, remove, append } = useFieldArray({
+    control,
+    shouldUnregister: true,
+    name: "globalTimes",
+    rules: {
+      required: true,
+    },
   });
-  const dates = Object.keys(res);
-  const timeSet = res[dates[0]];
-  return {
-    dates: dates,
-    times: timeSet ?? [],
-  };
-};
 
-const SyncedTimeList: React.VoidFunctionComponent<{
-  timestamps: string[];
-  duration: number;
-  onChange: (timestamps: string[]) => void;
-}> = ({ timestamps, duration, onChange }) => {
-  const unique = React.useMemo(() => {
-    return getUniqueDatesAndTimes(timestamps);
-  }, [timestamps]);
+  useMount(() => {
+    if (fields.length === 0) {
+      append({ time: "" });
+    }
+  });
 
-  const addTimeToAllDates = (newTime: string) => {
-    onChange([
-      ...timestamps,
-      ...unique.dates.map((date) => createTimestamp(date, newTime)),
-    ]);
-  };
-
-  const [isAddingTime, setAddingTime] = React.useState(false);
+  const duration = useWatch({ control, name: "duration" });
+  const { t } = useTranslation("app");
   return (
-    <div className="rounded border">
-      {unique.dates.length > 0 ? (
-        <div className="action-group border-b px-3 py-2">
-          <div className="font-semibold">
-            {unique.dates.length === 1
-              ? dayjs(unique.dates[0]).format("LL")
-              : `${unique.dates.length} dates selected`}
-          </div>
-          {!isAddingTime ? (
-            <CompactButton
-              icon={Plus}
-              onClick={() => {
-                setAddingTime(true);
-                // const lastTime = dayjs(
-                //   createTimestamp(
-                //     unique.dates[0],
-                //     unique.times[unique.times.length - 1] ?? "08:00",
-                //   ),
-                // );
-                // let newStart = lastTime.add(duration, "minutes");
-                // if (!newStart.isSame(lastTime, "day")) {
-                //   newStart = lastTime;
-                // }
-                // const newStartTime = newStart.format("HH:mm");
-                // onChange([
-                //   ...timestamps,
-                //   ...unique.dates.map((date) =>
-                //     createTimestamp(date, newStartTime),
-                //   ),
-                // ]);
-              }}
-            />
-          ) : null}
+    <div className="space-y-3">
+      {fields.length > 0 ? (
+        <div className="divide-y rounded border">
+          {fields.map((time, index) => (
+            <div
+              key={time.id}
+              className="action-group h-10 justify-between px-3"
+            >
+              <Controller
+                control={control}
+                name={`globalTimes.${index}.time`}
+                render={({ field }) => {
+                  return (
+                    <StartTimeInput
+                      duration={duration}
+                      error={!!errors?.globalTimes?.[index]}
+                      {...field}
+                    />
+                  );
+                }}
+                rules={{
+                  required: true,
+                }}
+              />
+              {fields.length > 1 ? (
+                <CompactButton
+                  icon={X}
+                  onClick={() => {
+                    remove(index);
+                  }}
+                />
+              ) : null}
+            </div>
+          ))}
         </div>
       ) : null}
-      <div className="py-1 px-3">
-        {unique.times.map((time, index) => (
-          <div key={`${index}-${time}`} className="action-group">
-            <StartTimeInput
-              value={time}
-              duration={duration}
-              onChange={(newTime) => {
-                if (!unique.times.includes(newTime)) {
-                  onChange(
-                    produce(timestamps, (draft) => {
-                      const timesCount = unique.times.length;
-                      for (let x = 0; x < unique.dates.length; x++) {
-                        draft[x * timesCount + index] = setTimeForTimestamp(
-                          unique.dates[x],
-                          newTime,
-                        );
-                      }
-                    }),
-                  );
-                } else {
-                  onChange([...timestamps]);
-                }
-              }}
-            />
-            <CompactButton
-              icon={X}
-              onClick={() => {
-                onChange(
-                  timestamps.filter((timestamp) => !timestamp.includes(time)),
-                );
-              }}
-            />
-          </div>
-        ))}
-        {isAddingTime ? (
-          <div className="action-group">
-            <StartTimeInput
-              value=""
-              autoFocus={true}
-              duration={duration}
-              onChange={(newTime) => {
-                if (newTime) {
-                  addTimeToAllDates(newTime);
-                }
-                setAddingTime(false);
-              }}
-            />
-            <CompactButton
-              icon={X}
-              onClick={() => {
-                setAddingTime(false);
-              }}
-            />
-          </div>
-        ) : null}
-      </div>
+      <Button
+        icon={<Plus />}
+        onClick={() => {
+          append({ time: "" });
+        }}
+      >
+        {t("addTimeOption")}
+      </Button>
     </div>
   );
 };
 
-const TimeList: React.VoidFunctionComponent<{
-  timestamps: string[];
-  onChange: (times: string[]) => void;
-  duration: number;
-}> = ({ timestamps, onChange, duration }) => {
-  const [dateSync, setDateSync] = React.useState(() => {
-    // check if all dates are in sync
-    return true;
-  });
-
+const TimeList = () => {
+  const { control, register } = useFormContext<NewPollFormData>();
+  const dateSync = useWatch({ name: "shouldUseSameTimeForAllDates", control });
+  const duration = useWatch({ control, name: "duration" });
+  const dates = useWatch({ control, name: "dates" });
+  const { t } = useTranslation("app");
+  if (dates.length === 0) {
+    return null;
+  }
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <input
-          id="date-sync"
-          type="checkbox"
-          className="checkbox"
-          checked={dateSync}
-          onChange={(e) => {
-            setDateSync(e.target.checked);
-            const unique = getUniqueDatesAndTimes(timestamps);
-            const newTimestamps: string[] = [];
-            for (let x = 0; x < unique.dates.length; x++) {
-              for (let y = 0; y < unique.times.length; y++) {
-                newTimestamps.push(
-                  createTimestamp(unique.dates[x], unique.times[y]),
-                );
-              }
-            }
-            onChange(newTimestamps);
-          }}
-        />
-        <label htmlFor="date-sync">Use same time(s) for all dates</label>
-      </div>
-      {dateSync ? (
-        <SyncedTimeList
-          timestamps={timestamps}
-          duration={duration}
-          onChange={onChange}
-        />
-      ) : (
-        <GroupedTimeList
-          timestamps={timestamps}
-          duration={duration}
-          onChange={onChange}
-        />
-      )}
+    <div className="space-y-3">
+      {dates.length > 1 ? (
+        <div className="rounded border px-3">
+          <div className="flex h-10 items-center gap-3">
+            <input
+              id="date-sync"
+              type="checkbox"
+              className="checkbox"
+              {...register("shouldUseSameTimeForAllDates")}
+            />
+            <label htmlFor="date-sync">
+              <Trans
+                t={t}
+                i18nKey="useSameTimes"
+                values={{ count: dates.length }}
+                components={{ b: <strong /> }}
+              />
+            </label>
+          </div>
+        </div>
+      ) : null}
+      {dateSync ? <SyncedTimeList /> : <GroupedTimeList />}
     </div>
   );
 };
 
 interface DateOrTimeSelectorProps {
-  timestamps?: string[];
-  onChange: (timestamps: string[]) => void;
   defaultDate?: Date;
-  duration: number;
 }
 
 export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorProps> =
-  ({ timestamps = [], onChange, defaultDate, duration }) => {
+  ({ defaultDate }) => {
+    const { control } = useFormContext<NewPollFormData>();
+    const { append, insert, remove } = useFieldArray({
+      control,
+      name: "dates",
+    });
+    const duration = useWatch({ control, name: "duration" });
     // sort value
-    const sortedValue = timestamps.sort();
-    // get list of unique dates from the list of times
-    const timesByDate = groupBy(sortedValue, (time) => time.substring(0, 10));
     return (
-      <div className="rounded-md border md:flex">
-        <div className="p-4 md:w-[440px]">
-          <MultiDateSelect
-            date={defaultDate}
-            selected={Object.keys(timesByDate)}
-            onAddToSelection={(date) => {
-              onChange([...timestamps, date]);
-            }}
-            onRemoveFromSelection={(date) => {
-              onChange(
-                timestamps.filter((time) => {
-                  return !time.includes(date);
-                }),
+      <div className="sm:rounded-md sm:border md:flex mobile:space-y-4">
+        <div className="sm:p-4 md:w-[440px]">
+          <Controller
+            control={control}
+            name="dates"
+            render={({ field }) => {
+              const dates = field.value.map(({ date }) => date);
+              return (
+                <MultiDateSelect
+                  date={defaultDate}
+                  selected={dates}
+                  onAddToSelection={(date) => {
+                    const index = field.value.findIndex((d) => {
+                      return dayjs(d.date).isAfter(date);
+                    });
+                    const newDate = {
+                      date,
+                      times: [],
+                    };
+
+                    if (index === -1) {
+                      append(newDate);
+                    } else {
+                      insert(index, newDate);
+                    }
+                  }}
+                  onRemoveFromSelection={(date) => {
+                    const index = dates.indexOf(date);
+                    remove(index);
+                  }}
+                />
               );
             }}
           />
         </div>
-        <div className="grow p-4">
-          {duration === 0 ? (
-            <DateList dates={sortedValue} onChange={onChange} />
-          ) : (
-            <TimeList
-              timestamps={sortedValue}
-              onChange={onChange}
-              duration={duration}
+        <div className="grow space-y-3 sm:p-4">
+          <div className="action-group">
+            <span className="font-semibold">Duration:</span>
+            <Controller
+              control={control}
+              name="duration"
+              render={({ field }) => {
+                return (
+                  <DurationPicker
+                    duration={field.value}
+                    onChange={(newDuration) => {
+                      field.onChange(newDuration);
+                    }}
+                  />
+                );
+              }}
             />
-          )}
+          </div>
+          {duration === 0 ? <DateList /> : <TimeList />}
         </div>
       </div>
     );

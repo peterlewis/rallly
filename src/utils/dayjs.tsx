@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import duration from "dayjs/plugin/duration";
 import isBetween from "dayjs/plugin/isBetween";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
@@ -127,6 +128,7 @@ dayjs.extend(minMax);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(duration);
+dayjs.extend(customParseFormat);
 
 const DayjsContext =
   React.createContext<{

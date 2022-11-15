@@ -1,42 +1,54 @@
+import clsx from "clsx";
 import dayjs from "dayjs";
 import React from "react";
 
-const parseTime = (time: string): [number, number] => {
-  const [hour, minute] = time.split(":");
-  return [parseInt(hour), parseInt(minute)];
-};
-
-export const StartTimeInput: React.VoidFunctionComponent<{
-  value?: string;
-  duration: number;
-  autoFocus?: boolean;
-  onChange: (value: string) => void;
-}> = ({ value, duration, autoFocus, onChange }) => {
+export const StartTimeInput = React.forwardRef<
+  HTMLInputElement,
+  {
+    value?: string;
+    defaultValue?: string;
+    duration: number;
+    error?: boolean;
+    onChange?: React.ChangeEventHandler<HTMLInputElement>;
+    onBlur?: React.ChangeEventHandler<HTMLInputElement>;
+    onFocus?: React.ChangeEventHandler<HTMLInputElement>;
+  }
+>(function StartTimeInput({ value, error, duration, ...props }, ref) {
   const endTime = React.useMemo(() => {
     if (!value) {
       return;
     }
-    const [hour, minute] = parseTime(value);
-    const start = dayjs().set("hour", hour).set("minute", minute);
+    const start = dayjs(value, "HH:mm");
+    if (!start.isValid()) {
+      return;
+    }
+
     const end = start.add(duration, "minutes");
     return end.format("HH:mm");
   }, [duration, value]);
 
   return (
     <div className="flex h-9 items-center gap-2">
-      <div className="flex items-center">
-        <span className="mr-2 text-gray-400">From:</span>
+      <div className="flex items-center gap-2">
+        <div className="text-gray-400">Start:</div>
         <input
-          autoFocus={autoFocus}
-          defaultValue={value}
-          className="rounded border-0 p-0 focus:ring-2 focus:ring-primary-500"
+          value={value}
+          className={clsx(
+            "rounded border-0 p-0 focus:ring-2 focus:ring-primary-500",
+            {
+              "border-rose-500": error,
+            },
+          )}
           type="time"
-          onBlur={(e) => {
-            onChange(e.target.value);
-          }}
+          {...props}
+          ref={ref}
         />
       </div>
-      {endTime ? <span className="text-gray-400">Till: {endTime}</span> : null}
+      {endTime ? (
+        <div className="text-gray-400">
+          <span>{`End: ${endTime}`}</span>
+        </div>
+      ) : null}
     </div>
   );
-};
+});

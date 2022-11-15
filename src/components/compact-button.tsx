@@ -12,6 +12,7 @@ export interface CompactButtonProps {
   disabled?: boolean;
   onClick?: () => void;
   active?: boolean;
+  tabIndex?: number;
 }
 
 const CompactButton: React.VoidFunctionComponent<CompactButtonProps> = ({
@@ -21,6 +22,7 @@ const CompactButton: React.VoidFunctionComponent<CompactButtonProps> = ({
   disabled,
   className,
   active,
+  tabIndex,
 }) => {
   return (
     <button
@@ -34,6 +36,7 @@ const CompactButton: React.VoidFunctionComponent<CompactButtonProps> = ({
         },
       )}
       onClick={onClick}
+      tabIndex={tabIndex}
     >
       {Icon ? <Icon className="h-3 w-3" /> : children}
     </button>
