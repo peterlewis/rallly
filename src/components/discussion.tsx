@@ -5,7 +5,6 @@ import * as React from "react";
 import { Button } from "@/components/button";
 import CompactButton from "@/components/compact-button";
 import Dropdown, { DropdownItem } from "@/components/dropdown";
-import Chat from "@/components/icons/chat.svg";
 import DotsHorizontal from "@/components/icons/dots-horizontal.svg";
 import Plus from "@/components/icons/plus.svg";
 import Trash from "@/components/icons/trash.svg";
@@ -16,7 +15,7 @@ import { useUser } from "@/components/user-provider";
 import { useDayjs } from "@/utils/dayjs";
 import { trpc } from "@/utils/trpc";
 
-import { Composer, useComposer } from "./discussion/composer";
+import { useComposer } from "./discussion/composer";
 import { withModal } from "./modal/modal-provider";
 import { useParticipants } from "./participants-provider";
 import { Section } from "./section";
@@ -62,7 +61,6 @@ const Discussion: React.VoidFunctionComponent = () => {
 
   return (
     <Section
-      icon={Chat}
       title={
         comments.length > 0
           ? t("commentCount", { count: comments.length })
@@ -85,8 +83,7 @@ const Discussion: React.VoidFunctionComponent = () => {
       {comments.length ? (
         <div className="mb-4 space-y-4 py-4">
           {comments.map((comment) => {
-            const canDelete =
-              poll.admin || !comment.userId || comment.userId === user.id;
+            const canDelete = !comment.userId || comment.userId === user.id;
 
             const participants = comment.userId
               ? getParticipantsForUser(comment.userId)

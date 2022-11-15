@@ -18,7 +18,7 @@ const SectionHeading: React.VoidFunctionComponent<SectionHeadingProps> = ({
   actions,
 }) => {
   return (
-    <div className="mb-4 border-b pb-3">
+    <div className="mb-3">
       <div className="flex items-center justify-between">
         <div className="text-lg font-medium">{title}</div>
         {actions}
