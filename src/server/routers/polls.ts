@@ -6,7 +6,6 @@ import { prisma } from "~/prisma/db";
 import { nanoid } from "../../utils/nanoid";
 import { GetPollApiResponse } from "../../utils/trpc/types";
 import { createRouter } from "../createRouter";
-import { mergeRouters, publicProcedure, router } from "../trpc";
 import { comments } from "./polls/comments";
 import { demo } from "./polls/demo";
 import { participants } from "./polls/participants";
@@ -71,7 +70,10 @@ const getPollIdFromAdminUrlId = async (urlId: string) => {
   return res.id;
 };
 
-const legacyPolls = createRouter()
+export const polls = createRouter()
+  .merge("demo.", demo)
+  .merge("participants.", participants)
+  .merge("comments.", comments)
   .mutation("create", {
     input: z.object({
       title: z.string(),
@@ -361,14 +363,4 @@ const legacyPolls = createRouter()
 
       return claimedPoll;
     },
-  })
-  .interop();
-
-export const polls = mergeRouters(
-  router({
-    demo,
-    participants,
-    comments,
-  }),
-  legacyPolls,
-);
+  });

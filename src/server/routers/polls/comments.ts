@@ -83,5 +83,4 @@ export const comments = createRouter()
         },
       });
     },
-  })
-  .interop();
+  });

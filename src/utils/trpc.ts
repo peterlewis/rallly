@@ -1,11 +1,14 @@
 import { MutationCache } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
+import { createReactQueryHooks } from "@trpc/react-query";
 import toast from "react-hot-toast";
 
 import { AppRouter } from "../server/routers/_app";
 
-export const trpc = createTRPCNext<AppRouter>({
+export const trpc = createReactQueryHooks<AppRouter>();
+
+export const trpcNext = createTRPCNext<AppRouter>({
   config() {
     return {
       links: [

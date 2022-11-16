@@ -12,7 +12,7 @@ import { Toaster } from "react-hot-toast";
 
 import Maintenance from "@/components/maintenance";
 
-import { trpc } from "../utils/trpc";
+import { trpcNext } from "../utils/trpc";
 
 const CrispChat = dynamic(() => import("@/components/crisp-chat"), {
   ssr: false,
@@ -43,4 +43,4 @@ const MyApp: NextPage<AppProps> = ({ Component, pageProps }) => {
   );
 };
 
-export default trpc.withTRPC(appWithTranslation(MyApp));
+export default trpcNext.withTRPC(appWithTranslation(MyApp));
