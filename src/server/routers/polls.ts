@@ -9,7 +9,6 @@ import { createRouter } from "../createRouter";
 import { comments } from "./polls/comments";
 import { demo } from "./polls/demo";
 import { participants } from "./polls/participants";
-import { user } from "./user";
 
 const defaultSelectFields: {
   id: true;
@@ -230,6 +229,22 @@ export const polls = createRouter()
       });
 
       return { title: input.title };
+    },
+  })
+  .mutation("updateNotifications", {
+    input: z.object({
+      enabled: z.boolean(),
+      urlId: z.string(),
+    }),
+    resolve: async ({ input }) => {
+      await prisma.poll.update({
+        where: {
+          id: input.urlId,
+        },
+        data: {
+          notifications: input.enabled,
+        },
+      });
     },
   })
   .mutation("update", {

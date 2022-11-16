@@ -5,21 +5,30 @@ import { Button } from "@/components/button";
 import Bell from "@/components/icons/bell.svg";
 import BellCrossed from "@/components/icons/bell-crossed.svg";
 
+import { trpc } from "../../utils/trpc";
 import { useLoginModal } from "../auth/login-modal";
 import { usePoll } from "../poll-provider";
 import Tooltip from "../tooltip";
-import { usePollMutations } from "../use-poll-mutations";
 import { useUser } from "../user-provider";
 
 const NotificationsToggle: React.VoidFunctionComponent = () => {
-  const { poll, urlId } = usePoll();
+  const { poll, updatePoll } = usePoll();
   const { t } = useTranslation("app");
   React.useState(false);
   const { user } = useUser();
 
   const isDisabled = !user.isGuest && poll.user?.id !== user.id;
 
-  const { updatePoll } = usePollMutations();
+  const queryClient = trpc.useContext();
+  const updateNotifications = trpc.useMutation("polls.updateNotifications", {
+    onMutate({ enabled }) {
+      updatePoll({ ...poll, notifications: enabled });
+    },
+    onSuccess() {
+      queryClient.invalidateQueries();
+    },
+  });
+
   const { openLoginModal } = useLoginModal();
   return (
     <Tooltip
@@ -58,14 +67,13 @@ const NotificationsToggle: React.VoidFunctionComponent = () => {
       }
     >
       <Button
-        loading={updatePoll.isLoading}
         disabled={isDisabled}
         icon={poll.notifications ? <Bell /> : <BellCrossed />}
         onClick={async () => {
           if (poll.user?.id === user.id && !user.isGuest) {
-            await updatePoll.mutateAsync({
-              urlId,
-              notifications: !poll.notifications,
+            await updateNotifications.mutateAsync({
+              urlId: poll.id,
+              enabled: !poll.notifications,
             });
           } else {
             openLoginModal();
