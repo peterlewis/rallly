@@ -40,10 +40,6 @@ const moduleExports = {
         destination: "/home",
       },
       {
-        source: "/p/:urlId",
-        destination: "/poll?urlId=:urlId",
-      },
-      {
         source: "/admin/:urlId",
         destination: "/poll?urlId=:urlId",
       },
