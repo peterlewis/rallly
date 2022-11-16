@@ -173,4 +173,5 @@ export const auth = createRouter()
 
       return { user: ctx.session.user };
     },
-  });
+  })
+  .interop();

@@ -68,4 +68,5 @@ export const user = createRouter()
 
       return { ok: true };
     },
-  });
+  })
+  .interop();

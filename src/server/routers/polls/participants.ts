@@ -149,4 +149,5 @@ export const participants = createRouter()
 
       return participant;
     },
-  });
+  })
+  .interop();
