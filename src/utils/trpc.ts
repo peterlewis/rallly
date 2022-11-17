@@ -3,6 +3,7 @@ import { httpBatchLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { createReactQueryHooks } from "@trpc/react-query";
 import toast from "react-hot-toast";
+import superjson from "superjson";
 
 import { AppRouter } from "../server/routers/_app";
 
@@ -16,6 +17,7 @@ export const trpcNext = createTRPCNext<AppRouter>({
           url: `/api/trpc`,
         }),
       ],
+      transformer: superjson,
       queryClientConfig: {
         mutationCache: new MutationCache({
           onError: () => {

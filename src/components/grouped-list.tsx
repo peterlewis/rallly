@@ -83,7 +83,9 @@ export const GroupedList = <T,>({
         <div className={group.itemsClassName}>
           {group.groups
             ? group.groups.map(renderGroup)
-            : group.items.map((item, i) => <Item key={i} item={item} />)}
+            : group.items.map((item, i) => (
+                <Item key={`${group.key}.${i}`} item={item} />
+              ))}
         </div>
       </div>
     );

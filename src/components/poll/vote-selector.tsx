@@ -68,7 +68,14 @@ export const VoteSelector = React.forwardRef<
       onFocus={onFocus}
       onBlur={onBlur}
       className={clsx(
-        "rounded-md border border-black/10 bg-white/50 p-1",
+        "relative flex h-5 w-5 items-center justify-center overflow-hidden rounded border focus:ring-2 active:bg-gray-100",
+        {
+          "border-green-300 bg-green-50 text-green-400 focus:ring-green-200":
+            value === "yes",
+          "border-amber-200 bg-amber-50 text-amber-300": value === "ifNeedBe",
+          "border-slate-200 bg-slate-50 text-slate-400": value === "no",
+          "bg-white": !value,
+        },
         className,
       )}
       onKeyDown={onKeyDown}
@@ -77,22 +84,7 @@ export const VoteSelector = React.forwardRef<
       }}
       ref={ref}
     >
-      <div
-        className={clsx(
-          "relative flex h-4 w-4 items-center justify-center overflow-hidden rounded border text-white  active:bg-gray-100",
-          {
-            "border-green-400 bg-green-400 text-green-100 focus:ring-green-200":
-              value === "yes",
-            "border-amber-300 bg-amber-300 text-amber-100":
-              value === "ifNeedBe",
-            "border-slate-300 bg-slate-300 text-slate-100": value === "no",
-            "border-transparent bg-transparent": !value,
-            "shadow-sm": !!value,
-          },
-        )}
-      >
-        {Icon ? <Icon className="absolute h-5 " /> : null}
-      </div>
+      {Icon ? <Icon className="absolute h-5 " /> : null}
     </button>
   );
 });

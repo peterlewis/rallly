@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -9,7 +9,6 @@ import { useScroll } from "react-use";
 
 import Adjustments from "@/components/icons/adjustments.svg";
 import Cash from "@/components/icons/cash.svg";
-import ChevronLeft from "@/components/icons/chevron-left.svg";
 import ChevronRight from "@/components/icons/chevron-right.svg";
 import Discord from "@/components/icons/discord.svg";
 import Github from "@/components/icons/github.svg";
@@ -31,7 +30,6 @@ import Dropdown, { DropdownItem, DropdownProps } from "./dropdown";
 import ModalProvider, { useModalContext } from "./modal/modal-provider";
 import Popover from "./popover";
 import Preferences from "./preferences";
-import { Sticky } from "./sticky";
 import { IfGuest, useUser } from "./user-provider";
 
 const Footer: React.VoidFunctionComponent = () => {

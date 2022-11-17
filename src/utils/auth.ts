@@ -148,14 +148,12 @@ export const createGuestUser = async (): Promise<{
 };
 
 export const getCurrentUser = async (
-  ctx:
-    | GetServerSidePropsContext
-    | { req: NextApiRequest; res: NextApiResponse },
+  session: IronSession,
 ): Promise<
   | { isGuest: false; name: string; id: string; email: string }
   | { isGuest: true; id: string }
 > => {
-  const user = ctx.req.session.user;
+  const user = session.user;
 
   if (!user) {
     throw new Error("Tried to get user but no user found.");
