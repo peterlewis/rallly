@@ -24,11 +24,11 @@ const Row: React.VoidFunctionComponent<{
   return (
     <div
       role="button"
-      onClick={() => {
+      onMouseDown={() => {
         onChange(toggle());
       }}
       className={clsx(
-        "flex h-12 select-none items-center gap-3 rounded border bg-white/50 px-3 font-semibold text-slate-700/90 hover:bg-white/75 active:bg-white/50 active:shadow-sm",
+        "flex h-12 select-none items-center gap-3 rounded border bg-white/50 px-3 font-semibold text-slate-700/90 active:bg-white/50 active:shadow-sm",
         {
           "border-green-400 ring-1 ring-green-400": value === "yes",
           "border-amber-300 ring-1 ring-amber-300": value === "ifNeedBe",

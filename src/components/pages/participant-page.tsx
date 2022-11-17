@@ -8,6 +8,7 @@ import React from "react";
 import { DayjsProvider } from "../../utils/dayjs";
 import { trpcNext } from "../../utils/trpc";
 import { Button } from "../button";
+import Discussion from "../discussion";
 import FullPageLoader from "../full-page-loader";
 import { Confirmation } from "./participant-page/confirmation";
 import { FirstStep } from "./participant-page/first-step";
@@ -27,9 +28,9 @@ const AnimatedContainer: React.VoidFunctionComponent<{
     <motion.div
       layout="position"
       transition={{ duration: 0.2 }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
     >
       {children}
     </motion.div>

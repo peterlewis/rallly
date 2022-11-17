@@ -92,6 +92,10 @@ export const FirstStep: React.VoidFunctionComponent<{
         ) : null}
       </div>
       <div className="-mx-1 flex min-h-0 flex-col space-y-3">
+        <div className="action-group">
+          <div>Vote</div>
+          <div>Comments</div>
+        </div>
         <Controller
           control={control}
           name="value"
