@@ -7,7 +7,7 @@ import { useDayjs } from "../../../utils/dayjs";
 import { GroupDefinition, GroupedList } from "../../grouped-list";
 import { useVoteState, VoteSelector } from "../../poll/vote-selector";
 
-type Option = {
+export type Option = {
   id: string;
   start: string;
   duration: number;
@@ -28,7 +28,11 @@ const Row: React.VoidFunctionComponent<{
         onChange(toggle());
       }}
       className={clsx(
-        "flex h-12 select-none items-center gap-3 rounded border bg-white px-3 text-slate-700/90 shadow active:translate-y-px active:shadow-sm",
+        "flex h-12 select-none items-center gap-3 rounded border bg-white/50 px-3 font-semibold text-slate-700/90 hover:bg-white/75 active:bg-white/50 active:shadow-sm",
+        {
+          "border-green-400 ring-1 ring-green-400": value === "yes",
+          "border-amber-300 ring-1 ring-amber-300": value === "ifNeedBe",
+        },
       )}
     >
       <VoteSelector value={value} onChange={onChange} />
@@ -42,7 +46,7 @@ const MonthMarker: React.VoidFunctionComponent<{ value: string }> = ({
 }) => {
   const { dayjs } = useDayjs();
   return (
-    <div className="sticky top-0 z-20 flex h-12 items-center border-b bg-white/90 px-4 font-semibold text-slate-700/75">
+    <div className="sticky top-0 z-20 flex h-10 items-center border-b bg-gray-50/90 px-4 text-slate-500">
       {dayjs(value).format("MMMM YYYY")}
     </div>
   );
@@ -53,10 +57,10 @@ const DateMarker: React.VoidFunctionComponent<{ value: string }> = ({
 }) => {
   const { dayjs } = useDayjs();
   return (
-    <div className="sticky top-12 z-10 flex h-12 items-center border-b bg-white/90 px-4 font-semibold text-slate-700/75 shadow-sm">
+    <div className="sticky top-10 z-10 flex h-10 items-center border-b bg-gray-50/90 px-4 text-slate-500 shadow-sm">
       <div className="flex w-fit items-baseline gap-1">
-        <div className="text-lg font-semibold">{dayjs(value).format("D")}</div>
-        <div className="text-slate-700/75">{dayjs(value).format("dddd")}</div>
+        <div>{dayjs(value).format("D")}</div>
+        <div>{dayjs(value).format("dddd")}</div>
       </div>
     </div>
   );
@@ -79,14 +83,14 @@ export const OptionMultiSelect: React.VoidFunctionComponent<{
           },
           {
             groupBy: (a) => a.start.substring(0, 10),
-            itemsClassName: "p-3 space-y-3",
+            itemsClassName: "p-3 space-y-2",
             render: DateMarker,
           },
         ]
       : [
           {
             groupBy: (a) => a.start.substring(0, 7),
-            itemsClassName: "space-y-3 p-3",
+            itemsClassName: "space-y-2 p-3",
             render: MonthMarker,
           },
         ];

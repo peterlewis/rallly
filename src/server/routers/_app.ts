@@ -29,6 +29,7 @@ export const appRouter = mergeRouters(
         .query(async ({ input }) => {
           const poll = await prisma.poll.findUnique({
             select: {
+              id: true,
               title: true,
               description: true,
               createdAt: true,
@@ -65,6 +66,56 @@ export const appRouter = mergeRouters(
               return { start, duration, id: option.id };
             }),
           };
+        }),
+    }),
+    participant: router({
+      add: publicProcedure
+        .input(
+          z.object({
+            id: z.string(),
+            name: z.string(),
+            email: z.string(),
+            votes: z.array(
+              z.object({
+                optionId: z.string(),
+                vote: z.enum(["yes", "ifNeedBe", "no"]),
+              }),
+            ),
+          }),
+        )
+        .use(async ({ input, next }) => {
+          const poll = await prisma.poll.findUnique({
+            where: {
+              id: input.id,
+            },
+          });
+          if (!poll) {
+            throw new TRPCError({ code: "NOT_FOUND" });
+          }
+          return next();
+        })
+        .mutation(async ({ ctx, input }) => {
+          const participant = await prisma.participant.create({
+            data: {
+              pollId: input.id,
+              name: input.name,
+              userId: ctx.user.id,
+              votes: {
+                createMany: {
+                  data: input.votes.map(({ optionId, vote }) => ({
+                    optionId,
+                    type: vote,
+                    pollId: input.id,
+                  })),
+                },
+              },
+            },
+            include: {
+              votes: true,
+            },
+          });
+
+          return participant;
         }),
     }),
   }),

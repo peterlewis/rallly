@@ -68,12 +68,12 @@ export const VoteSelector = React.forwardRef<
       onFocus={onFocus}
       onBlur={onBlur}
       className={clsx(
-        "relative flex h-5 w-5 items-center justify-center overflow-hidden rounded border focus:ring-2 active:bg-gray-100",
+        "relative flex h-5 w-5 items-center justify-center overflow-hidden rounded border bg-white transition-colors focus:ring-2 active:bg-gray-100",
         {
-          "border-green-300 bg-green-50 text-green-400 focus:ring-green-200":
-            value === "yes",
-          "border-amber-200 bg-amber-50 text-amber-300": value === "ifNeedBe",
-          "border-slate-200 bg-slate-50 text-slate-400": value === "no",
+          "border-green-400 bg-green-400 text-white": value === "yes",
+          "border-amber-300  bg-amber-300 text-white ring-amber-300":
+            value === "ifNeedBe",
+          "border-slate-200  text-slate-400": value === "no",
           "bg-white": !value,
         },
         className,
