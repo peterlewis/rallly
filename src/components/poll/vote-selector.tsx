@@ -71,7 +71,8 @@ export const VoteSelector = React.forwardRef<
         "relative flex h-5 w-5 items-center justify-center overflow-hidden rounded border bg-white transition-colors focus:ring-2 active:bg-gray-100",
         {
           "border-green-400 bg-green-400 text-white": value === "yes",
-          "border-amber-300  bg-amber-300 text-white ring-amber-300":
+          "border-slate-400 bg-slate-400 text-white": value === "no",
+          "border-amber-400  bg-amber-400 text-white ring-amber-400":
             value === "ifNeedBe",
           "border-slate-200  text-slate-400": value === "no",
           "bg-white": !value,

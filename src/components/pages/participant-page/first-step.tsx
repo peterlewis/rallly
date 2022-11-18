@@ -91,17 +91,13 @@ export const FirstStep: React.VoidFunctionComponent<{
           </div>
         ) : null}
       </div>
-      <div className="-mx-1 flex min-h-0 flex-col space-y-3">
-        <div className="action-group">
-          <div>Vote</div>
-          <div>Comments</div>
-        </div>
+      <div className="flex min-h-0 flex-col space-y-3">
         <Controller
           control={control}
           name="value"
           render={({ field }) => (
             <OptionMultiSelect
-              className="relative min-h-0 overflow-auto rounded border bg-slate-300/25"
+              className="relative -mx-3 min-h-0 overflow-auto rounded border"
               options={field.value}
               onChange={field.onChange}
             />

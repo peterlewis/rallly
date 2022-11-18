@@ -63,7 +63,7 @@ export const ParticipantPage: React.VoidFunctionComponent = () => {
       <div className="line-pattern h-full overflow-auto p-4">
         <motion.div
           layout="size"
-          className="mx-auto max-w-2xl overflow-hidden rounded border bg-white p-6 shadow"
+          className="mx-auto max-w-3xl divide-x overflow-hidden rounded-md border bg-white p-6 shadow"
         >
           <AnimatePresence initial={false} exitBeforeEnter={true}>
             <AnimatedContainer key={step}>

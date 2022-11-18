@@ -20,22 +20,40 @@ const Row: React.VoidFunctionComponent<{
   value?: VoteType;
   onChange: (value: VoteType) => void;
 }> = ({ children, value, onChange }) => {
-  const { toggle } = useVoteState(value);
+  const { toggle } = useVoteState();
+  const paintValue = React.useContext(OptionMultiSelectContext);
   return (
     <div
       role="button"
       onMouseDown={() => {
-        onChange(toggle());
+        onChange(toggle(value));
+      }}
+      onMouseEnter={() => {
+        if (paintValue) {
+          onChange(paintValue);
+        }
       }}
       className={clsx(
-        "flex h-12 select-none items-center gap-3 rounded border bg-white/50 px-3 font-semibold text-slate-700/90 active:bg-white/50 active:shadow-sm",
+        "flex h-12 select-none items-center gap-3 rounded border bg-white px-3 font-semibold text-slate-700/90",
         {
-          "border-green-400 ring-1 ring-green-400": value === "yes",
-          "border-amber-300 ring-1 ring-amber-300": value === "ifNeedBe",
+          "border-amber-400 bg-amber-50 ring-1 ring-amber-400":
+            value === "ifNeedBe",
+          "border-green-400 bg-green-50 ring-1 ring-green-400": value === "yes",
+          "border-slate-400 bg-slate-50 ring-1 ring-slate-400": value === "no",
         },
       )}
     >
-      <VoteSelector value={value} onChange={onChange} />
+      <VoteSelector value={value} className="pointer-events-none" />
+      {children}
+    </div>
+  );
+};
+
+const Marker: React.VoidFunctionComponent<{ children?: React.ReactNode }> = ({
+  children,
+}) => {
+  return (
+    <div className="sticky top-0 z-20 -mb-px flex h-12 select-none items-center border-b bg-white/90 px-6 font-semibold text-slate-700/75">
       {children}
     </div>
   );
@@ -46,9 +64,9 @@ const MonthMarker: React.VoidFunctionComponent<{ value: string }> = ({
 }) => {
   const { dayjs } = useDayjs();
   return (
-    <div className="sticky top-0 z-20 flex h-10 items-center border-b bg-gray-50/90 px-4 text-slate-500">
-      {dayjs(value).format("MMMM YYYY")}
-    </div>
+    <Marker>
+      <div>{dayjs(value).format("MMMM YYYY")}</div>
+    </Marker>
   );
 };
 
@@ -57,14 +75,17 @@ const DateMarker: React.VoidFunctionComponent<{ value: string }> = ({
 }) => {
   const { dayjs } = useDayjs();
   return (
-    <div className="sticky top-10 z-10 flex h-10 items-center border-b bg-gray-50/90 px-4 text-slate-500 shadow-sm">
-      <div className="flex w-fit items-baseline gap-1">
-        <div>{dayjs(value).format("D")}</div>
-        <div>{dayjs(value).format("dddd")}</div>
+    <Marker>
+      <div>{dayjs(value).format("LL")}</div>
+      <div className="ml-2 font-normal text-slate-700/50">
+        {dayjs(value).fromNow()}
       </div>
-    </div>
+    </Marker>
   );
 };
+
+const OptionMultiSelectContext =
+  React.createContext<VoteType | undefined>(undefined);
 
 export const OptionMultiSelect: React.VoidFunctionComponent<{
   className?: string;
@@ -76,11 +97,6 @@ export const OptionMultiSelect: React.VoidFunctionComponent<{
   const groupDefinitions = React.useMemo<GroupDefinition<Option>[]>(() => {
     return options[0].duration > 0
       ? [
-          {
-            groupBy: (a) => a.start.substring(0, 7),
-            itemsClassName: "divide-y",
-            render: MonthMarker,
-          },
           {
             groupBy: (a) => a.start.substring(0, 10),
             itemsClassName: "p-3 space-y-2",
@@ -96,29 +112,46 @@ export const OptionMultiSelect: React.VoidFunctionComponent<{
         ];
   }, [options]);
 
+  const [paintValue, setPaintValue] = React.useState<VoteType>();
+
+  React.useEffect(() => {
+    const handler = () => {
+      setPaintValue(undefined);
+    };
+    window.addEventListener("mouseup", handler);
+    return () => {
+      window.removeEventListener("mouseup", handler);
+    };
+  }, []);
+
   return (
-    <GroupedList
-      data={options}
-      className={clsx(className)}
-      groupDefs={groupDefinitions}
-      itemRender={({ item }) => (
-        <Row
-          value={item.value}
-          onChange={(newValue) => {
-            onChange?.(
-              produce(options, (draft) => {
-                draft[item.index].value = newValue;
-              }),
-            );
-          }}
-        >
-          {item.duration === 0
-            ? dayjs(item.start).format("D dddd")
-            : `${dayjs(item.start).format("LT")} - ${dayjs(item.start)
-                .add(item.duration, "minutes")
-                .format("LT")}`}
-        </Row>
-      )}
-    />
+    <OptionMultiSelectContext.Provider value={paintValue}>
+      <GroupedList
+        data={options}
+        className={clsx("divide-y", className, {
+          "cursor-pointer": !!paintValue,
+        })}
+        groupDefs={groupDefinitions}
+        itemRender={({ item }) => (
+          <Row
+            value={item.value}
+            onChange={(newValue) => {
+              setPaintValue(newValue);
+              onChange?.(
+                produce(options, (draft) => {
+                  draft[item.index].value = newValue;
+                }),
+              );
+            }}
+          >
+            {item.duration === 0
+              ? dayjs(item.start).format("D dddd")
+              : `${dayjs(item.start).format("LT")} - ${dayjs(item.start)
+                  .add(item.duration, "minutes")
+                  .format("LT")}`}
+          </Row>
+        )}
+      />
+    </OptionMultiSelectContext.Provider>
   );
 };
