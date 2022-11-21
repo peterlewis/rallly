@@ -194,8 +194,8 @@
   }
   .line-pattern {
     @apply bg-slate-500/5;
-    background-position: top center;
-    background-size: 24px 24px;
+    background-position: center center;
+    background-size: 39px 39px;
     background-image: linear-gradient(
         to right,
         rgb(100 116 139 / 0.05) 1px,

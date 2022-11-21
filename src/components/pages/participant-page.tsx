@@ -8,8 +8,8 @@ import React from "react";
 import { DayjsProvider } from "../../utils/dayjs";
 import { trpcNext } from "../../utils/trpc";
 import { Button } from "../button";
-import Discussion from "../discussion";
 import FullPageLoader from "../full-page-loader";
+import { useUser } from "../user-provider";
 import { Confirmation } from "./participant-page/confirmation";
 import { FirstStep } from "./participant-page/first-step";
 import { ParticipantDetailsForm } from "./participant-page/participant-details-form";
@@ -45,9 +45,20 @@ export const ParticipantPage: React.VoidFunctionComponent = () => {
   const { data } = usePoll();
 
   const { t } = useTranslation("app");
-
   const [step, setStep] = React.useState(1);
-  const [votes, setVotes] = React.useState<Record<string, VoteType>>({});
+  const { user } = useUser();
+  const [votes, setVotes] = React.useState<Record<string, VoteType>>(() => {
+    const v: Record<string, VoteType> = {};
+    const participant = data?.participants.find(
+      ({ userId }) => userId === user.id,
+    );
+    if (participant) {
+      participant.votes.forEach(({ optionId, type }) => {
+        v[optionId] = type;
+      });
+    }
+    return v;
+  });
 
   const createParticipant = useCreateParticipant();
 
@@ -63,7 +74,7 @@ export const ParticipantPage: React.VoidFunctionComponent = () => {
       <div className="line-pattern h-full overflow-auto p-4">
         <motion.div
           layout="size"
-          className="mx-auto max-w-3xl divide-x overflow-hidden rounded-md border bg-white p-6 shadow"
+          className="mx-auto max-w-3xl overflow-hidden rounded-md border bg-white"
         >
           <AnimatePresence initial={false} exitBeforeEnter={true}>
             <AnimatedContainer key={step}>

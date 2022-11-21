@@ -26,7 +26,7 @@ export const appRouter = mergeRouters(
             id: z.string(),
           }),
         )
-        .query(async ({ input }) => {
+        .query(async ({ input, ctx }) => {
           const poll = await prisma.poll.findUnique({
             select: {
               id: true,
@@ -35,6 +35,7 @@ export const appRouter = mergeRouters(
               createdAt: true,
               timeZone: true,
               location: true,
+              userId: true,
               user: {
                 select: {
                   name: true,
@@ -43,6 +44,23 @@ export const appRouter = mergeRouters(
               options: {
                 orderBy: {
                   value: "asc",
+                },
+                select: {
+                  id: true,
+                  value: true,
+                },
+              },
+              participants: {
+                select: {
+                  id: true,
+                  userId: true,
+                  name: true,
+                  votes: {
+                    select: {
+                      optionId: true,
+                      type: true,
+                    },
+                  },
                 },
               },
             },
