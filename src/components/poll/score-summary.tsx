@@ -22,34 +22,27 @@ const Score = React.forwardRef<
   const multiplier = prevScore !== undefined ? score - prevScore : 0;
 
   return (
-    <div
-      ref={ref}
-      className="relative inline-flex items-center text-sm font-bold"
-    >
-      <Icon className="mr-1 inline-block h-4 text-slate-300 transition-opacity" />
-      <span className="relative inline-block text-slate-500">
-        <AnimatePresence initial={false}>
+    <div ref={ref} className="inline-flex items-center text-sm">
+      <Icon className="mr-1 inline-block h-4 transition-opacity" />
+      <span className="inline-block">
+        <AnimatePresence initial={false} exitBeforeEnter={true}>
           <motion.span
             transition={{
-              duration: 0.2,
+              duration: 0.1,
             }}
             initial={{
-              opacity: 0,
               y: 10 * multiplier,
             }}
             animate={{ opacity: 1, y: 0 }}
             exit={{
-              opacity: 0,
               y: 10 * multiplier,
             }}
             key={score}
-            className="absolute inset-0"
+            className="inline-block tabular-nums"
           >
             {score}
           </motion.span>
         </AnimatePresence>
-        {/* Invisible text just to give us the right width */}
-        <span className="text-transparent">{score}</span>
       </span>
     </div>
   );

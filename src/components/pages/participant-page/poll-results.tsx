@@ -102,15 +102,21 @@ const ParticipantGrid = ({ optionId }: { optionId: string }) => {
 
 const PollResultVoteGraph = ({ optionId }: { optionId: string }) => {
   // const vote = useVotes(optionId);
+  // const option = useOption(optionId);
+  // const res = React.useMemo(() => {
+  //   participants.reduce((acc, curr) => {
+  //     curr.votes.
+  //   })
+  // },[])
   return <div></div>;
 };
 
 const PollResult = ({ item }: { item: Option }) => {
   return (
-    <div className="space-y-3 p-4">
+    <div className="space-y-3 px-3">
       <StyledListItem duration={item.duration} start={item.start} />
       <ParticipantGrid optionId={item.id} />
-      {/* <PollResultVoteGraph optionId={item.id} /> */}
+      <PollResultVoteGraph optionId={item.id} />
     </div>
   );
 };

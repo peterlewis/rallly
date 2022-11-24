@@ -1,34 +1,31 @@
 import { VoteType } from "@prisma/client";
+import clsx from "clsx";
 import { Trans, useTranslation } from "next-i18next";
 import React from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 
 import { getBrowserTimeZone } from "../../../utils/date-time-utils";
 import { useDayjs } from "../../../utils/dayjs";
 import { Button } from "../../button";
+import { ScoreSummary } from "../../poll/score-summary";
+import { useVoteState, VoteSelector } from "../../poll/vote-selector";
 import { useUser } from "../../user-provider";
-import { usePoll } from "../participant-page";
+import { EventDetails } from "./event-details";
 import { OptionMultiSelect } from "./option-multi-select";
 import { ParticipantsContextProvider } from "./participants-context";
+import { usePoll, usePollOptions } from "./poll-context";
+import { PollOption } from "./poll-option";
 import { PollResults } from "./poll-results";
-
-const throwIfUndefined = <T,>(data: T | undefined) => {
-  if (data === undefined) {
-    throw new Error("Expected data byt got undefined");
-  }
-  return data;
-};
+import { StyledList } from "./styled-list";
+import { useTargetTimezone } from "./target-timezone";
 
 type Option = {
-  start: string;
-  duration: number;
-  value?: VoteType;
+  vote?: VoteType;
   id: string;
-  index: number;
 };
 
 type FirstStepForm = {
-  value: Array<Option>;
+  value: Option[];
 };
 
 export const FirstStep: React.VoidFunctionComponent<{
@@ -36,27 +33,18 @@ export const FirstStep: React.VoidFunctionComponent<{
   onSubmit: (value: FirstStepForm) => void;
 }> = ({ votes, onSubmit }) => {
   const { t } = useTranslation("app");
-  const res = usePoll();
-  const data = throwIfUndefined(res.data);
+  const data = usePoll();
 
   const { dayjs } = useDayjs();
 
-  const [targetTimezone, setTargetTimezone] =
-    React.useState(getBrowserTimeZone);
+  const [targetTimezone] = useTargetTimezone();
 
   const [defaultValue] = React.useState<Option[]>(
     () =>
-      data.options.map((o, index) => {
+      data.options.map((o) => {
         return {
-          ...o,
-          start: data.timeZone
-            ? dayjs(o.start)
-                .tz(data.timeZone, true)
-                .tz(targetTimezone)
-                .format("YYYY-MM-DDTHH:mm:ss")
-            : o.start,
-          index,
-          value: votes?.[o.id],
+          id: o.id,
+          // value: votes?.[o.id],
         };
       }) ?? [],
   );
@@ -69,72 +57,71 @@ export const FirstStep: React.VoidFunctionComponent<{
 
   const { user } = useUser();
 
+  const { options } = usePollOptions();
+
   const participant = React.useMemo(() => {
     // return data.participants.find(({ userId }) => userId === user.id);
     return undefined;
   }, [data, user]);
+
+  const { toggle } = useVoteState();
 
   return (
     <ParticipantsContextProvider
       seed={data.id}
       participants={data.participants}
     >
-      <div className="flex h-full flex-col divide-y">
-        <div className="p-6">
-          <div className="mb-3">
-            <h1 className="mb-0 text-2xl font-bold">{data.title}</h1>
-            <div className="text-slate-700/40">
-              <Trans
-                t={t}
-                i18nKey="createdBy"
-                values={{ name: data.user?.name ?? t("guest") }}
-                components={{ b: <span /> }}
-              />
-            </div>
-          </div>
-          <p className="text-slate-700/90">{data.description}</p>
-          <div>
-            <strong>{data.location}</strong>
-          </div>
-          {data.timeZone ? (
-            <div>
-              <strong>{targetTimezone}</strong>
-            </div>
-          ) : null}
-        </div>
+      <div className="space-y-4">
+        <EventDetails />
         {/* <PollResults
-            className="relative min-h-0 overflow-auto"
-            options={data.options.map((o, index) => {
-              return {
-                ...o,
-                start: data.timeZone
-                  ? dayjs(o.start)
-                      .tz(data.timeZone, true)
-                      .tz(targetTimezone)
-                      .format("YYYY-MM-DDTHH:mm:ss")
-                  : o.start,
-                index,
-              };
-            })}
-          /> */}
-
-        <form
-          className="flex min-h-0 grow flex-col space-y-3 p-6"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <Controller
-            control={control}
-            name="value"
-            render={({ field }) => (
-              <OptionMultiSelect
-                className="relative min-h-0 overflow-auto rounded border bg-white"
-                options={field.value}
-                onChange={field.onChange}
-              />
-            )}
+          className="relative min-h-0 overflow-auto p-3"
+          options={data.options.map((o, index) => {
+            return {
+              ...o,
+              start: data.timeZone
+                ? dayjs(o.start)
+                    .tz(data.timeZone, true)
+                    .tz(targetTimezone)
+                    .format("YYYY-MM-DDTHH:mm:ss")
+                : o.start,
+              index,
+            };
+          })}
+        /> */}
+        <form className="" onSubmit={handleSubmit(onSubmit)}>
+          <StyledList
+            className="border-t"
+            options={data.options}
+            itemRender={({ item, index }) => {
+              return (
+                <Controller
+                  control={control}
+                  name={`value.${index}`}
+                  render={({ field }) => {
+                    const vote = field.value.vote;
+                    const { score } = options[item.id];
+                    return (
+                      <PollOption
+                        optionId={item.id}
+                        onChange={(v) => {
+                          field.onChange({ ...field.value, vote: v });
+                        }}
+                        vote={vote}
+                        score={score}
+                      />
+                    );
+                  }}
+                />
+              );
+            }}
           />
-          <div className="flex">
-            <Button htmlType="submit" type="primary">
+          <div className="flex border-t p-3">
+            <Button
+              htmlType="submit"
+              size="lg"
+              className="w-full"
+              type="primary"
+            >
               {t("continue")}
             </Button>
           </div>

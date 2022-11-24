@@ -55,12 +55,21 @@ export const appRouter = mergeRouters(
                   id: true,
                   userId: true,
                   name: true,
+                  // TODO (Luke Vella) [2022-11-24]: Remove this
                   votes: {
                     select: {
                       optionId: true,
+                      participantId: true,
                       type: true,
                     },
                   },
+                },
+              },
+              votes: {
+                select: {
+                  optionId: true,
+                  participantId: true,
+                  type: true,
                 },
               },
             },

@@ -1,20 +1,17 @@
 import clsx from "clsx";
 import dayjs from "dayjs";
-import produce from "immer";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import * as React from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
-import { encodeDateOption, getBrowserTimeZone } from "../utils/date-time-utils";
+import { getBrowserTimeZone } from "../utils/date-time-utils";
 import { useFormValidation } from "../utils/form-validation";
 import { trpc } from "../utils/trpc";
 import { NewLayout } from "./app-layout";
 import { Button } from "./button";
 import { DateOrTimeSelector } from "./date-or-time-selector";
-import { DurationPicker } from "./forms/poll-options-form/month-calendar/duration-picker";
 import { TimezonePicker } from "./forms/poll-options-form/time-zone-policy";
-import { DateTimeOption } from "./forms/poll-options-form/types";
 import { NewPollFormData } from "./types";
 
 const NewProceeding: React.VoidFunctionComponent = () => {
@@ -82,7 +79,9 @@ const NewProceeding: React.VoidFunctionComponent = () => {
               location: data.location,
               description: data.description,
               timeZone:
-                data.timezonePolicy === "auto" ? getBrowserTimeZone() : "",
+                data.duration > 0 && data.timezonePolicy === "auto"
+                  ? getBrowserTimeZone()
+                  : undefined,
               options,
               demo: false,
             });

@@ -2,20 +2,24 @@ import clsx from "clsx";
 import React from "react";
 
 import { useDayjs } from "../../../utils/dayjs";
-import { GroupDefinition, GroupedList } from "../../grouped-list";
 
 export interface Option {
   id: string;
   start: string;
   duration: number;
-  index: number;
 }
 
-const Marker: React.VoidFunctionComponent<{ children?: React.ReactNode }> = ({
-  children,
-}) => {
+const Marker: React.VoidFunctionComponent<{
+  className?: string;
+  children?: React.ReactNode;
+}> = ({ children, className }) => {
   return (
-    <div className="sticky top-0 z-20 -mb-px flex h-12 select-none items-center bg-gray-50/90 px-6 font-semibold text-slate-700">
+    <div
+      className={clsx(
+        "sticky top-0 z-20 -mb-px h-12 select-none items-center border-b bg-white/90 px-4",
+        className,
+      )}
+    >
       {children}
     </div>
   );
@@ -26,7 +30,7 @@ const MonthMarker: React.VoidFunctionComponent<{ value: string }> = ({
 }) => {
   const { dayjs } = useDayjs();
   return (
-    <Marker>
+    <Marker className="flex items-center">
       <div>{dayjs(value).format("MMMM YYYY")}</div>
     </Marker>
   );
@@ -37,10 +41,14 @@ const DateMarker: React.VoidFunctionComponent<{ value: string }> = ({
 }) => {
   const { dayjs } = useDayjs();
   return (
-    <Marker>
-      <div>{dayjs(value).format("LL")}</div>
-      <div className="ml-2 font-normal text-slate-700/50">
-        {dayjs(value).fromNow()}
+    <Marker className="flex justify-between">
+      <div>
+        <span className="text-lg font-bold">{dayjs(value).format("D")}</span>
+        <span className="">{dayjs(value).format(" dddd")}</span>
+      </div>
+      <div>
+        <span>{dayjs(value).format(" MMM")}</span>
+        <span>{dayjs(value).format(" YYYY")}</span>
       </div>
     </Marker>
   );
@@ -70,39 +78,61 @@ export const StyledListItem: React.VoidFunctionComponent<{
   );
 };
 
+interface IndexedItem<T> {
+  item: T;
+  index: number;
+  children?: React.ReactNode;
+}
+
 export const StyledList = <O extends Option>({
   options,
   className,
-  itemRender,
+  itemRender: Item,
 }: {
   className?: string;
   options: Array<O>;
-  itemRender: React.ComponentType<{ item: O }>;
+  itemRender: React.ComponentType<IndexedItem<O>>;
 }) => {
-  const groupDefinitions = React.useMemo<GroupDefinition<O>[]>(() => {
-    return options[0].duration > 0
-      ? [
-          {
-            groupBy: (a) => a.start.substring(0, 10),
-            itemsClassName: "space-y-3 pb-3 pt-1 px-3",
-            render: DateMarker,
-          },
-        ]
-      : [
-          {
-            groupBy: (a) => a.start.substring(0, 7),
-            itemsClassName: "space-y-3 pb-3 pt-1 px-3",
-            render: MonthMarker,
-          },
-        ];
+  const GroupHeader = options[0].duration > 0 ? DateMarker : MonthMarker;
+
+  const grouped = React.useMemo(() => {
+    const groupBy =
+      options[0].duration > 0
+        ? (option: O) => option.start.substring(0, 10)
+        : (option: O) => option.start.substring(0, 7);
+
+    const itemsByGroup: Record<string, IndexedItem<O>[]> = {};
+    options.forEach((item, index) => {
+      const groupKey = groupBy(item);
+      if (itemsByGroup[groupKey]) {
+        itemsByGroup[groupKey].push({ item, index });
+      } else {
+        itemsByGroup[groupKey] = [{ item, index }];
+      }
+    });
+    return Object.entries(itemsByGroup);
   }, [options]);
 
   return (
-    <GroupedList
-      data={options}
-      className={clsx("bg-gray-50", className)}
-      groupDefs={groupDefinitions}
-      itemRender={itemRender}
-    />
+    <div className={clsx("divide-y", className)}>
+      {grouped.map(([groupKey, rows]) => {
+        return (
+          <div key={groupKey}>
+            <GroupHeader value={groupKey} />
+            <div className="space-y-3 p-3">
+              {rows.map((row) => {
+                return (
+                  <Item
+                    key={`groupKey.${row.index}`}
+                    item={row.item}
+                    index={row.index}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 };

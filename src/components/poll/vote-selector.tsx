@@ -74,7 +74,7 @@ export const VoteSelector = React.forwardRef<
           "border-slate-400 bg-slate-400 text-white": value === "no",
           "border-amber-400  bg-amber-400 text-white ring-amber-400":
             value === "ifNeedBe",
-          "border-slate-200  text-slate-400": value === "no",
+          "border-slate-400  text-slate-400": value === "no",
           "bg-white": !value,
         },
         className,

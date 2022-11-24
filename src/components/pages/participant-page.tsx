@@ -1,25 +1,25 @@
 import { VoteType } from "@prisma/client";
 import { AnimatePresence, motion } from "framer-motion";
-import Head from "next/head";
-import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import React from "react";
+import { createStateContext } from "react-use";
 
-import { DayjsProvider } from "../../utils/dayjs";
+import Menu from "@/components/icons/menu.svg";
+import Logo from "~/public/logo.svg";
+
+import { getBrowserTimeZone } from "../../utils/date-time-utils";
 import { trpcNext } from "../../utils/trpc";
 import { Button } from "../button";
-import FullPageLoader from "../full-page-loader";
 import { useUser } from "../user-provider";
 import { Confirmation } from "./participant-page/confirmation";
 import { FirstStep } from "./participant-page/first-step";
+import { ParticipantPageLayout } from "./participant-page/layout";
 import { ParticipantDetailsForm } from "./participant-page/participant-details-form";
-
-export const usePoll = () => {
-  const router = useRouter();
-  return trpcNext.poll.getByParticipantLinkId.useQuery({
-    id: router.query.participantLinkId as string,
-  });
-};
+import { usePoll } from "./participant-page/poll-context";
+import {
+  TargetTimezone,
+  TargetTimezoneProvider,
+} from "./participant-page/target-timezone";
 
 const AnimatedContainer: React.VoidFunctionComponent<{
   children?: React.ReactNode;
@@ -42,7 +42,7 @@ const useCreateParticipant = () => {
 };
 
 export const ParticipantPage: React.VoidFunctionComponent = () => {
-  const { data } = usePoll();
+  const data = usePoll();
 
   const { t } = useTranslation("app");
   const [step, setStep] = React.useState(1);
@@ -62,20 +62,10 @@ export const ParticipantPage: React.VoidFunctionComponent = () => {
 
   const createParticipant = useCreateParticipant();
 
-  if (!data) {
-    return <FullPageLoader>{t("loading")}</FullPageLoader>;
-  }
-
   return (
-    <DayjsProvider>
-      <Head>
-        <title>{data.title}</title>
-      </Head>
-      <div className="line-pattern h-full overflow-auto p-4">
-        <motion.div
-          layout="size"
-          className="mx-auto max-w-3xl overflow-hidden rounded-md border bg-white"
-        >
+    <TargetTimezoneProvider initialValue={getBrowserTimeZone()}>
+      <ParticipantPageLayout>
+        <motion.div layout="size">
           <AnimatePresence initial={false} exitBeforeEnter={true}>
             <AnimatedContainer key={step}>
               {step === 1 ? (
@@ -85,7 +75,7 @@ export const ParticipantPage: React.VoidFunctionComponent = () => {
                     setVotes(
                       data.value.reduce<Record<string, VoteType>>(
                         (acc, curr) => {
-                          acc[curr.id] = curr.value ?? "no";
+                          acc[curr.id] = curr.vote ?? "no";
                           return acc;
                         },
                         {},
@@ -106,7 +96,10 @@ export const ParticipantPage: React.VoidFunctionComponent = () => {
                         email: user.email,
                         id: data.id,
                         votes: Object.entries(votes).map(
-                          ([optionId, vote]) => ({ optionId, vote }),
+                          ([optionId, vote]) => ({
+                            optionId,
+                            vote,
+                          }),
                         ),
                       });
                       // create participant
@@ -120,7 +113,7 @@ export const ParticipantPage: React.VoidFunctionComponent = () => {
             </AnimatedContainer>
           </AnimatePresence>
         </motion.div>
-      </div>
-    </DayjsProvider>
+      </ParticipantPageLayout>
+    </TargetTimezoneProvider>
   );
 };
