@@ -3,7 +3,6 @@ import clsx from "clsx";
 import produce from "immer";
 import React from "react";
 
-import { useDayjs } from "../../../utils/dayjs";
 import { ScoreSummary } from "../../poll/score-summary";
 import { useVoteState, VoteSelector } from "../../poll/vote-selector";
 import { Option, StyledList, StyledListItem } from "./styled-list";
@@ -62,8 +61,6 @@ export const OptionMultiSelect: React.VoidFunctionComponent<{
   options: Array<OptionWithValue>;
   onChange?: (value: Array<OptionWithValue>) => void;
 }> = ({ options, onChange, className }) => {
-  const { dayjs } = useDayjs();
-
   const [paintValue, setPaintValue] = React.useState<VoteType>();
 
   React.useEffect(() => {
@@ -83,14 +80,14 @@ export const OptionMultiSelect: React.VoidFunctionComponent<{
         className={clsx(className, {
           "cursor-pointer": !!paintValue,
         })}
-        itemRender={({ item }) => (
+        itemRender={({ item, index }) => (
           <Row
             value={item.value}
             onChange={(newValue) => {
               setPaintValue(newValue);
               onChange?.(
                 produce(options, (draft) => {
-                  draft[item.index].value = newValue;
+                  draft[index].value = newValue;
                 }),
               );
             }}

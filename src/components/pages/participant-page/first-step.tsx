@@ -1,23 +1,16 @@
 import { VoteType } from "@prisma/client";
-import clsx from "clsx";
-import { Trans, useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next";
 import React from "react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
-import { getBrowserTimeZone } from "../../../utils/date-time-utils";
-import { useDayjs } from "../../../utils/dayjs";
 import { Button } from "../../button";
-import { ScoreSummary } from "../../poll/score-summary";
-import { useVoteState, VoteSelector } from "../../poll/vote-selector";
+import { useVoteState } from "../../poll/vote-selector";
 import { useUser } from "../../user-provider";
 import { EventDetails } from "./event-details";
-import { OptionMultiSelect } from "./option-multi-select";
 import { ParticipantsContextProvider } from "./participants-context";
 import { usePoll, usePollOptions } from "./poll-context";
 import { PollOption } from "./poll-option";
-import { PollResults } from "./poll-results";
 import { StyledList } from "./styled-list";
-import { useTargetTimezone } from "./target-timezone";
 
 type Option = {
   vote?: VoteType;
@@ -34,10 +27,6 @@ export const FirstStep: React.VoidFunctionComponent<{
 }> = ({ votes, onSubmit }) => {
   const { t } = useTranslation("app");
   const data = usePoll();
-
-  const { dayjs } = useDayjs();
-
-  const [targetTimezone] = useTargetTimezone();
 
   const [defaultValue] = React.useState<Option[]>(
     () =>
@@ -88,9 +77,9 @@ export const FirstStep: React.VoidFunctionComponent<{
             };
           })}
         /> */}
-        <form className="" onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <StyledList
-            className="border-t"
+            className="grow border-t"
             options={data.options}
             itemRender={({ item, index }) => {
               return (
