@@ -107,18 +107,18 @@ export const PollOption: React.VoidFunctionComponent<{
 
   return (
     <div className="">
-      <div className="flex gap-3">
+      <div className="flex">
         <div
           role="button"
           onMouseDown={() => {
             onChange(toggle(vote));
           }}
           className={clsx(
-            "flex h-12 grow select-none items-center justify-between gap-3 rounded border px-3 text-slate-700/90 shadow-sm",
+            "flex h-12 grow select-none items-center justify-between gap-3 rounded border bg-white px-3 text-slate-700/90 shadow-sm",
             {
-              "border-amber-400 bg-white ring-amber-400": vote === "ifNeedBe",
-              "border-green-400 bg-white ring-green-400": vote === "yes",
-              "border-slate-400 bg-white ring-slate-400": vote === "no",
+              "border-amber-400 ring-amber-400": vote === "ifNeedBe",
+              "border-green-400 ring-green-400": vote === "yes",
+              "border-slate-400 ring-slate-400": vote === "no",
               "ring-1": !!vote,
             },
           )}

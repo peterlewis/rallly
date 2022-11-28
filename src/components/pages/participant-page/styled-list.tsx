@@ -16,7 +16,7 @@ const Marker: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "sticky top-0 z-20 -mb-px h-12 select-none items-center border-b bg-white/90 px-4",
+        "sticky top-0 z-20 h-12 select-none items-center border-b bg-white/90 px-4",
         className,
       )}
     >
@@ -31,7 +31,12 @@ const MonthMarker: React.VoidFunctionComponent<{ value: string }> = ({
   const { dayjs } = useDayjs();
   return (
     <Marker className="flex items-center">
-      <div>{dayjs(value).format("MMMM YYYY")}</div>
+      <div>
+        <span className="text-lg font-bold">{dayjs(value).format("MMMM")}</span>
+        <span className="text-slate-700/50">
+          {dayjs(value).format(" YYYY")}
+        </span>
+      </div>
     </Marker>
   );
 };
@@ -44,9 +49,9 @@ const DateMarker: React.VoidFunctionComponent<{ value: string }> = ({
     <Marker className="flex justify-between">
       <div>
         <span className="text-lg font-bold">{dayjs(value).format("D")}</span>
-        <span className="">{dayjs(value).format(" dddd")}</span>
+        <span className="text-slate-700/75">{dayjs(value).format(" ddd")}</span>
       </div>
-      <div>
+      <div className="text-slate-700/50">
         <span>{dayjs(value).format(" MMM")}</span>
         <span>{dayjs(value).format(" YYYY")}</span>
       </div>
@@ -63,9 +68,8 @@ export const StyledListItem: React.VoidFunctionComponent<{
     <div>
       {duration === 0 ? (
         <div>
-          <span className="text-slate-700/90">
-            {dayjs(start).format("D dddd")}
-          </span>
+          <span className="text-lg font-bold">{dayjs(start).format("D")}</span>
+          <span className="">{dayjs(start).format(" dddd")}</span>
         </div>
       ) : (
         <div className="">

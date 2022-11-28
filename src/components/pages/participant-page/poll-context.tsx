@@ -59,7 +59,7 @@ export const useOption = (id: string) => {
 
   const option = React.useMemo(() => {
     const o = options[id];
-    if (timeZone) {
+    if (timeZone && o.duration > 0) {
       return {
         start: dayjs(o.start)
           .tz(timeZone)

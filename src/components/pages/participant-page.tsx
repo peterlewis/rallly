@@ -65,7 +65,7 @@ export const ParticipantPage: React.VoidFunctionComponent = () => {
   return (
     <TargetTimezoneProvider initialValue={getBrowserTimeZone()}>
       <ParticipantPageLayout>
-        <motion.div layout="size">
+        <motion.div className="p-4" layout="size">
           <AnimatePresence initial={false} exitBeforeEnter={true}>
             <AnimatedContainer key={step}>
               {step === 1 ? (

@@ -9,9 +9,9 @@ export const EventDetails = () => {
   const { t } = useTranslation("app");
   const data = usePoll();
   return (
-    <div className="border-l-teal-400 py-2 px-4">
+    <div className="border-l-teal-400 py-2">
       <div className="flex justify-center">
-        <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-b from-yellow-400 to-amber-500">
+        <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-b from-teal-400 to-cyan-500">
           <Calendar className="h-5 text-orange-50" />
         </div>
       </div>
