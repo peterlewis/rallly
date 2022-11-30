@@ -1,5 +1,4 @@
 import { VoteType } from "@prisma/client";
-import { useTranslation } from "next-i18next";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -8,8 +7,7 @@ import { usePoll } from "./poll-context";
 import { PollOption } from "./poll-option";
 import { StyledList } from "./styled-list";
 
-type OptionField = { id: string; vote?: VoteType };
-export type VotingFormData = { options: OptionField[] };
+export type VotingFormData = { votes: Array<VoteType | undefined> };
 
 export const VotingForm: React.VoidFunctionComponent<{
   buttonText: string;
@@ -21,7 +19,6 @@ export const VotingForm: React.VoidFunctionComponent<{
   const { control, handleSubmit } = useForm<VotingFormData>({
     defaultValues: props.defaultValues,
   });
-  const { t } = useTranslation("app");
   return (
     <form
       className="flex h-full flex-col divide-y"
@@ -36,14 +33,14 @@ export const VotingForm: React.VoidFunctionComponent<{
           return (
             <Controller
               control={control}
-              name={`options.${index}`}
+              name={`votes.${index}`}
               render={({ field }) => {
-                const vote = field.value.vote;
+                const vote = field.value;
                 return (
                   <PollOption
                     optionId={item.id}
                     onChange={(v) => {
-                      field.onChange({ ...field.value, vote: v });
+                      field.onChange(v);
                     }}
                     vote={vote}
                   />
@@ -54,10 +51,7 @@ export const VotingForm: React.VoidFunctionComponent<{
         }}
       />
       <div className="flex shrink-0 justify-between p-3">
-        <Button type="ghost" onClick={props.onCancel}>
-          {t("cancel")}
-        </Button>
-        <Button htmlType="submit" type="primary">
+        <Button htmlType="submit" className="w-full" type="primary">
           {props.buttonText}
         </Button>
       </div>

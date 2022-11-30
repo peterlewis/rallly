@@ -3,16 +3,20 @@ import { Trans, useTranslation } from "next-i18next";
 
 import Calendar from "@/components/icons/calendar.svg";
 import LocationMarker from "@/components/icons/location-marker.svg";
+import Logo from "~/public/logo.svg";
 
 import { Button } from "../../button";
+import { ParticipantPageHeader } from "./header";
+import { useMeetingTabRouter } from "./meeting-tab";
 import { usePoll } from "./poll-context";
 
 export const EventDetails = (props: { className?: string }) => {
   const { t } = useTranslation("app");
   const data = usePoll();
+  const [, setRouter] = useMeetingTabRouter();
   return (
     <div className={clsx(props.className)}>
-      <div className="space-y-8">
+      <div className="space-y-8 p-6">
         <div>
           <div className="flex justify-center">
             <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-b from-teal-400 to-cyan-500">
@@ -36,13 +40,22 @@ export const EventDetails = (props: { className?: string }) => {
             <div>{data.location}</div>
           </div>
         </div>
-        <div>
-          <p>
-            Status: <span className="text-green-500">Open</span>
+        <div className="rounded-md border p-4">
+          <div className="font-semibold">Status</div>
+          <p className="text-slate-500">
+            This poll is open. Click join to select your preferred times.
           </p>
           <div className="flex justify-center">
-            <Button type="success" className="w-full">
-              Begin voting &rarr;
+            <Button
+              type="success"
+              className="w-full"
+              onClick={() => {
+                setRouter({
+                  path: "/new",
+                });
+              }}
+            >
+              Join &rarr;
             </Button>
           </div>
         </div>

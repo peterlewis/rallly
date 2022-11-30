@@ -11,7 +11,14 @@ import { getBrowserTimeZone } from "../../utils/date-time-utils";
 import { Comments } from "./participant-page/comments";
 import { EventDetails } from "./participant-page/event-details";
 import { ParticipantPageLayout } from "./participant-page/layout";
-import { NewResponseForm } from "./participant-page/new-response-form";
+import {
+  MeetingTab,
+  MeetingTabRouterProvider,
+} from "./participant-page/meeting-tab";
+import {
+  NewResponseForm,
+  NewResponseReducerProvider,
+} from "./participant-page/new-response-form";
 import { usePoll } from "./participant-page/poll-context";
 import { ParticipantPageRouterProvider } from "./participant-page/router";
 import { TargetTimezoneProvider } from "./participant-page/target-timezone";
@@ -25,7 +32,7 @@ const Tab = (props: {
   return (
     <Tabs.Trigger
       className={clsx(
-        "data-[state=active]:text-primary-500 grow basis-0 border-t-transparent py-2 text-sm",
+        "grow basis-0 border-b border-t-transparent py-2 text-sm data-[state=active]:border-b-transparent data-[state=active]:text-primary-500",
       )}
       value={props.value}
     >
@@ -54,22 +61,28 @@ export const ParticipantPage: React.VoidFunctionComponent = () => {
           <Tabs.Root
             value={tab}
             onValueChange={setTab}
-            className="flex h-full flex-col divide-y"
+            className="flex h-full flex-col"
           >
-            <Tabs.Content className="min-h-0 grow" value="/">
-              <EventDetails className="p-6" />
-            </Tabs.Content>
-            <Tabs.Content className="grow" value="/results">
-              <div>Results</div>
-            </Tabs.Content>
-            <Tabs.Content className="min-h-0 grow" value="/comments">
-              <Comments />
-            </Tabs.Content>
-            <Tabs.List className="flex divide-x">
+            <Tabs.List className="flex divide-x border-t">
               <Tab icon={Calendar} title="Meeting" value="/" />
               <Tab icon={Graph} title="Results" value="/results" />
               <Tab icon={Chat} title="Comments" value="/comments" />
             </Tabs.List>
+            <div className="min-h-0 grow overflow-auto">
+              <MeetingTabRouterProvider>
+                <NewResponseReducerProvider>
+                  <Tabs.Content className="h-full" value="/">
+                    <MeetingTab />
+                  </Tabs.Content>
+                </NewResponseReducerProvider>
+              </MeetingTabRouterProvider>
+              <Tabs.Content className="h-full" value="/results">
+                <div>Results</div>
+              </Tabs.Content>
+              <Tabs.Content className="h-full" value="/comments">
+                <Comments />
+              </Tabs.Content>
+            </div>
           </Tabs.Root>
         </ParticipantPageLayout>
       </TargetTimezoneProvider>

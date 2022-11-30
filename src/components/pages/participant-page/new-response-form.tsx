@@ -1,12 +1,15 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Trans, useTranslation } from "next-i18next";
 import React from "react";
+import { createReducerContext } from "react-use";
 
 import Calendar from "@/components/icons/calendar.svg";
 
 import { Button } from "../../button";
 import Steps from "../../steps";
 import { EventDetails } from "./event-details";
+import { ParticipantPageHeader } from "./header";
+import { useMeetingTabRouter } from "./meeting-tab";
 import {
   ParticipantDetailsForm,
   ParticipantDetailsFormData,
@@ -70,24 +73,30 @@ const AnimatedContainer: React.VoidFunctionComponent<{
   );
 };
 
-export const NewResponseForm = (props: { onCancel?: () => void }) => {
-  const { title, user, options } = usePoll();
-
-  const [state, dispatch] = React.useReducer(reducer, {
+export const [useNewResponseReducer, NewResponseReducerProvider] =
+  createReducerContext(reducer, {
     step: "voting",
     votes: {
-      options,
+      votes: [],
     },
   });
+
+export const NewResponseForm = (props: { onCancel?: () => void }) => {
+  const [state, dispatch] = useNewResponseReducer();
+
+  const [, setRouter] = useMeetingTabRouter();
   const { t } = useTranslation("app");
   return (
     <div className="flex h-full flex-col divide-y">
-      <div className="shrink-0 py-3 px-4">
-        <Steps<NewResponseFormState["step"]>
-          steps={["voting", "enteringDetails"]}
-          current={state.step}
-        />
-      </div>
+      <ParticipantPageHeader
+        left={<div>Select preferred times</div>}
+        right={
+          <Steps<NewResponseFormState["step"]>
+            steps={["voting", "enteringDetails"]}
+            current={state.step}
+          />
+        }
+      />
       <div className="min-h-0 grow overflow-auto ">
         <AnimatePresence initial={false} exitBeforeEnter={true}>
           {state.step === "voting" ? (

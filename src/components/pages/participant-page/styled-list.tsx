@@ -17,7 +17,7 @@ const Marker: React.VoidFunctionComponent<{
   return (
     <div
       className={clsx(
-        "sticky top-0 z-20 h-12 select-none items-center border-b bg-white/90 px-4",
+        "sticky top-0 z-20 h-10 select-none items-center border-b bg-white/90 px-4",
         className,
       )}
     >
@@ -49,7 +49,7 @@ const DateMarker: React.VoidFunctionComponent<{ value: string }> = ({
   return (
     <Marker className="flex justify-between">
       <div>
-        <span className="text-lg font-bold">{dayjs(value).format("D")}</span>
+        <span className="font-semibold">{dayjs(value).format("D")}</span>
         <span className="text-slate-700/75">{dayjs(value).format(" ddd")}</span>
       </div>
       <div className="text-slate-700/50">

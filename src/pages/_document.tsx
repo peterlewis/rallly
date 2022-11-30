@@ -28,7 +28,7 @@ export default function Document() {
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono&display=optional"
           rel="stylesheet"
         />
-        <meta name="theme-color" content="#f9fafb" />
+        <meta name="theme-color" content="#ffffff" />
       </Head>
       <body>
         <Main />

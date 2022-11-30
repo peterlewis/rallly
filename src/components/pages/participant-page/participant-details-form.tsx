@@ -23,7 +23,7 @@ export const ParticipantDetailsForm = (props: {
   const { t } = useTranslation("app");
   return (
     <form
-      className={clsx("flex h-full flex-col", props.className)}
+      className={clsx("flex grow flex-col", props.className)}
       onSubmit={handleSubmit(async (data) => {
         await props.onSubmit?.(data);
       })}
