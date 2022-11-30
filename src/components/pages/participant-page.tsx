@@ -1,119 +1,78 @@
-import { VoteType } from "@prisma/client";
-import { AnimatePresence, motion } from "framer-motion";
-import { useTranslation } from "next-i18next";
+import * as Tabs from "@radix-ui/react-tabs";
+import clsx from "clsx";
 import React from "react";
 import { createStateContext } from "react-use";
 
-import Menu from "@/components/icons/menu.svg";
-import Logo from "~/public/logo.svg";
+import Calendar from "@/components/icons/calendar.svg";
+import Chat from "@/components/icons/chat.svg";
+import Graph from "@/components/icons/graph.svg";
 
 import { getBrowserTimeZone } from "../../utils/date-time-utils";
-import { trpcNext } from "../../utils/trpc";
-import { Button } from "../button";
-import { useUser } from "../user-provider";
-import { Confirmation } from "./participant-page/confirmation";
-import { FirstStep } from "./participant-page/first-step";
+import { Comments } from "./participant-page/comments";
+import { EventDetails } from "./participant-page/event-details";
 import { ParticipantPageLayout } from "./participant-page/layout";
-import { ParticipantDetailsForm } from "./participant-page/participant-details-form";
+import { NewResponseForm } from "./participant-page/new-response-form";
 import { usePoll } from "./participant-page/poll-context";
-import {
-  TargetTimezone,
-  TargetTimezoneProvider,
-} from "./participant-page/target-timezone";
+import { ParticipantPageRouterProvider } from "./participant-page/router";
+import { TargetTimezoneProvider } from "./participant-page/target-timezone";
 
-const AnimatedContainer: React.VoidFunctionComponent<{
-  children?: React.ReactNode;
-}> = ({ children }) => {
+const Tab = (props: {
+  value: string;
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+}) => {
+  const Icon = props.icon;
   return (
-    <motion.div
-      layout="position"
-      transition={{ duration: 0.2 }}
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
+    <Tabs.Trigger
+      className={clsx(
+        "data-[state=active]:text-primary-500 grow basis-0 border-t-transparent py-2 text-sm",
+      )}
+      value={props.value}
     >
-      {children}
-    </motion.div>
+      <div className="text-center">
+        <Icon className="inline-block h-5" />
+        <div>{props.title}</div>
+      </div>
+    </Tabs.Trigger>
   );
-};
-
-const useCreateParticipant = () => {
-  return trpcNext.participant.add.useMutation();
 };
 
 export const ParticipantPage: React.VoidFunctionComponent = () => {
   const data = usePoll();
 
-  const { t } = useTranslation("app");
-  const [step, setStep] = React.useState(1);
-  const { user } = useUser();
-  const [votes, setVotes] = React.useState<Record<string, VoteType>>(() => {
-    const v: Record<string, VoteType> = {};
-    const participant = data?.participants.find(
-      ({ userId }) => userId === user.id,
-    );
-    if (participant) {
-      participant.votes.forEach(({ optionId, type }) => {
-        v[optionId] = type;
-      });
-    }
-    return v;
-  });
-
-  const createParticipant = useCreateParticipant();
+  const [tab, setTab] = React.useState<string>("/");
 
   return (
-    <TargetTimezoneProvider initialValue={getBrowserTimeZone()}>
-      <ParticipantPageLayout>
-        <motion.div className="p-4" layout="size">
-          <AnimatePresence initial={false} exitBeforeEnter={true}>
-            <AnimatedContainer key={step}>
-              {step === 1 ? (
-                <FirstStep
-                  votes={votes}
-                  onSubmit={(data) => {
-                    setVotes(
-                      data.value.reduce<Record<string, VoteType>>(
-                        (acc, curr) => {
-                          acc[curr.id] = curr.vote ?? "no";
-                          return acc;
-                        },
-                        {},
-                      ),
-                    );
-                    setStep(2);
-                  }}
-                />
-              ) : step === 2 ? (
-                <>
-                  <div className="mb-3">
-                    <Button onClick={() => setStep(1)}>{t("back")}</Button>
-                  </div>
-                  <ParticipantDetailsForm
-                    onSubmit={async (user) => {
-                      await createParticipant.mutateAsync({
-                        name: user.name,
-                        email: user.email,
-                        id: data.id,
-                        votes: Object.entries(votes).map(
-                          ([optionId, vote]) => ({
-                            optionId,
-                            vote,
-                          }),
-                        ),
-                      });
-                      // create participant
-                      setStep(3);
-                    }}
-                  />
-                </>
-              ) : (
-                <Confirmation />
-              )}
-            </AnimatedContainer>
-          </AnimatePresence>
-        </motion.div>
-      </ParticipantPageLayout>
-    </TargetTimezoneProvider>
+    <ParticipantPageRouterProvider
+      initialState={{
+        path: "vote",
+        votes: data.options.map((option) => ({ optionId: option.id })),
+      }}
+    >
+      <TargetTimezoneProvider initialValue={getBrowserTimeZone()}>
+        <ParticipantPageLayout>
+          <Tabs.Root
+            value={tab}
+            onValueChange={setTab}
+            className="flex h-full flex-col divide-y"
+          >
+            <Tabs.Content className="min-h-0 grow" value="/">
+              <EventDetails className="p-6" />
+            </Tabs.Content>
+            <Tabs.Content className="grow" value="/results">
+              <div>Results</div>
+            </Tabs.Content>
+            <Tabs.Content className="min-h-0 grow" value="/comments">
+              <Comments />
+            </Tabs.Content>
+            <Tabs.List className="flex divide-x">
+              <Tab icon={Calendar} title="Meeting" value="/" />
+              <Tab icon={Graph} title="Results" value="/results" />
+              <Tab icon={Chat} title="Comments" value="/comments" />
+            </Tabs.List>
+          </Tabs.Root>
+        </ParticipantPageLayout>
+      </TargetTimezoneProvider>
+    </ParticipantPageRouterProvider>
   );
 };

@@ -19,10 +19,7 @@ type PollContextValue = {
     id: string;
     name: string;
     userId: string | null;
-    votes: {
-      optionId: string;
-      type: VoteType;
-    }[];
+    createdAt: Date;
   }[];
   votes: {
     participantId: string;

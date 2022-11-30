@@ -25,8 +25,8 @@ export const TargetTimezone = () => {
   );
 };
 
-export const useConvertToTargetTimezone = () => {
-  const [targetTimezone] = useTargetTimezone();
+export const useLocalTime = () => {
+  const [targetTimezone, setTargetTimezone] = useTargetTimezone();
   const { timeZone } = usePoll();
 
   const convertToTargetTimezone = React.useCallback(
@@ -42,5 +42,10 @@ export const useConvertToTargetTimezone = () => {
     [targetTimezone, timeZone],
   );
 
-  return { convertToTargetTimezone };
+  return {
+    origintalTimezone: timeZone,
+    targetTimezone,
+    setTargetTimezone,
+    convertToTargetTimezone,
+  };
 };

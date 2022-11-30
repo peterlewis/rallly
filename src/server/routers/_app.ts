@@ -55,14 +55,7 @@ export const appRouter = mergeRouters(
                   id: true,
                   userId: true,
                   name: true,
-                  // TODO (Luke Vella) [2022-11-24]: Remove this
-                  votes: {
-                    select: {
-                      optionId: true,
-                      participantId: true,
-                      type: true,
-                    },
-                  },
+                  createdAt: true,
                 },
               },
               votes: {
@@ -111,7 +104,7 @@ export const appRouter = mergeRouters(
           }),
         )
         .use(async ({ input, next }) => {
-          const poll = await prisma.poll.findUnique({
+          const poll = await prisma.poll.findFirst({
             where: {
               id: input.id,
             },
@@ -143,6 +136,40 @@ export const appRouter = mergeRouters(
           });
 
           return participant;
+        }),
+      delete: publicProcedure
+        .input(
+          z.object({
+            id: z.string(),
+          }),
+        )
+        .mutation(async ({ input }) => {
+          await prisma.participant.delete({
+            where: {
+              id: input.id,
+            },
+          });
+        }),
+    }),
+    comments: router({
+      list: publicProcedure
+        .input(
+          z.object({
+            pollId: z.string(),
+          }),
+        )
+        .query(async ({ input }) => {
+          return await prisma.comment.findMany({
+            where: {
+              pollId: input.pollId,
+            },
+            select: {
+              id: true,
+              createdAt: true,
+              userId: true,
+              content: true,
+            },
+          });
         }),
     }),
   }),

@@ -1,36 +1,18 @@
-import { VoteType } from "@prisma/client";
 import React from "react";
 
-import { EventDetails } from "./event-details";
+import { Confirmation } from "./confirmation";
+import { ParticipantDetailsForm } from "./participant-details-form";
 import { ParticipantsContextProvider } from "./participants-context";
 import { Poll } from "./poll";
 import { usePoll } from "./poll-context";
-import { Results } from "./results";
+import { useParticipantPageRouter } from "./router";
 
-type Option = {
-  vote?: VoteType;
-  id: string;
-};
-
-type FirstStepForm = {
-  value: Option[];
-};
-
-export const FirstStep: React.VoidFunctionComponent<{
-  votes?: Record<string, VoteType>;
-  onSubmit: (value: FirstStepForm) => void;
-}> = () => {
+export const FirstStep: React.VoidFunctionComponent = () => {
   const data = usePoll();
-
+  const [state] = useParticipantPageRouter();
   return (
-    <ParticipantsContextProvider
-      seed={data.id}
-      participants={data.participants}
-    >
-      <div className="space-y-4">
-        {/* <Results /> */}
-        <Poll />
-      </div>
+    <ParticipantsContextProvider participants={data.participants}>
+      {state.path === "vote" ? <Poll /> : null}
     </ParticipantsContextProvider>
   );
 };

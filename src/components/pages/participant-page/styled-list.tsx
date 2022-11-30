@@ -2,6 +2,7 @@ import clsx from "clsx";
 import React from "react";
 
 import { useDayjs } from "../../../utils/dayjs";
+import { useLocalTime } from "./target-timezone";
 
 export interface Option {
   id: string;
@@ -32,7 +33,7 @@ const MonthMarker: React.VoidFunctionComponent<{ value: string }> = ({
   return (
     <Marker className="flex items-center">
       <div>
-        <span className="text-lg font-bold">{dayjs(value).format("MMMM")}</span>
+        <span className="font-semibold">{dayjs(value).format("MMMM")}</span>
         <span className="text-slate-700/50">
           {dayjs(value).format(" YYYY")}
         </span>
@@ -99,11 +100,13 @@ export const StyledList = <O extends Option>({
 }) => {
   const GroupHeader = options[0].duration > 0 ? DateMarker : MonthMarker;
 
+  const { convertToTargetTimezone } = useLocalTime();
+
   const grouped = React.useMemo(() => {
     const groupBy =
       options[0].duration > 0
-        ? (option: O) => option.start.substring(0, 10)
-        : (option: O) => option.start.substring(0, 7);
+        ? (option: O) => convertToTargetTimezone(option.start.substring(0, 10))
+        : (option: O) => convertToTargetTimezone(option.start.substring(0, 7));
 
     const itemsByGroup: Record<string, IndexedItem<O>[]> = {};
     options.forEach((item, index) => {
@@ -115,7 +118,7 @@ export const StyledList = <O extends Option>({
       }
     });
     return Object.entries(itemsByGroup);
-  }, [options]);
+  }, [convertToTargetTimezone, options]);
 
   return (
     <div className={clsx("divide-y", className)}>

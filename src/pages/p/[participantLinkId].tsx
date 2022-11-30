@@ -12,7 +12,6 @@ import {
 import { withUserSession } from "../../components/user-provider";
 import { createContext } from "../../server/context";
 import { appRouter } from "../../server/routers/_app";
-import { participants } from "../../server/routers/polls/participants";
 import { withSessionSsr } from "../../utils/auth";
 import { DayjsProvider } from "../../utils/dayjs";
 import { trpcNext } from "../../utils/trpc";
@@ -35,7 +34,6 @@ const Page = () => {
   }
 
   const voteByOptionId = groupBy(data.votes, "optionId");
-  const voteByParticipantId = groupBy(data.votes, "participantId");
 
   return (
     <PollContext.Provider value={data}>

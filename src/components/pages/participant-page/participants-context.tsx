@@ -1,11 +1,9 @@
-import { VoteType } from "@prisma/client";
 import React from "react";
 
 export const ParticipantsContext = React.createContext<
   Array<{
     id: string;
     name: string;
-    votes: Array<{ optionId: string; type: VoteType }>;
     color: string;
     userId: string;
   }>
@@ -25,14 +23,12 @@ const colors = [
 export const ParticipantsContextProvider = ({
   participants,
   children,
-  seed,
 }: {
-  seed: string;
   participants: Array<{
     id: string;
     name: string;
-    votes: Array<{ optionId: string; type: VoteType }>;
-    userId: string | null; // TODO (Luke Vella) [2022-11-21]: Update db schema so that user Id cannot be nulk
+    createdAt: Date;
+    userId: string | null; // TODO (Luke Vella) [2022-11-21]: Update db schema so that user Id cannot be null
   }>;
   children?: React.ReactNode;
 }) => {
@@ -42,6 +38,7 @@ export const ParticipantsContextProvider = ({
         .map((participant, i) => ({
           ...participant,
           color: colors[i % colors.length],
+          userId: participant.id ?? "", // TODO (Luke Vella) [2022-11-29]: Remove default to empty string once schema is updated
         }))
         .sort((a, b) => a.name.localeCompare(b.name)),
     [participants],

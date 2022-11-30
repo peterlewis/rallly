@@ -10,6 +10,19 @@ import { AppRouter } from "../server/routers/_app";
 export const trpc = createReactQueryHooks<AppRouter>();
 
 export const trpcNext = createTRPCNext<AppRouter>({
+  unstable_overrides: {
+    useMutation: {
+      async onSuccess(opts) {
+        /**
+         * @note that order here matters:
+         * The order here allows route changes in `onSuccess` without
+         * having a flash of content change whilst redirecting.
+         **/
+        await opts.originalFn();
+        await opts.queryClient.invalidateQueries();
+      },
+    },
+  },
   config() {
     return {
       links: [

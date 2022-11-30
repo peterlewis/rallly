@@ -3,8 +3,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import CheckCircle from "@/components/icons/check-circle.svg";
 
 import { Button } from "../../button";
+import { useParticipantPageRouter } from "./router";
 
 export const Confirmation = () => {
+  const [, dispatch] = useParticipantPageRouter();
   return (
     <div className="p-6 text-center">
       <AnimatePresence>
@@ -21,8 +23,13 @@ export const Confirmation = () => {
         Your submission has been saved
       </div>
       <div className="action-group justify-center">
-        <Button>Edit submission</Button>
-        <Button>View results</Button>
+        <Button
+          onClick={() => {
+            dispatch({ type: "goBack" });
+          }}
+        >
+          Go back
+        </Button>
       </div>
     </div>
   );
