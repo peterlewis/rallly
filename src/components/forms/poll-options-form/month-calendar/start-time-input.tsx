@@ -34,7 +34,7 @@ export const StartTimeInput = React.forwardRef<
         <input
           value={value}
           className={clsx(
-            "rounded border-0 p-0 focus:ring-2 focus:ring-primary-500",
+            "rounded border-0 p-0 text-lg focus:ring-2 focus:ring-primary-500",
             {
               "border-rose-500": error,
             },

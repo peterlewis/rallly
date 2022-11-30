@@ -144,7 +144,8 @@ interface DateOrTimeSelectorProps {
 
 export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorProps> =
   ({ defaultDate }) => {
-    const { control, register } = useFormContext<NewPollFormData>();
+    const { control, setValue, getValues, register } =
+      useFormContext<NewPollFormData>();
     const { fields, append, insert, remove } = useFieldArray({
       control,
       name: "dates",
@@ -153,10 +154,11 @@ export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorP
     const duration = useWatch({ control, name: "duration" });
     const { errors } = useFormState({ control });
     return (
-      <div className="space-y-3 md:flex md:items-start md:space-x-3 md:space-y-0">
+      <div className="gap-3 space-y-3 rounded-md border p-3 md:flex md:items-start md:space-x-3 md:space-y-0">
         <div
-          className={clsx("rounded-md border p-3 md:w-[440px]", {
-            "border-rose-500 ring-1 ring-rose-500": !!errors.dates?.root,
+          className={clsx("md:w-[440px]", {
+            "rounded-md ring-1 ring-primary-500 ring-offset-4":
+              !!errors.dates?.root,
           })}
         >
           <Controller
@@ -199,7 +201,7 @@ export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorP
             }}
           />
         </div>
-        <div className="grow space-y-3 rounded border p-3">
+        <div className="grow space-y-3">
           <div className="action-group">
             <span className="font-semibold">{t("durationLabel")}</span>
             <Controller
@@ -217,14 +219,44 @@ export const DateOrTimeSelector: React.VoidFunctionComponent<DateOrTimeSelectorP
               }}
             />
           </div>
-          {fields.length > 1 && duration > 0 ? (
+          {fields.length > 0 && duration > 0 ? (
             <div className="space-y-3">
-              <div className="flex h-10 rounded items-center gap-3 border px-3">
+              <div className="flex h-10 items-center gap-3 rounded border px-3">
                 <input
                   id="date-sync"
                   type="checkbox"
                   className="checkbox"
-                  {...register("shouldUseSameTimeForAllDates")}
+                  {...register("shouldUseSameTimeForAllDates", {
+                    onChange: (e) => {
+                      if (e.target.checked) {
+                        const dates = getValues("dates");
+                        const uniqueTimes = new Set<string>();
+                        for (const date of dates) {
+                          for (const { time } of date.times) {
+                            if (time) {
+                              uniqueTimes.add(time);
+                            }
+                          }
+                        }
+                        setValue(
+                          "globalTimes",
+                          Array.from(uniqueTimes)
+                            .sort()
+                            .map((time) => ({ time })),
+                        );
+                      } else {
+                        const { globalTimes, dates } = getValues();
+                        setValue(
+                          "dates",
+                          produce(dates, (dates) => {
+                            for (const date of dates) {
+                              date.times = [...globalTimes];
+                            }
+                          }),
+                        );
+                      }
+                    },
+                  })}
                 />
                 <label htmlFor="date-sync">
                   <Trans

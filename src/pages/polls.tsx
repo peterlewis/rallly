@@ -70,7 +70,7 @@ const Polls: React.VoidFunctionComponent = () => {
               exit={{ opacity: 0 }}
               layout="position"
               key={poll.id}
-              className="card flex overflow-hidden p-4"
+              className="flex overflow-hidden rounded-md border p-4"
             >
               <div className="grow">
                 <div className="flex justify-between space-x-2">
