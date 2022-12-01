@@ -44,7 +44,7 @@ export const Poll = () => {
 
   const userParticipants = useUserParticipants();
   const queryClient = trpcNext.useContext();
-  const deleteParticipant = trpcNext.participant.delete.useMutation({
+  const deleteParticipant = trpcNext.participants.delete.useMutation({
     onSuccess() {
       queryClient.invalidate();
     },

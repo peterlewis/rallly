@@ -1,14 +1,11 @@
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import groupBy from "lodash/groupBy";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import superjson from "superjson";
 
+import { prisma } from "~/prisma/db";
+
 import { ParticipantPage } from "../../components/pages/participant-page";
-import {
-  OptionsContext,
-  PollContext,
-} from "../../components/pages/participant-page/poll-context";
+import { PollContext } from "../../components/pages/participant-page/poll-context";
 import { withUserSession } from "../../components/user-provider";
 import { createContext } from "../../server/context";
 import { appRouter } from "../../server/routers/_app";
@@ -17,11 +14,10 @@ import { DayjsProvider } from "../../utils/dayjs";
 import { trpcNext } from "../../utils/trpc";
 import { withPageTranslations } from "../../utils/with-page-translations";
 
-const Page = () => {
-  const router = useRouter();
-  const { data } = trpcNext.poll.getByParticipantLinkId.useQuery(
+const Page = (props: { pollId: string }) => {
+  const { data } = trpcNext.poll.get.useQuery(
     {
-      id: router.query.participantLinkId as string,
+      id: props.pollId,
     },
     {
       staleTime: 10000,
@@ -33,33 +29,14 @@ const Page = () => {
     return null;
   }
 
-  const voteByOptionId = groupBy(data.votes, "optionId");
-
   return (
     <PollContext.Provider value={data}>
-      <OptionsContext.Provider
-        value={{
-          options: data.options.reduce((optionsById, option) => {
-            optionsById[option.id] = {
-              ...option,
-              score: voteByOptionId[option.id].reduce((score, vote) => {
-                if (vote.type === "yes") {
-                  return score + 1;
-                }
-                return score;
-              }, 0),
-            };
-            return optionsById;
-          }, {}),
-        }}
-      >
-        <DayjsProvider>
-          <Head>
-            <title>{data.title}</title>
-          </Head>
-          <ParticipantPage />
-        </DayjsProvider>
-      </OptionsContext.Provider>
+      <DayjsProvider>
+        <Head>
+          <title>{data.title}</title>
+        </Head>
+        <ParticipantPage />
+      </DayjsProvider>
     </PollContext.Provider>
   );
 };
@@ -79,8 +56,36 @@ export const getServerSideProps = withSessionSsr(async (ctx) => {
   ])(ctx);
 
   const participantLinkId = ctx.params?.participantLinkId as string;
-  await ssg.poll.getByParticipantLinkId.prefetch({
-    id: participantLinkId,
+
+  const poll = await prisma.poll.findUnique({
+    where: {
+      participantUrlId: participantLinkId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!poll) {
+    return {
+      notFound: true,
+    };
+  }
+
+  await ssg.poll.get.prefetch({
+    id: poll.id,
+  });
+
+  await ssg.participants.list.prefetch({
+    pollId: poll.id,
+  });
+
+  await ssg.options.list.prefetch({
+    pollId: poll.id,
+  });
+
+  await ssg.votes.list.prefetch({
+    pollId: poll.id,
   });
 
   if ("props" in res) {
@@ -88,7 +93,7 @@ export const getServerSideProps = withSessionSsr(async (ctx) => {
       props: {
         ...res.props,
         trpcState: ssg.dehydrate(),
-        participantLinkId,
+        pollId: poll.id,
       },
     };
   } else {

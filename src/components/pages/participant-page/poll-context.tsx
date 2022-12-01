@@ -1,7 +1,7 @@
-import { VoteType } from "@prisma/client";
 import dayjs from "dayjs";
 import React from "react";
 
+import { trpcNext } from "../../../utils/trpc";
 import { useRequiredContext } from "../../use-required-context";
 import { useTargetTimezone } from "./target-timezone";
 
@@ -15,23 +15,7 @@ type PollContextValue = {
   user: {
     name: string;
   } | null;
-  participants: {
-    id: string;
-    name: string;
-    userId: string | null;
-    createdAt: Date;
-  }[];
-  votes: {
-    participantId: string;
-    optionId: string;
-    type: VoteType;
-  }[];
   timeZone: string | null;
-  options: {
-    id: string;
-    start: string;
-    duration: number;
-  }[];
 };
 
 export const PollContext = React.createContext<PollContextValue | null>(null);
@@ -40,36 +24,47 @@ export const usePoll = () => {
   return useRequiredContext(PollContext, "PollContext");
 };
 
-export const OptionsContext = React.createContext<{
-  options: Record<string, { start: string; duration: number; score?: number }>;
-}>({ options: {} });
+export const useOptions = () => {
+  const poll = usePoll();
+  const { data = [] } = trpcNext.options.list.useQuery({ pollId: poll.id });
 
-export const usePollOptions = () => {
-  return React.useContext(OptionsContext);
+  return data;
 };
 
 export const useOption = (id: string) => {
   const [targetTimezone] = useTargetTimezone();
-  const { timeZone } = usePoll();
+  const poll = usePoll();
 
-  const { options } = usePollOptions();
+  const options = useOptions();
 
   const option = React.useMemo(() => {
-    const o = options[id];
-    if (timeZone && o.duration > 0) {
+    const option = options.find((o) => o.id === id);
+    if (!option) {
+      throw new Error(
+        "Called useOption() with an id of an option that doesn't exist",
+      );
+    }
+    if (poll.timeZone && option.duration > 0) {
       return {
-        start: dayjs(o.start)
-          .tz(timeZone)
+        start: dayjs(option.start)
+          .tz(poll.timeZone)
           .tz(targetTimezone)
           .format("YYYY-MM-DDTHH:mm:ss"),
-        duration: o.duration,
+        duration: option.duration,
       };
     }
 
-    return o;
-  }, [id, options, targetTimezone, timeZone]);
+    return option;
+  }, [id, options, targetTimezone, poll.timeZone]);
 
   return { option };
+};
+
+export const useVotes = () => {
+  const poll = usePoll();
+  const { data = [] } = trpcNext.votes.list.useQuery({ pollId: poll.id });
+
+  return data;
 };
 
 const colors = [
@@ -84,7 +79,11 @@ const colors = [
 ];
 
 export const useParticipants = () => {
-  const { participants } = usePoll();
+  const poll = usePoll();
+  const { data: participants = [] } = trpcNext.participants.list.useQuery({
+    pollId: poll.id,
+  });
+
   const getParticipant = React.useCallback(
     (participantId: string) => {
       const index = participants.findIndex(

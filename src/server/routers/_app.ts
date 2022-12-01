@@ -16,18 +16,21 @@ const legacyRouter = createRouter()
   .merge("auth.", auth)
   .merge("user.", user);
 
+const pollPublicProcedure = publicProcedure.input(
+  z.object({ pollId: z.string() }),
+);
+
 export const appRouter = mergeRouters(
   legacyRouter.interop(),
   router({
     poll: router({
-      getByParticipantLinkId: publicProcedure
-        .input(
-          z.object({
-            id: z.string(),
-          }),
-        )
-        .query(async ({ input, ctx }) => {
-          const poll = await prisma.poll.findUnique({
+      get: publicProcedure
+        .input(z.object({ id: z.string() }))
+        .query(async ({ input }) => {
+          return await prisma.poll.findUnique({
+            where: {
+              id: input.id,
+            },
             select: {
               id: true,
               title: true,
@@ -41,54 +44,63 @@ export const appRouter = mergeRouters(
                   name: true,
                 },
               },
-              options: {
-                orderBy: {
-                  value: "asc",
-                },
-                select: {
-                  id: true,
-                  value: true,
-                },
-              },
-              participants: {
-                select: {
-                  id: true,
-                  userId: true,
-                  name: true,
-                  createdAt: true,
-                },
-              },
-              votes: {
-                select: {
-                  optionId: true,
-                  participantId: true,
-                  type: true,
-                },
-              },
-            },
-            where: {
-              participantUrlId: input.id,
             },
           });
-
-          if (!poll) {
-            throw new TRPCError({ code: "NOT_FOUND" });
-          }
-
-          return {
-            ...poll,
-            options: poll.options.map((option) => {
-              const o = parseValue(option.value);
-              const start = o.type === "date" ? o.date : o.start;
-              const duration =
-                o.type === "date" ? 0 : dayjs(o.end).diff(o.start, "minutes");
-
-              return { start, duration, id: option.id };
-            }),
-          };
         }),
     }),
-    participant: router({
+    votes: router({
+      list: pollPublicProcedure.query(async ({ input }) => {
+        return await prisma.vote.findMany({
+          where: {
+            pollId: input.pollId,
+          },
+          select: {
+            optionId: true,
+            participantId: true,
+            type: true,
+          },
+        });
+      }),
+    }),
+    options: router({
+      list: pollPublicProcedure.query(async ({ input }) => {
+        const options = await prisma.option.findMany({
+          where: {
+            pollId: input.pollId,
+          },
+          orderBy: {
+            value: "asc",
+          },
+          select: {
+            id: true,
+            value: true,
+          },
+        });
+
+        return options.map((option) => {
+          const o = parseValue(option.value);
+          const start = o.type === "date" ? o.date : o.start;
+          const duration =
+            o.type === "date" ? 0 : dayjs(o.end).diff(o.start, "minutes");
+
+          return { start, duration, id: option.id };
+        });
+      }),
+    }),
+    participants: router({
+      list: pollPublicProcedure.query(async ({ input }) => {
+        return await prisma.participant.findMany({
+          where: {
+            pollId: input.pollId,
+          },
+          select: {
+            id: true,
+            userId: true,
+            name: true,
+            createdAt: true,
+          },
+        });
+      }),
       add: publicProcedure
         .input(
           z.object({

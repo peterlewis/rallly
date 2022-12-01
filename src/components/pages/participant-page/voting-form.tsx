@@ -3,7 +3,7 @@ import React from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "../../button";
-import { usePoll } from "./poll-context";
+import { useOptions, usePoll } from "./poll-context";
 import { PollOption } from "./poll-option";
 import { StyledList } from "./styled-list";
 
@@ -15,7 +15,7 @@ export const VotingForm: React.VoidFunctionComponent<{
   onSubmit?: (data: VotingFormData) => Promise<void> | void;
   onCancel?: () => void;
 }> = (props) => {
-  const { options } = usePoll();
+  const options = useOptions();
   const { control, handleSubmit } = useForm<VotingFormData>({
     defaultValues: props.defaultValues,
   });

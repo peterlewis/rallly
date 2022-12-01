@@ -7,7 +7,7 @@ import { Button } from "../../button";
 import { ScoreSummary } from "../../poll/score-summary";
 import VoteIcon from "../../poll/vote-icon";
 import { useVoteState, VoteSelector } from "../../poll/vote-selector";
-import { useOption, useParticipant, usePoll } from "./poll-context";
+import { useOption, useParticipant, usePoll, useVotes } from "./poll-context";
 import { StyledListItem } from "./styled-list";
 
 const Participant: React.VoidFunctionComponent<{ participantId: string }> = ({
@@ -65,7 +65,7 @@ const ParticipantList: React.VoidFunctionComponent<{
 const VoteSummary: React.VoidFunctionComponent<{ optionId: string }> = ({
   optionId,
 }) => {
-  const { votes } = usePoll();
+  const votes = useVotes();
 
   const { yes, ifNeedBe, no } = votes.reduce<Record<VoteType, string[]>>(
     (acc, curr) => {

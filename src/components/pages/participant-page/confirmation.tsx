@@ -3,10 +3,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import CheckCircle from "@/components/icons/check-circle.svg";
 
 import { Button } from "../../button";
-import { useParticipantPageRouter } from "./router";
 
 export const Confirmation = () => {
-  const [, dispatch] = useParticipantPageRouter();
   return (
     <div className="p-6 text-center">
       <AnimatePresence>
@@ -25,7 +23,7 @@ export const Confirmation = () => {
       <div className="action-group justify-center">
         <Button
           onClick={() => {
-            dispatch({ type: "goBack" });
+            // go back
           }}
         >
           Go back
