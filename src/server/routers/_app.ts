@@ -44,6 +44,7 @@ export const appRouter = mergeRouters(
                   name: true,
                 },
               },
+              participantUrlId: true,
             },
           });
         }),

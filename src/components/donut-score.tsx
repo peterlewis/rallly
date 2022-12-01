@@ -30,7 +30,7 @@ export const DonutScore: React.VoidFunctionComponent<{
     >
       <div
         className={clsx(
-          "flex h-full w-full items-center justify-center rounded-full bg-white p-1 font-mono font-bold",
+          "flex h-full w-full items-center justify-center rounded-full bg-white p-1 text-sm font-semibold text-slate-500",
         )}
       >
         {yes}

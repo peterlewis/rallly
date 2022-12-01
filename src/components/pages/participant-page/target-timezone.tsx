@@ -2,10 +2,12 @@ import dayjs from "dayjs";
 import React from "react";
 import { createStateContext } from "react-use";
 
+import { getBrowserTimeZone } from "../../../utils/date-time-utils";
 import { usePoll } from "./poll-context";
 
-export const [useTargetTimezone, TargetTimezoneProvider] =
-  createStateContext("");
+export const [useTargetTimezone, TargetTimezoneProvider] = createStateContext(
+  getBrowserTimeZone(),
+);
 
 export const TargetTimezone = () => {
   const poll = usePoll();
