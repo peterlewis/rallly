@@ -2,7 +2,6 @@ import { VoteType } from "@prisma/client";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
-import _ from "lodash";
 import { useTranslation } from "next-i18next";
 import React from "react";
 
@@ -11,7 +10,6 @@ import { DonutScore } from "../../../donut-score";
 import {
   useOption,
   useOptions as useAllOptions,
-  useParticipant,
   useParticipants,
   useVote,
   useVotes,
@@ -49,7 +47,7 @@ const Cell = (
   return (
     <div
       className={clsx(
-        "flex w-20 grow items-center justify-center rounded border shadow-sm",
+        "flex h-16 grow items-center justify-center rounded border shadow-sm",
         {
           "border-green-500/20 bg-green-50 text-green-500":
             props.vote === "yes",
@@ -106,25 +104,6 @@ const Vote = (props: { participantId: string; optionId: string }) => {
   );
 };
 
-const Row = (props: { participantId: string }) => {
-  const participant = useParticipant(props.participantId);
-  const options = useOptions();
-
-  return (
-    <div className="flex h-16 w-fit min-w-full grow gap-2">
-      {options.map((option) => {
-        return (
-          <Vote
-            optionId={option.id}
-            participantId={participant.id}
-            key={option.id}
-          />
-        );
-      })}
-    </div>
-  );
-};
-
 const Score = (props: { optionId: string }) => {
   const { getVotesForOption } = useVotes();
   const { votesByType } = getVotesForOption(props.optionId);
@@ -140,19 +119,6 @@ const Score = (props: { optionId: string }) => {
         <Option optionId={props.optionId} />
       </div>
     </Cell>
-  );
-};
-
-const ScoreRow = () => {
-  const options = useOptions();
-  return (
-    <div className="flex w-fit min-w-full gap-2">
-      <div className="flex grow gap-2">
-        {options.map((option) => (
-          <Score key={option.id} optionId={option.id} />
-        ))}
-      </div>
-    </div>
   );
 };
 
@@ -183,8 +149,35 @@ const Sidebar = (props: { className?: string }) => {
   );
 };
 
-export const Results = () => {
+export const Grid = () => {
+  const options = useOptions();
   const { participants } = useParticipants();
+  return (
+    <div className="flex grow gap-2 p-4">
+      {options.map((option) => {
+        return (
+          <motion.div
+            layout="position"
+            key={option.id}
+            className="flex grow basis-0 flex-col gap-2"
+          >
+            <Score optionId={option.id} />
+
+            {participants.map((participant) => {
+              return (
+                <Cell key={participant.id}>
+                  <Vote participantId={participant.id} optionId={option.id} />
+                </Cell>
+              );
+            })}
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+};
+
+export const Results = () => {
   return (
     <ResultsConfigProvider
       initialValue={{
@@ -192,17 +185,10 @@ export const Results = () => {
         orderBy: "date",
       }}
     >
-      <div className="divide-y rounded-md border">
+      <div className="rounded-md border">
         <div className="flex">
           <Sidebar className="space-y-2 p-4" />
-          <div className="grow space-y-2 p-4">
-            <ScoreRow />
-            {participants.map((participant) => {
-              return (
-                <Row key={participant.id} participantId={participant.id} />
-              );
-            })}
-          </div>
+          <Grid />
         </div>
       </div>
     </ResultsConfigProvider>
