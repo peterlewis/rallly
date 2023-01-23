@@ -5,7 +5,7 @@ import "~/style.css";
 import { Inter, Noto_Sans_Mono } from "@next/font/google";
 import { inject } from "@vercel/analytics";
 import { NextPage } from "next";
-import { AppProps } from "next/app";
+import App, { AppProps } from "next/app";
 import Head from "next/head";
 import PlausibleProvider from "next-plausible";
 import { DefaultSeo } from "next-seo";
@@ -29,7 +29,10 @@ const noto = Noto_Sans_Mono({
   display: "swap",
 });
 
-const MyApp: NextPage<AppProps> = ({ Component, pageProps }) => {
+const MyApp: NextPage<AppProps & { test: number }> = ({
+  Component,
+  pageProps,
+}) => {
   useCrispChat();
 
   React.useEffect(() => {
