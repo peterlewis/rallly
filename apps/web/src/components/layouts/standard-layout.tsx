@@ -19,12 +19,9 @@ const appVersion = process.env.NEXT_PUBLIC_APP_VERSION
 const AppVersion = () => {
   if (!appVersion) return null;
 
-  const href = appVersion
-    ? `https://github.com/lukevella/rallly/releases/tag/${appVersion}`
-    : "https://github.com/lukevella/rallly/releases";
   return (
     <Link
-      href={href}
+      href="https://github.com/lukevella/rallly/releases"
       className="fixed bottom-0 left-0 hidden rounded-none rounded-tr px-2 py-1 text-xs text-slate-400 lg:block"
     >
       {appVersion}
